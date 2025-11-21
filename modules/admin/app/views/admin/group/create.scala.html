@@ -1,6 +1,6 @@
 @(f: Form[GroupF], vf: Form[Seq[String]], usersAndGroups: UsersAndGroups, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
-@views.html.admin.layout.rightSidebarWithType(Messages("group.create"), EntityType.Group) {
+@views.html.admin.layout.rightSidebarWithType(Messages("group.create"), EntityType.Group, breadcrumbs = views.html.admin.group.breadcrumbs()) {
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
         @form(None, f)

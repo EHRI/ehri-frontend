@@ -4,11 +4,23 @@
     <link href="@controllers.admin.routes.AdminAssets.versioned("css/datasets.css")" rel="stylesheet">
 }
 
-@breadcrumbRoot = {
-    <a href="@controllers.datasets.routes.ImportDatasets.dashboard()">@Messages("ingest.datasets")</a>
+@breadcrumbs = {
+    @views.html.common.infobar {
+        @item.country.map { country =>
+            <li>
+                <a href="@controllers.countries.routes.Countries.get(country.id)">@country.toStringLang</a>
+            </li>
+        }
+        <li>
+            <a href="@controllers.institutions.routes.Repositories.get(item.id)">@item.toStringLang</a>
+        </li>
+        <li class="active">
+            <a href="@controllers.datasets.routes.ImportDatasets.manager(item.id)">@Messages("ingest.datasets")</a>
+        </li>
+    }
 }
-@views.html.admin.layout.adminSinglePageAppLayout(Messages("repository.data", item.toStringLang), styles = styles,
-        breadcrumbs = views.html.admin.common.breadcrumbs(List(item), breadcrumbRoot)) {
+
+@views.html.admin.layout.adminSinglePageAppLayout(Messages("repository.data", item.toStringLang), styles = styles, breadcrumbs = breadcrumbs) {
     <script src="@controllers.datasets.routes.ImportDatasets.jsRoutes()"></script>
 } {
     <script src="@controllers.admin.routes.AdminAssets.versioned("js/datasets/app.js")"></script>

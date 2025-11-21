@@ -1,6 +1,6 @@
 @(item: Link, form: play.api.data.Form[LinkF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
-@views.html.admin.layout.rightSidebarWithType(Messages("link.update"), item.isA, breadcrumbs = views.html.admin.common.breadcrumbs(List(item)), scripts = formHelpers.formJs(form)) {
+@views.html.admin.layout.rightSidebarWithType(Messages("link.update"), item.isA, breadcrumbs = views.html.admin.link.breadcrumbs(Some(item)), scripts = formHelpers.formJs(form)) {
 	@helper.form(action = action) {
         @views.html.admin.link.linkForm(form)
         @formHelpers.submitButtonWithLogMessageInput(Messages("link.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))

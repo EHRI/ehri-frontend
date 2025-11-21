@@ -72,6 +72,7 @@ annotation.target=Target
 #
 # Linking
 #
+link.list=Links
 link.search=Search Links
 link.linkTo=Links to Other Items
 link.linkTo.item=Create Annotation Link
@@ -480,6 +481,7 @@ group.members=Group Members
 group.members.count=Members: {0}
 group.members.manage=Manage Members
 group.members.submit=Update Members
+group.members.manage.system=This function is not available for system groups.
 
 #
 # Item visibility

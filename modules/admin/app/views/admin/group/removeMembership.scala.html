@@ -2,7 +2,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebar(Messages("accessor.groups.remove.item", item.toStringLang, group.toStringLang), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebar(Messages("accessor.groups.remove.item", item.toStringLang, group.toStringLang), breadcrumbs = views.html.admin.group.breadcrumbs(Some(item))) {
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
 		@views.html.formHelpers.submitButton(Messages("accessor.groups.remove.submit"))

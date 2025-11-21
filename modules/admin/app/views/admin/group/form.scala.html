@@ -1,4 +1,4 @@
-@(item: Option[Group], f: Form[GroupF])(implicit messages: Messages, md: MarkdownRenderer)
+@(item: Option[Group], f: Form[GroupF])(implicit messages: Messages, md: MarkdownRenderer, appConfig: AppConfig)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
@@ -6,5 +6,7 @@
     @formHelpers.lineInput(f(""), Entity.IDENTIFIER, attrs._autocomplete -> "off")
     @formHelpers.lineInput(f(""), GroupF.NAME)
     @formHelpers.textInput(f(""), GroupF.DESCRIPTION)
-    @formHelpers.checkbox(f(""), GroupF.ACTIVE)
+    @if(item.isDefined && item.exists(!_.isSystemGroup(appConfig.defaultPortalGroups))) {
+        @formHelpers.checkbox(f(""), GroupF.ACTIVE)
+    }
 }

@@ -2,7 +2,7 @@
 
 @implicitField = @{views.admin.Helpers.fieldConstructorWithHints(Some(fieldHints))}
 
-@views.html.admin.layout.rightSidebarWithType(Messages("country.create"), EntityType.Country, scripts = formHelpers.formJs(f)) {
+@views.html.admin.layout.rightSidebarWithType(Messages("country.create"), EntityType.Country, scripts = formHelpers.formJs(f), breadcrumbs = views.html.admin.country.breadcrumbs()) {
     @helper.form(action = action) {
         @formHelpers.csrfToken()
         @formHelpers.lineInput(f(""), Entity.IDENTIFIER, attrs._autocomplete -> "off")

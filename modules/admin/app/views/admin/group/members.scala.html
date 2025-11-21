@@ -3,9 +3,15 @@
 @views.html.admin.layout.rightSidebarWithType(Messages("group.members.manage"), EntityType.Group) {
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
-        @views.html.admin.group.memberForm(usersAndGroups, current)
+        @if(item.isSystemGroup(conf.defaultPortalGroups)) {
+            <p class="error-notice">
+                @Messages("group.members.manage.system")
+            </p>
+        } else {
+            @views.html.admin.group.memberForm(usersAndGroups, current)
 
-        @formHelpers.submitButtonWithLogMessageInput(Messages("group.members.submit"))
+            @formHelpers.submitButtonWithLogMessageInput(Messages("group.members.submit"))
+        }
 	}
 } {
 

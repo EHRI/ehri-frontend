@@ -1,6 +1,6 @@
 @(item: Group)(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
-@views.html.admin.layout.rightSidebar(item.toStringLang, extraTitle = views.html.admin.group.statusBadges(item), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebar(item.toStringLang, extraTitle = views.html.admin.group.statusBadges(item), breadcrumbs = views.html.admin.group.breadcrumbs(Some(item))) {
     @html
 } {
     @common.typeLabel(item.isA) {
@@ -26,8 +26,10 @@
         @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Grant)) {
             <a href="@controllers.groups.routes.Groups.membership(item.id)">@Messages("accessor.groups.manage")</a>
         }
-        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Grant)) {
-            <a href="@controllers.groups.routes.Groups.members(item.id)">@Messages("group.members.manage")</a>
+        @if(!item.isSystemGroup(conf.defaultPortalGroups)) {
+            @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Grant)) {
+                <a href="@controllers.groups.routes.Groups.members(item.id)">@Messages("group.members.manage")</a>
+            }
         }
         @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Delete)) {
             <a href="@controllers.groups.routes.Groups.delete(item.id)">@Messages("group.delete")</a>

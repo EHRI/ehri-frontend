@@ -1,14 +1,13 @@
 package models
 
-import play.api.libs.json._
-import models.json._
-import play.api.i18n.Messages
-import play.api.libs.functional.syntax._
-import play.api.data.Form
-import play.api.data.Forms._
 import eu.ehri.project.definitions.Ontology
 import forms.mappings.optionalText
-import play.api.libs.json.JsObject
+import models.json._
+import play.api.data.Form
+import play.api.data.Forms._
+import play.api.i18n.Messages
+import play.api.libs.functional.syntax._
+import play.api.libs.json._
 
 
 object GroupF {
@@ -43,8 +42,8 @@ case class GroupF(
 ) extends ModelData with Persistable
 
 object Group {
-  import GroupF._
   import Entity._
+  import GroupF._
   import Ontology._
 
   private lazy implicit val systemEventReads: Reads[SystemEvent] = SystemEvent.SystemEventResource._reads
@@ -88,6 +87,14 @@ case class Group(
   with Holder[Accessor] {
 
   type T = GroupF
+
+  /**
+    * Check if this group is needed for the system to function.
+    *
+    * @param others auxiliary addition groups provided by the user
+    */
+  def isSystemGroup(others: Seq[String] = Seq.empty): Boolean =
+    id == Accessor.ADMIN_GROUP_NAME || others.contains(id)
 
   override def toStringLang(implicit messages: Messages): String = data.name
 }
