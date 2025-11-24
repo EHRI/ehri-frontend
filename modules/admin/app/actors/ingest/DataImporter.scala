@@ -90,8 +90,7 @@ case class DataImporter(
             }
           })
           .pipeTo(self)
-      }
-      else self ! sync.log
+      } else self ! sync.log
 
     case log: ImportLog =>
       msgTo ! log
