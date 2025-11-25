@@ -460,8 +460,6 @@ group.name=Group Name
 group.name.description=A title-case display for the group
 group.description=Group Description
 group.description.description=A description of this group''s purpose
-group.members=Group Members
-group.members.count=Members: {0}
 group.membersPageHeader={2,choice,0#No members found|1#One member|1<Group Members {0,number,integer} to {1,number,integer} of {2,number,integer}}
 group.create=Create New Group
 group.create.submit=Create Group
@@ -478,6 +476,10 @@ group.active.description=Whether this group is currently active.
 group.active.true=Active
 group.active.false=Inactive
 group.system=System
+group.members=Group Members
+group.members.count=Members: {0}
+group.members.manage=Manage Members
+group.members.submit=Update Members
 
 #
 # Item visibility

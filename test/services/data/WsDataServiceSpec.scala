@@ -321,7 +321,20 @@ class WsDataServiceSpec extends IntegrationTestRunner {
     }
   }
 
-  "PermissionDAO" should {
+  "Groups" should {
+    "be able to set members in bulk" in new ITestApp {
+      val itemsBefore = await(testBackend.children[Group, Accessor]("kcl")).map(_.id).toSet
+      itemsBefore must_== Set("mike", "reto")
+
+      val newMembers = Set("linda")
+      await(testBackend.setGroupMembers("kcl", newMembers))
+
+      val items = await(testBackend.children[Group, Accessor]("kcl")).map(_.id).toSet
+      items must_== newMembers
+    }
+  }
+
+  "Permission" should {
     "be able to fetch user's own permissions" in new ITestApp {
       val perms = await(testBackend.globalPermissions(userProfile.id))
       userProfile.getPermission(perms, ContentTypes.DocumentaryUnit, PermissionType.Create) must beSome
@@ -402,7 +415,7 @@ class WsDataServiceSpec extends IntegrationTestRunner {
     }
   }
 
-  "VisibilityDAO" should {
+  "Visibility" should {
     "set visibility correctly" in new ITestApp {
       // First, fetch an object and assert its accessibility
       val c1a = await(testBackend.get[DocumentaryUnit]("c1"))

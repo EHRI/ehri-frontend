@@ -4,19 +4,17 @@ import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import forms._
-import models.{Accessor, EntityType, Group, UserProfile}
+import models.{Accessor, EntityType, Group, PermissionType, UserProfile}
+import play.api.data.Forms.{nonEmptyText, seq, single}
 import play.api.data.{Form, Forms}
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Request}
 import services.data.{Constants, DataHelpers}
-import services.search.{FacetBuilder, FacetDisplay, FacetSort, FieldFacetClass, QueryFacet, QueryFacetClass, SearchParams, Val}
+import services.search.{FacetBuilder, FacetDisplay, QueryFacet, QueryFacetClass, SearchParams, Val}
 import utils.{PageParams, RangeParams}
 
 import javax.inject._
-
-object Groups {
-  val defaultFacets = SearchParams.empty
-}
+import scala.concurrent.Future
 
 case class Groups @Inject()(
   controllerComponents: ControllerComponents,
@@ -204,4 +202,25 @@ case class Groups @Inject()(
       Redirect(groupRoutes.membership(id))
                 .flashing("success" -> "item.update.confirmation")
     }
+
+  private val membersForm: Form[Set[String]] = Form(single(
+    services.data.Constants.MEMBER -> Forms.set(nonEmptyText)
+  ))
+
+  def members(id: String): Action[AnyContent] = MembersAction(id).apply { implicit request =>
+      Ok(views.html.admin.group.members(request.item, request.currentMembers,
+        request.usersAndGroups, groupRoutes.membersPost(id)))
+  }
+
+  def membersPost(id: String): Action[AnyContent] = MembersAction(id).async { implicit request =>
+    membersForm.bindFromRequest().fold(
+      err => Future.successful(BadRequest(
+        views.html.admin.group.members(request.item, err.value.getOrElse(Set.empty),
+          request.usersAndGroups, groupRoutes.membersPost(id)))),
+
+      data => userDataApi.setGroupMembers(id, data).map { _ =>
+        Redirect(groupRoutes.get(id)).flashing("success" -> "item.update.confirmation")
+      }
+    )
+  }
 }

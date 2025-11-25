@@ -43,6 +43,12 @@
     }
 }
 
+@manageButton() = {
+    <hr>
+    <a class="btn btn-primary" href="@controllers.groups.routes.Groups.members(item.id)">@Messages("group.members.manage")</a>
+}
+
+
 @views.html.admin.group.itemPage(item) {
 
     @defining("group") { implicit prefix =>
@@ -57,7 +63,7 @@
         }
     }
 
-    @views.html.admin.common.filterableList("group.membersPageHeader", page, params) {
+    @views.html.admin.common.filterableList("group.membersPageHeader", page, params, empty = manageButton()) {
         <ul>
             @page.items.map { member =>
                 <h4>

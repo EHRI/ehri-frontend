@@ -678,6 +678,15 @@ trait DataService {
   def removeGroup[GT: Resource, UT: Resource](groupId: String, userId: String): Future[Unit]
 
   /**
+    * Set user IDs that belong to this group. Current members not
+    * included in the set will be removed.
+    *
+    * @param groupId the group id
+    * @param userIds the set of user ids
+    */
+  def setGroupMembers(groupId: String, userIds: Set[String]): Future[Unit]
+
+  /**
     * Follow a user.
     *
     * @param userId  the current user's id

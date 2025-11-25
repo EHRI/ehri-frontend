@@ -17,11 +17,16 @@ case class DataHelpers @Inject()(cypher: CypherService)(implicit executionContex
     }
   }
 
-  private def getTypeIdAndName(s: EntityType.Value): Future[Seq[(String, String)]] =
-    cypher.get(s"MATCH (n:$s) RETURN n.__id, n.name ORDER BY n.name", Map.empty).map(parseIds)
+  def getGroupList: Future[Seq[(String,String)]] = cypher
+    .get(
+      s"""
+         |MATCH (n:${EntityType.Group})
+         |WHERE NOT EXISTS(n.active) OR n.active = true
+         |RETURN n.__id, n.name
+         |ORDER BY n.identifier
+         |""".stripMargin, Map.empty)
+    .map(parseIds)
 
-  def getGroupList: Future[Seq[(String,String)]] = getTypeIdAndName(EntityType.Group)
-  
   def getUserList: Future[Seq[(String,String)]] = cypher
     .get(
       s"""

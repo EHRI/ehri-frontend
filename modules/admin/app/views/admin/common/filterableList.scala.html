@@ -1,4 +1,4 @@
-@(paginationKey: String, page: utils.Page[Model], params: utils.PageParams)(listBody: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages)
+@(paginationKey: String, page: utils.Page[Model], params: utils.PageParams, empty: Html = Html(""))(listBody: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages)
 
 
 <hr>
@@ -7,5 +7,7 @@
     @if(page.total > 0) {
         @listBody
         @common.pagination(page)
+    } else {
+        @empty
     }
 </div>
