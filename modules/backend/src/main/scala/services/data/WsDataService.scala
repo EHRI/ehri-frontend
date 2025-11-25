@@ -546,6 +546,17 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
     } yield ()
   }
 
+  override def setGroupMembers(groupId: String, userIds: Set[String]): Future[Unit] = {
+    val callF = userCall(enc(typeBaseUrl, EntityType.Group, groupId, "list"))
+      .withQueryString(userIds.map("member" -> _).toSeq: _*).post()
+    for {
+      response <- callF
+      _ = checkError(response)
+      _ <- invalidate(groupId, userIds.toSeq: _*)
+      _ <- Future.sequence(userIds.toSeq.map(id => cache.remove(enc(permissionRequestUrl, id))))
+    } yield ()
+  }
+
   private val userRequestUrl = enc(typeBaseUrl, EntityType.UserProfile)
 
   private def followingUrl(userId: String) = enc(userRequestUrl, userId, "following")

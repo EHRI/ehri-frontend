@@ -1,6 +1,6 @@
 package controllers.generic
 
-import models.{Accessor, ContentType, Group, PermissionType, UserProfile}
+import models.{Accessor, ContentType, Group, PermissionType, UserProfile, UsersAndGroups}
 import play.api.mvc._
 import services.data.DataHelpers
 
@@ -26,6 +26,12 @@ trait Membership[MT <: Accessor] extends Read[MT] {
   ) extends WrappedRequest[A](request)
     with WithOptionalUser
 
+  /**
+    * Shows what groups this User or Group (Accessor) is a member of and provides a filtered
+    * list of groups they *could* be added to.
+    * @param id the subject user or group
+    * @param ct the subject content type
+    */
   protected def MembershipAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[MembershipRequest, AnyContent] =
     WithItemPermissionAction(id, PermissionType.Grant) andThen new CoreActionTransformer[ItemPermissionRequest, MembershipRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[MembershipRequest[A]] = {
@@ -45,6 +51,27 @@ trait Membership[MT <: Accessor] extends Read[MT] {
               }
           }
           MembershipRequest(request.item, filteredGroups, request.userOpt, request)
+        }
+      }
+    }
+
+  case class MembersRequest[A](
+    item: MT,
+    currentMembers: Set[String],
+    usersAndGroups: UsersAndGroups,
+    userOpt: Option[UserProfile],
+    request: Request[A]
+  ) extends WrappedRequest[A](request)
+    with WithOptionalUser
+
+  protected def MembersAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[MembersRequest, AnyContent] =
+    WithItemPermissionAction(id, PermissionType.Grant) andThen new CoreActionTransformer[ItemPermissionRequest, MembersRequest] {
+      override protected def transform[A](request: ItemPermissionRequest[A]): Future[MembersRequest[A]] = {
+        implicit val req: ItemPermissionRequest[A] = request
+        userDataApi.children[MT, Accessor](id).flatMap { itemList =>
+          dataHelpers.getUserAndGroupList.map { usersAndGroups =>
+            MembersRequest(request.item, itemList.map(a => a.id).toSet, usersAndGroups, request.userOpt, request)
+          }
         }
       }
     }

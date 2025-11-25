@@ -23,4 +23,6 @@ GET         /:id/addTo/:groupId                 @controllers.groups.Groups.check
 POST	    /:id/addTo/:groupId	                @controllers.groups.Groups.addToGroup(id: String, groupId: String)
 GET         /:id/removeFrom/:groupId            @controllers.groups.Groups.checkRemoveFromGroup(id: String, groupId: String)
 POST        /:id/removeFrom/:groupId            @controllers.groups.Groups.removeFromGroup(id: String, groupId: String)
+GET         /:id/members                        @controllers.groups.Groups.members(id: String)
+POST        /:id/members                        @controllers.groups.Groups.membersPost(id: String)
 

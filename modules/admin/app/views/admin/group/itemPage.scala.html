@@ -26,6 +26,9 @@
         @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Grant)) {
             <a href="@controllers.groups.routes.Groups.membership(item.id)">@Messages("accessor.groups.manage")</a>
         }
+        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Grant)) {
+            <a href="@controllers.groups.routes.Groups.members(item.id)">@Messages("group.members.manage")</a>
+        }
         @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Delete)) {
             <a href="@controllers.groups.routes.Groups.delete(item.id)">@Messages("group.delete")</a>
         }
