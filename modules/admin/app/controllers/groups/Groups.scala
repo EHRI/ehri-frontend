@@ -6,13 +6,17 @@ import controllers.generic._
 import forms._
 import models.{Accessor, EntityType, Group, UserProfile}
 import play.api.data.{Form, Forms}
+import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Request}
 import services.data.{Constants, DataHelpers}
-import services.search.SearchParams
+import services.search.{FacetBuilder, FacetDisplay, FacetSort, FieldFacetClass, QueryFacet, QueryFacetClass, SearchParams, Val}
 import utils.{PageParams, RangeParams}
 
 import javax.inject._
 
+object Groups {
+  val defaultFacets = SearchParams.empty
+}
 
 case class Groups @Inject()(
   controllerComponents: ControllerComponents,
@@ -28,6 +32,22 @@ case class Groups @Inject()(
 
   private val form = models.Group.form
   private val groupRoutes = controllers.groups.routes.Groups
+
+  private val entityFacets: FacetBuilder = { implicit request =>
+    List(
+      QueryFacetClass(
+        key="active",
+        name=Messages("group.active"),
+        param="active",
+        render=s => Messages("group.active." + s),
+        facets=List(
+          QueryFacet(value = "true", range = Val("1")),
+          QueryFacet(value = "false", range = Val("0"))
+        ),
+        display = FacetDisplay.Boolean
+      )
+    )
+  }
 
   def get(id: String, paging: PageParams): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
     for {
@@ -47,7 +67,7 @@ case class Groups @Inject()(
   }
 
   def search(params: SearchParams, paging: PageParams): Action[AnyContent] =
-    SearchTypeAction(params, paging).apply { implicit request =>
+    SearchTypeAction(params, paging, facetBuilder = entityFacets).apply { implicit request =>
       Ok(views.html.admin.group.search(request.result, groupRoutes.search()))
     }
 

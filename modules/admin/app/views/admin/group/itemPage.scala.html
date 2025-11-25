@@ -1,0 +1,33 @@
+@(item: Group)(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+
+@views.html.admin.layout.rightSidebar(item.toStringLang, extraTitle = views.html.admin.group.statusBadges(item), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+    @html
+} {
+    @common.typeLabel(item.isA) {
+    }
+    @views.html.admin.common.latestAction(item, controllers.groups.routes.Groups.history(item.id))
+
+    @views.html.admin.common.sidebarActions { user =>
+        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Create)) {
+            <a href="@controllers.groups.routes.Groups.create()">@Messages("group.create")</a>
+        }
+        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Update)) {
+            <a href="@controllers.groups.routes.Groups.update(item.id)">@Messages("group.edit")</a>
+        }
+        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Grant)) {
+            <a href="@controllers.groups.routes.Groups.managePermissions(item.id)">@Messages("permissions.manage")</a>
+        }
+        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Grant)) {
+            <a href="@controllers.groups.routes.Groups.permissions(item.id)">@Messages("permissions.global.manage")</a>
+        }
+        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Grant)) {
+            <a href="@controllers.groups.routes.Groups.grantList(item.id)">@Messages("permissions.itemLevel.show")</a>
+        }
+        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Grant)) {
+            <a href="@controllers.groups.routes.Groups.membership(item.id)">@Messages("accessor.groups.manage")</a>
+        }
+        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Delete)) {
+            <a href="@controllers.groups.routes.Groups.delete(item.id)">@Messages("group.delete")</a>
+        }
+    }
+}

@@ -1,10 +1,12 @@
-@(item: Group)(implicit req: RequestHeader, messages: Messages, md: MarkdownRenderer)
+@(item: Group)(implicit req: RequestHeader, messages: Messages, md: MarkdownRenderer, appConfig: AppConfig)
 
 @common.search.searchItemOutline(item) {
     <a href="@controllers.groups.routes.Groups.get(item.id)">@item.toStringLang</a>
+    @views.html.admin.group.statusBadges(item)
 } {
     @item.latestEvent.map { event =>
         <ul class="search-item-details">
+            <li title="@Messages("group.members")">@Messages("group.members.count", item.childCount.getOrElse(0))</li>
             <li title="@common.eventTitle(event)">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</li>
         </ul>
     }

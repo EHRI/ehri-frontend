@@ -15,6 +15,7 @@ object GroupF {
 
   val NAME = "name"
   val DESCRIPTION = "description"
+  val ACTIVE = "active"
 
   import Entity._
 
@@ -23,7 +24,8 @@ object GroupF {
     (__ \ ID).formatNullable[String] and
     (__ \ DATA \ IDENTIFIER).format[String] and
     (__ \ DATA \ NAME).format[String] and
-    (__ \ DATA \ DESCRIPTION).formatNullable[String]
+    (__ \ DATA \ DESCRIPTION).formatNullable[String] and
+    (__ \ DATA \ ACTIVE).formatWithDefault(true)
   )(GroupF.apply, unlift(GroupF.unapply))
 
   implicit object Converter extends Writable[GroupF] {
@@ -36,7 +38,8 @@ case class GroupF(
   id: Option[String],
   identifier: String,
   name: String,
-  description: Option[String] = None
+  description: Option[String] = None,
+  active: Boolean = true,
 ) extends ModelData with Persistable
 
 object Group {
@@ -66,7 +69,8 @@ object Group {
       ID -> optional(text),
       IDENTIFIER -> nonEmptyText,
       NAME -> nonEmptyText,
-      DESCRIPTION -> optionalText
+      DESCRIPTION -> optionalText,
+      ACTIVE -> boolean
     )(GroupF.apply)(GroupF.unapply)
   )
 }
@@ -80,7 +84,8 @@ case class Group(
   meta: JsObject = JsObject(Seq())
 ) extends Model
   with Accessor
-  with Accessible {
+  with Accessible
+  with Holder[Accessor] {
 
   type T = GroupF
 
