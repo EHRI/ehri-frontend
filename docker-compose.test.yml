@@ -17,7 +17,7 @@ services:
 
   # The actual Neo4j data backend
   neo4j:
-    image: docker.io/ehri/ehri-rest:latest
+    image: docker.io/ehri/ehri-rest:v0.15.3
     ports:
       - ${NEO4J_TEST_PORT:-7575}:7474
       - ${BOLT_TEST_PORT:-7686}:7687
