@@ -406,7 +406,7 @@ userProfile.email.verify=User''s email address {0} has not been verified and thi
   Verify it now?
 userProfile.unverified=Unverified
 userProfile.unverified.description=User has not verified their email address
-userProfile.active=Active
+userProfile.active=Status
 userProfile.active.description=Whether this user profile is currently active.
 userProfile.active.true=Active
 userProfile.active.false=Inactive
@@ -461,6 +461,7 @@ group.name.description=A title-case display for the group
 group.description=Group Description
 group.description.description=A description of this group''s purpose
 group.members=Group Members
+group.members.count=Members: {0}
 group.membersPageHeader={2,choice,0#No members found|1#One member|1<Group Members {0,number,integer} to {1,number,integer} of {2,number,integer}}
 group.create=Create New Group
 group.create.submit=Create Group
@@ -472,6 +473,11 @@ group.delete.item=Delete Group {0}
 group.delete.confirm=
 group.delete.submit=Delete Group
 group.parentGroups=Parent Groups
+group.active=Status
+group.active.description=Whether this group is currently active.
+group.active.true=Active
+group.active.false=Inactive
+group.system=System
 
 #
 # Item visibility

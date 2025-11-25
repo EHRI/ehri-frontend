@@ -13,8 +13,6 @@ object UserProfileF {
 
   val FIELD_PREFIX = "profile"
 
-  final val PLACEHOLDER_TITLE = "[No Title Found]"
-
   val NAME = "name"
   val LOCATION = "location"
   val ABOUT = "about"

@@ -329,6 +329,9 @@ pre.code-format {
   .staff {
     @extend .badge, .badge-success;
   }
+  .system {
+    @extend .badge, .badge-light;
+  }
 }
 
 // Concept forms

@@ -21,7 +21,7 @@ object Helpers {
     ("contentTypes.CvocVocabulary",   controllers.vocabularies.routes.Vocabularies.list().url),
     ("contentTypes.AuthoritativeSet", controllers.sets.routes.AuthoritativeSets.list().url),
     ("contentTypes.UserProfile",      controllers.users.routes.UserProfiles.search().url),
-    ("contentTypes.Group",            controllers.groups.routes.Groups.search().url),
+    ("contentTypes.Group",            controllers.groups.routes.Groups.search().url + "?active=true"),
     ("contentTypes.Link",             controllers.links.routes.Links.search().url),
     ("s1", "-"),
     ("contentTypes.SystemEvent",      controllers.events.routes.SystemEvents.list().url),

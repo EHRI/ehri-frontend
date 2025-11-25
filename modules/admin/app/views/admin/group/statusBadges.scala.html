@@ -1,0 +1,13 @@
+@(group: Group)(implicit messages: Messages, appConfig: AppConfig)
+
+<span class="user-status">
+    @if(group.data.active) {
+        <span class="active">@Messages("group.active.true")</span>
+    } else {
+        <span class="inactive">@Messages("group.active.false")</span>
+    }
+    @if(appConfig.defaultPortalGroups.contains(group.id)) {
+        <span class="system">@Messages("group.system")</span>
+    }
+</span>
+

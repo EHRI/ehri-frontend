@@ -43,7 +43,7 @@
     }
 }
 
-@views.html.admin.layout.rightSidebarWithType(item.toStringLang, item.isA,  breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+@views.html.admin.group.itemPage(item) {
 
     @defining("group") { implicit prefix =>
         @views.html.admin.common.textValue(GroupF.DESCRIPTION, item.data.description)
@@ -68,31 +68,5 @@
                 <hr>
             }
         </ul>
-    }
-} {
-    @views.html.admin.common.latestAction(item, controllers.groups.routes.Groups.history(item.id))
-
-    @views.html.admin.common.sidebarActions { user =>
-        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Create)) {
-            <a href="@controllers.groups.routes.Groups.create()">@Messages("group.create")</a>
-        }
-        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Update)) {
-            <a href="@controllers.groups.routes.Groups.update(item.id)">@Messages("group.edit")</a>
-        }
-        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Grant)) {
-            <a href="@controllers.groups.routes.Groups.managePermissions(item.id)">@Messages("permissions.manage")</a>
-        }
-        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Grant)) {
-            <a href="@controllers.groups.routes.Groups.permissions(item.id)">@Messages("permissions.global.manage")</a>
-        }
-        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Grant)) {
-            <a href="@controllers.groups.routes.Groups.grantList(item.id)">@Messages("permissions.itemLevel.show")</a>
-        }
-        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Grant)) {
-            <a href="@controllers.groups.routes.Groups.membership(item.id)">@Messages("accessor.groups.manage")</a>
-        }
-        @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Delete)) {
-            <a href="@controllers.groups.routes.Groups.delete(item.id)">@Messages("group.delete")</a>
-        }
     }
 }
