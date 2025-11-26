@@ -476,6 +476,7 @@ group.inactive=Status
 group.inactive.description=Check this box to deactivate and hide this group.
 group.inactive.true=Inactive
 group.inactive.false=Active
+group.active=Status
 group.active.true=Active
 group.active.false=Inactive
 group.system=System
