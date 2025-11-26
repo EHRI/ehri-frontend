@@ -1,6 +1,6 @@
 @(item: Group, current: Set[String], usersAndGroups: UsersAndGroups, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
-@views.html.admin.layout.rightSidebarWithType(Messages("group.members.manage"), EntityType.Group) {
+@views.html.admin.layout.rightSidebarWithType(Messages("group.members.manage"), EntityType.Group, breadcrumbs = views.html.admin.group.breadcrumbs(Some(item))) {
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
         @if(item.isSystemGroup(conf.defaultPortalGroups)) {

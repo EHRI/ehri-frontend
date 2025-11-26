@@ -6,7 +6,7 @@
     @formHelpers.lineInput(f(""), Entity.IDENTIFIER, attrs._autocomplete -> "off")
     @formHelpers.lineInput(f(""), GroupF.NAME)
     @formHelpers.textInput(f(""), GroupF.DESCRIPTION)
-    @if(item.isDefined && item.exists(!_.isSystemGroup(appConfig.defaultPortalGroups))) {
-        @formHelpers.checkbox(f(""), GroupF.ACTIVE)
+    @if(item.exists(!_.isSystemGroup(appConfig.defaultPortalGroups))) {
+        @formHelpers.checkbox(f(""), GroupF.INACTIVE, Symbol("_text") -> "group.inactive.true")
     }
 }
