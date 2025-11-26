@@ -15,6 +15,7 @@ object GroupF {
   val NAME = "name"
   val DESCRIPTION = "description"
   val ACTIVE = "active"
+  val INACTIVE = "inactive"
 
   import Entity._
 
@@ -24,7 +25,7 @@ object GroupF {
     (__ \ DATA \ IDENTIFIER).format[String] and
     (__ \ DATA \ NAME).format[String] and
     (__ \ DATA \ DESCRIPTION).formatNullable[String] and
-    (__ \ DATA \ ACTIVE).formatWithDefault(true)
+    (__ \ DATA \ ACTIVE).formatWithDefault[Boolean](true)
   )(GroupF.apply, unlift(GroupF.unapply))
 
   implicit object Converter extends Writable[GroupF] {
@@ -69,7 +70,14 @@ object Group {
       IDENTIFIER -> nonEmptyText,
       NAME -> nonEmptyText,
       DESCRIPTION -> optionalText,
-      ACTIVE -> boolean
+
+      // The logic for this field is reversed, so you have to
+      // check the "inactive" box. This is because Play cannot
+      // seem to handle an unchecked box as a false value...
+      INACTIVE -> boolean.transform[Boolean](
+        (inactive: Boolean) => !inactive,  // form → model
+        (active: Boolean) => !active        // model → form
+      )
     )(GroupF.apply)(GroupF.unapply)
   )
 }
