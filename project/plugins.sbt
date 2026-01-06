@@ -15,7 +15,7 @@ ThisBuild / libraryDependencySchemes ++= Seq(
 //resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
 
 // Use the Play sbt plugin for Play projects
-addSbtPlugin("org.playframework" % "sbt-plugin" % "3.0.8")
+addSbtPlugin("org.playframework" % "sbt-plugin" % "3.0.10")
 
 addSbtPlugin("io.github.irundaia" % "sbt-sassify" % "1.5.2")
 
