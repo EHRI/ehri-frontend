@@ -18,7 +18,7 @@ import MixinTasklog from './_mixin-tasklog';
 import {DatasetManagerApi} from '../api';
 import _takeWhile from 'lodash/takeWhile';
 import _find from 'lodash/find';
-import {DataTransformation} from "../types";
+import {DataTransformation, ImportDataset} from "../types";
 
 let initialConvertState = function (config) {
   return {
@@ -52,8 +52,7 @@ export default {
   },
   mixins: [MixinTwoPanel, MixinValidator, MixinError, MixinUtil, MixinTasklog],
   props: {
-    datasetId: String,
-    datasetContentType: String,
+    dataset: Object as ImportDataset,
     fileStage: String,
     urlKey: {
       type: String,
@@ -117,7 +116,7 @@ export default {
       console.debug("Converting:", file)
       this.tab = "info";
       try {
-        let {url, jobId} = await this.api.convert(this.datasetId, file ? file.key : null, {
+        let {url, jobId} = await this.api.convert(this.dataset.id, file ? file.key : null, {
           mappings: this.convertState,
           force: force
         });
@@ -147,7 +146,7 @@ export default {
     loadConfig: async function () {
       this.loading = true;
       try {
-        let data = await this.api.getConvertConfig(this.datasetId);
+        let data = await this.api.getConvertConfig(this.dataset.id);
         this.state = data.map(([id, p]) => [id, p, false]);
       } catch (e) {
         this.showError("Error loading convert configuration", e);
@@ -158,7 +157,7 @@ export default {
     saveConfig: async function () {
       try {
         let config = this.state.map(([id, p, _]) => [id, p]);
-        await this.api.saveConvertConfig(this.datasetId, config);
+        await this.api.saveConvertConfig(this.dataset.id, config);
       } catch (e) {
         this.showError("Failed to save mapping list", e);
       }
@@ -236,7 +235,7 @@ export default {
       },
       deep: true
     },
-    datasetId: function () {
+    dataset: function () {
       Object.assign(this.$data, initialConvertState(this.config));
       this.initialise();
     }
@@ -260,8 +259,7 @@ export default {
         v-bind:body="editing.body"
         v-bind:comments="editing.comments"
         v-bind:has-params="editing.hasParams"
-        v-bind:dataset-id="datasetId"
-        v-bind:dataset-content-type="datasetContentType"
+        v-bind:dataset="dataset"
         v-bind:file-stage="previewStage"
         v-bind:init-previewing="previewing"
         v-bind:init-parameters="parametersForEditor"
@@ -273,7 +271,7 @@ export default {
 
     <div class="actions-bar">
       <file-picker v-bind:disabled="jobId !== null"
-                   v-bind:dataset-id="datasetId"
+                   v-bind:dataset-id="dataset.id"
                    v-bind:file-stage="config.input"
                    v-bind:api="api"
                    v-bind:config="config"
@@ -301,7 +299,7 @@ export default {
         <modal-convert-config
             v-bind:config="config"
             v-bind:api="api"
-            v-bind:dataset-id="datasetId"
+            v-bind:dataset-id="dataset.id"
             v-on:close="showOptions = false"
             v-on:convert="convert"
             v-if="showOptions"/>
@@ -420,7 +418,7 @@ export default {
         <div class="status-panels">
           <div class="status-panel" v-show="tab === 'preview'">
             <panel-convert-preview
-                v-bind:dataset-id="datasetId"
+                v-bind:dataset-id="dataset.id"
                 v-bind:file-stage="previewStage"
                 v-bind:mappings="convertState"
                 v-bind:trigger="JSON.stringify({

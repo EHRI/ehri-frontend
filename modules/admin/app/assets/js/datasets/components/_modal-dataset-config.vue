@@ -4,13 +4,15 @@ import ModalWindow from './_modal-window';
 import ModalAlert from './_modal-alert';
 
 import {DatasetManagerApi} from '../api';
+import FormConfigFileManager from "./_form-config-file-manager.vue";
+import {ImportDataset} from "../types";
 
 export default {
-  components: {ModalWindow, ModalAlert},
+  components: {FormConfigFileManager, ModalWindow, ModalAlert},
   props: {
     api: DatasetManagerApi,
     config: Object,
-    info: Object,
+    info: Object as ImportDataset,
   },
   data: function () {
     return {
@@ -18,6 +20,7 @@ export default {
       name: this.info ? this.info.name : null,
       src: this.info ? this.info.src : null,
       fonds: this.info ? this.info.fonds : null,
+      setHierarchy: this.info ? this.info.setHierarchy : false,
       sync: this.info ? this.info.sync : false,
       nest: this.info ? this.info.nest : false,
       status: this.info ? this.info.status : "active",
@@ -39,11 +42,14 @@ export default {
         name: this.name,
         src: this.src,
         fonds: this.fonds,
+        setHierarchy: this.setHierarchy,
         sync: this.sync,
         nest: this.nest,
         status: this.status,
         contentType: this.contentType,
         notes: this.notes,
+        loading: false,
+        hierarchyMapOptions: [],
       };
 
       let op = this.info !== null
@@ -102,6 +108,7 @@ export default {
               || this.info.src !== this.src
               || this.info.notes !== this.notes
               || this.info.fonds !== this.fonds
+              || this.info.setHierarchy != this.setHierarchy
               || this.info.contentType !== this.contentType
               || Boolean(this.info.sync) !== Boolean(this.sync)
               || Boolean(this.info.nest) !== Boolean(this.nest))
@@ -194,6 +201,12 @@ export default {
                title="Default (non-nested) behavior assumes EAD includes the specified fonds and imports at repository level.">
             Nest items beneath specified fonds
         </label>
+      </div>
+      <div class="form-group form-check">
+          <input v-model="setHierarchy" class="form-check-input" id="opt-set-hierarchy" type="checkbox"/>
+          <label class="form-check-label" for="opt-set-hierarchy" data-toggle="tooltip" title="Construct the item hierarchy via a TSV given at ingest time.">
+              Set hierarchy with TSV
+          </label>
       </div>
       <div class="form-group">
         <label class="form-label" for="dataset-content-type">

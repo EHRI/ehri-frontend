@@ -15,6 +15,7 @@ import services.datasets.{ImportDatasetExists, ImportDatasetService}
 import services.ingest.ImportLogService
 import services.storage.FileStorage
 
+import java.time.Instant
 import javax.inject._
 import scala.concurrent.Future
 
@@ -37,6 +38,7 @@ case class ImportDatasets @Inject()(
   def jsRoutes(): Action[AnyContent] = Action.apply { implicit request =>
     Ok(
       JavaScriptReverseRouter("datasetApi")(
+        controllers.admin.routes.javascript.Data.i18n,
         controllers.admin.routes.javascript.Tasks.taskMonitorWS,
         controllers.admin.routes.javascript.Tasks.cancel,
         controllers.datasets.routes.javascript.ImportDatasets.manager,
@@ -93,6 +95,10 @@ case class ImportDatasets @Inject()(
     ).as(MimeTypes.JAVASCRIPT)
   }
 
+  def i18n(): Action[AnyContent] = WithUserAction { implicit request =>
+    Ok(Json.toJson(messagesApi.messages))
+  }
+
   def dashboard(): Action[AnyContent] = OptionalUserAction.apply { implicit request =>
     Ok(views.html.admin.datasets.dashboard())
   }
@@ -146,7 +152,7 @@ case class ImportDatasets @Inject()(
           r.data.logoUrl.getOrElse(defaultLogo),
           sets
         )
-      }.sortBy(_.repoId)
+      }.sortBy(_.name)
     } yield Ok(Json.toJson(combined))
   }
 

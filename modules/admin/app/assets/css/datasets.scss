@@ -943,25 +943,29 @@ $active-table-row: #e7f1ff;
   }
 }
 
-.ingest-options-properties-container {
-  height: 8rem;
+.config-options-selector-container {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  max-height: 8rem;
   width: 100%;
   font-size: $font-size-sm;
   background-color: $gray-100;
+
+  table {
+    margin-bottom: 0;
+  }
 
   .panel-placeholder {
     position: relative;
   }
 }
 
-#opt-new-props {
+#option-new-config {
   position: relative;
 }
 
-.opt-new-props-input {
+.option-new-config-input {
   opacity: 0;
   position: absolute;
   top: 0;
@@ -971,13 +975,13 @@ $active-table-row: #e7f1ff;
   cursor: pointer;
 }
 
-.ingest-options-properties th {
+.config-options-selector th {
   position: sticky;
   top: 0;
   background-color: $gray-200;
 }
 
-.ingest-options-properties tr {
+.config-options-selector tr {
   cursor: pointer;
   &.active {
     background-color: $active-table-row;
@@ -1131,3 +1135,7 @@ $active-table-row: #e7f1ff;
   padding: $margin-xxs;
 }
 
+.options-form .form-group .help {
+  display: block;
+  @extend %small-muted
+}

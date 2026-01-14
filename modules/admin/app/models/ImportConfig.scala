@@ -7,6 +7,7 @@ case class ImportConfig(
   useSourceId: Boolean = false,
   tolerant: Boolean = false,
   properties: Option[String] = None,
+  hierarchyFile: Option[String] = None,
   defaultLang: Option[String] = None,
   logMessage: String,
   batchSize: Option[Int] = None,

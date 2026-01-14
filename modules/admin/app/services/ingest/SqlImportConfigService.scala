@@ -16,7 +16,7 @@ case class SqlImportConfigService @Inject()(db: Database, actorSystem: ActorSyst
 
   private implicit val parser: RowParser[ImportConfig] =
     Macro.parser[ImportConfig](
-      "allow_updates", "use_source_id", "tolerant", "properties_file", "default_lang", "log_message", "batch_size", "comments")
+      "allow_updates", "use_source_id", "tolerant", "properties_file", "hierarchy_file", "default_lang", "log_message", "batch_size", "comments")
 
   override def get(id: String, ds: String): Future[Option[ImportConfig]] = Future {
     db.withConnection { implicit conn =>
@@ -34,7 +34,7 @@ case class SqlImportConfigService @Inject()(db: Database, actorSystem: ActorSyst
   override def save(id: String, ds: String, data: ImportConfig): Future[ImportConfig] = Future {
     db.withTransaction { implicit conn =>
       SQL"""INSERT INTO import_config
-        (repo_id, import_dataset_id, allow_updates, use_source_id, tolerant, properties_file, default_lang, log_message, batch_size, comments)
+        (repo_id, import_dataset_id, allow_updates, use_source_id, tolerant, properties_file, hierarchy_file, default_lang, log_message, batch_size, comments)
         VALUES (
           $id,
           $ds,
@@ -42,6 +42,7 @@ case class SqlImportConfigService @Inject()(db: Database, actorSystem: ActorSyst
           ${data.useSourceId},
           ${data.tolerant},
           ${data.properties},
+          ${data.hierarchyFile},
           ${data.defaultLang},
           ${data.logMessage},
           ${data.batchSize},
@@ -52,6 +53,7 @@ case class SqlImportConfigService @Inject()(db: Database, actorSystem: ActorSyst
           use_source_id = ${data.useSourceId},
           tolerant = ${data.tolerant},
           properties_file = ${data.properties},
+          hierarchy_file = ${data.hierarchyFile},
           default_lang = ${data.defaultLang},
           log_message = ${data.logMessage},
           batch_size = ${data.batchSize},

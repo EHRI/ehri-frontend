@@ -8,22 +8,22 @@ import play.api.libs.json.JsonNaming.SnakeCase
 import play.api.libs.json.{Json, JsonConfiguration, Writes}
 
 
-sealed trait PropertiesHandle
-case class FileProperties(f: Option[TemporaryFile]) extends PropertiesHandle {
+sealed trait ConfigHandle
+case class FileConfig(f: Option[TemporaryFile]) extends ConfigHandle {
   override def toString: String = f.map(_.path.getFileName.toString).getOrElse("-")
 }
-case class UrlProperties(url: String) extends PropertiesHandle {
+case class UrlConfig(url: String) extends ConfigHandle {
   override def toString: String = url
 }
 
-object PropertiesHandle {
-  def apply(f: Option[TemporaryFile]): PropertiesHandle = FileProperties(f)
-  def apply(url: String): PropertiesHandle = UrlProperties(url)
-  def empty: PropertiesHandle = FileProperties(Option.empty)
+object ConfigHandle {
+  def apply(f: Option[TemporaryFile]): ConfigHandle = FileConfig(f)
+  def apply(url: String): ConfigHandle = UrlConfig(url)
+  def empty: ConfigHandle = FileConfig(Option.empty)
 
-  implicit val _writes: Writes[PropertiesHandle] = Writes {
-    case FileProperties(f) => Json.toJson(f.map(_.toAbsolutePath.toString))
-    case UrlProperties(url) => Json.toJson(url)
+  implicit val _writes: Writes[ConfigHandle] = Writes {
+    case FileConfig(f) => Json.toJson(f.map(_.toAbsolutePath.toString))
+    case UrlConfig(url) => Json.toJson(url)
   }
 }
 
@@ -57,7 +57,8 @@ case class IngestParams(
   baseURI: Option[String] = None,
   suffix: Option[String] = None,
   data: PayloadHandle = PayloadHandle.empty,
-  properties: PropertiesHandle = PropertiesHandle.empty,
+  properties: ConfigHandle = ConfigHandle.empty,
+  hierarchyFile: ConfigHandle = ConfigHandle.empty,
   commit: Boolean = false
 )
 
@@ -69,6 +70,7 @@ object IngestParams {
   val ALLOW_UPDATE = "allow-update"
   val USE_SOURCE_ID = "use-source-id"
   val LANG = "lang"
+  val HIERARCHY_FILE = "hierarchy-file"
   val LOG = "log"
   val HANDLER = "handler"
   val IMPORTER = "importer"
@@ -97,7 +99,8 @@ object IngestParams {
       BASE_URI -> optional(text),
       SUFFIX -> optional(text),
       DATA_FILE -> ignored(PayloadHandle.empty),
-      PROPERTIES_FILE -> ignored(PropertiesHandle.empty),
+      PROPERTIES_FILE -> ignored(ConfigHandle.empty),
+      HIERARCHY_FILE -> ignored(ConfigHandle.empty),
       COMMIT -> default(boolean, false)
     )(IngestParams.apply)(IngestParams.unapply)
   )

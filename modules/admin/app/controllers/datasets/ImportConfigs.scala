@@ -16,6 +16,7 @@ import services.ingest.IngestService.{IngestData, IngestDataType, IngestJob}
 import services.ingest.{ImportConfigService, ImportLogService, IngestService}
 import services.storage.FileStorage
 
+import java.net.URI
 import java.util.UUID
 import javax.inject._
 import scala.concurrent.Future
@@ -72,6 +73,12 @@ case class ImportConfigs @Inject()(
       val scopeId = if (dataset.fonds.isDefined && dataset.nest)
         dataset.fonds.get else id
 
+      val hierarchyFile: ConfigHandle = if (dataset.setHierarchy)
+          request.body.config.hierarchyFile
+            .map(ref => ConfigHandle(configFileRefToFullUrl(id, ds, ref).toString))
+            .getOrElse(ConfigHandle.empty)
+      else ConfigHandle.empty
+
       // In the normal case this will be a list of one item, but
       // if batchSize is set, it will be a list of batches.
       val params: List[IngestParams] = urls.map { urlBatch =>
@@ -86,8 +93,9 @@ case class ImportConfigs @Inject()(
           lang = request.body.config.defaultLang,
           commit = request.body.commit,
           properties = request.body.config.properties.map(ref =>
-              PropertiesHandle(storage.uri(s"${prefix(id, ds, FileStage.Config)}$ref", urlExpiration).toString))
-            .getOrElse(PropertiesHandle.empty),
+              ConfigHandle(configFileRefToFullUrl(id, ds, ref).toString))
+            .getOrElse(ConfigHandle.empty),
+          hierarchyFile = hierarchyFile,
           fonds = dataset.fonds
         )
       }
@@ -123,8 +131,19 @@ case class ImportConfigs @Inject()(
     }
   }
 
+  /**
+    * Return a URI for a file reference scoped to a dataset.
+    *
+    * @param id the institution ID
+    * @param ds the dataset ID
+    * @param ref the file name, excluding the full scoped path
+    * @return a full URI
+    */
+  private def configFileRefToFullUrl(id: String, ds: String, ref: String)(implicit request: RequestHeader): URI =
+    storage.uri(s"${prefix(id, ds, FileStage.Config)}$ref", urlExpiration)
+
   private def getUrlMap(data: IngestPayload, prefix: String): Future[List[Map[String, java.net.URI]]] = {
-    // NB: Not doing this with regular Future.successful so as to
+    // NB: Not doing this with regular Future.successful in order to
     // limit parallelism to the specified amount
     val keys = if (data.files.isEmpty) storage.streamFiles(Some(prefix)).map(_.key)
     else Source(data.files.map(prefix + _).toList)

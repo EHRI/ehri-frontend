@@ -155,6 +155,7 @@ export default {
 
         <div id="auditor-suggestions-container">
             <table v-if="messages.length > 0" class="auditor-suggestions table table-striped table-bordered">
+              <tbody>
                 <tr>
                     <th>{{ $t(`dataModel.audit.fields.entity`) }}</th>
                     <th>{{ $t(`dataModel.audit.fields.mandatory`) }}</th>
@@ -179,6 +180,7 @@ export default {
                         </details>
                     </td>
                 </tr>
+              </tbody>
             </table>
         </div>
         <div class="alert alert-success" v-if="doneMessage">

@@ -281,3 +281,14 @@ declare function xtra:strip-namespaces($item as item()*) as item()* {
       }
     default return $item
 };
+
+declare function xtra:clean-namespaces($nodes as item()*) as item()* {
+  for $node in $nodes
+  return typeswitch($node)
+    case element() return
+      element { QName("urn:isbn:1-931666-22-9", local-name($node)) } {
+        $node/@*,
+        xtra:clean-namespaces($node/node())
+      }
+    default return $node
+};

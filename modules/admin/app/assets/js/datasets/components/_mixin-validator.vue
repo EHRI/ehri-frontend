@@ -7,12 +7,12 @@ import _isUndefined from 'lodash/isUndefined';
 import _isEmpty from 'lodash/isEmpty';
 import _keys from 'lodash/keys';
 import _find from 'lodash/find';
-import {ValidationResult} from "../types";
+import {ImportDataset, ValidationResult} from "../types";
 import {green, red} from "../termcolors";
 
 export default {
   props: {
-    datasetId: String,
+    dataset: Object as ImportDataset,
     fileStage: String,
     api: Object,
   },
@@ -49,7 +49,7 @@ export default {
       let allTags = _isEmpty(tagToKey) ? this.files.map(f => f.eTag) : _keys(tagToKey);
       _forEach(allTags, tag => this.validating[tag] = true);
 
-      this.api.validateFiles(this.datasetId, this.fileStage, tagToKey)
+      this.api.validateFiles(this.dataset.id, this.fileStage, tagToKey)
           .then(errs => this.handleValidationResults(errs))
           .catch(error => this.showError("Error attempting validation", error))
           .finally(() => {
