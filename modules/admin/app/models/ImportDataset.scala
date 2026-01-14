@@ -13,12 +13,13 @@ case class ImportDataset(
   name: String,
   src: ImportDataset.Src.Value,
   contentType: Option[String] = None,
-  created: Instant,
   fonds: Option[String] = None,
   sync: Boolean = false,
   nest: Boolean = false,
+  setHierarchy: Boolean = false,
   status: ImportDataset.Status.Value = ImportDataset.Status.Active,
   notes: Option[String] = None,
+  created: Instant,
 )
 
 object ImportDataset {
@@ -48,6 +49,7 @@ case class ImportDatasetInfo(
   name: String,
   src: ImportDataset.Src.Value,
   contentType: Option[String] = None,
+  setHierarchy: Boolean = false,
   fonds: Option[String] = None,
   sync: Boolean = false,
   nest: Boolean = false,

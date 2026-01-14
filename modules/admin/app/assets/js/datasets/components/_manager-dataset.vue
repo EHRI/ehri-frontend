@@ -9,7 +9,7 @@ import ManagerSnapshots from "./_manager-snapshots.vue";
 
 import MixinUtil from './_mixin-util';
 import MixinError from './_mixin-error';
-import {ImportDatasetSrc} from '../types';
+import {ImportDataset, ImportDatasetSrc} from '../types';
 import {DatasetManagerApi} from "../api";
 
 import _merge from 'lodash/merge';
@@ -21,7 +21,7 @@ export default {
     config: Object,
     api: DatasetManagerApi,
     initTab: String,
-    dataset: Object,
+    dataset: Object as ImportDataset,
     datasets: Array,
     stats: Object,
   },
@@ -158,9 +158,7 @@ export default {
 
       <manager-harvest
           v-if="dataset.src !== 'upload'"
-          v-bind:dataset-id="dataset.id"
-          v-bind:dataset-type="dataset.src"
-          v-bind:dataset-content-type="dataset.contentType"
+          v-bind:dataset="dataset"
           v-bind:fileStage="config.input"
           v-bind:config="config"
           v-bind:active="tab === 'input'"
@@ -169,8 +167,7 @@ export default {
           v-on:error="showError"/>
       <manager-upload
           v-else
-          v-bind:dataset-id="dataset.id"
-          v-bind:dataset-content-type="dataset.contentType"
+          v-bind:dataset="dataset"
           v-bind:fileStage="config.input"
           v-bind:config="config"
           v-bind:active="tab === 'input'"
@@ -180,8 +177,7 @@ export default {
     </div>
     <div id="tab-convert" class="stage-tab" v-show="tab === 'convert'">
       <manager-convert
-          v-bind:dataset-id="dataset.id"
-          v-bind:dataset-content-type="dataset.contentType"
+          v-bind:dataset="dataset"
           v-bind:fileStage="config.output"
           v-bind:config="config"
           v-bind:active="tab === 'convert'"
@@ -191,6 +187,7 @@ export default {
     <div id="tab-ingest" class="stage-tab" v-show="tab === 'ingest'">
       <manager-ingest
           v-bind:dataset-id="dataset.id"
+          v-bind:dataset="dataset"
           v-bind:fileStage="config.output"
           v-bind:config="config"
           v-bind:active="tab === 'ingest'"

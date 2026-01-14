@@ -27,6 +27,22 @@
         <script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/vue.runtime.global.js")"></script>
         <script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/vue-i18n.global.js")"></script>
 
+        <script>
+            function getVueI18n(url) {
+                return fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            let messages = data;
+                            messages['en'] = messages['default'];
+                            delete messages['default'];
+                            return VueI18n.createI18n({
+                                locale: 'en',
+                                messages
+                            });
+                        });
+            }
+        </script>
+
         <div class="app-wrapper">
             <header id="header" class="navigation">
                 @views.html.admin.common.adminNavBar()

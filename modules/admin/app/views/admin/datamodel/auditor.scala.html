@@ -12,11 +12,11 @@
     breadcrumbs = views.html.admin.common.breadcrumbs(List(), breadcrumbRoot)) {
 } {
     @helper.javascriptRouter("dataModelApi")(
+        controllers.admin.routes.javascript.Data.i18n,
         controllers.admin.routes.javascript.Data.getItemType,
         controllers.admin.routes.javascript.Tasks.cancel,
         controllers.datamodel.routes.javascript.EntityTypeMetadataApi.templates,
         controllers.datamodel.routes.javascript.EntityTypeMetadataApi.list,
-        controllers.datamodel.routes.javascript.EntityTypeMetadataApi.i18n,
         controllers.datamodel.routes.javascript.EntityTypeMetadataApi.runAudit
     )
 
@@ -30,17 +30,8 @@
                 runAudit: dataModelApi.controllers.datamodel.EntityTypeMetadataApi.runAudit,
                 cancel: dataModelApi.controllers.admin.Tasks.cancel
             }
-            fetch(dataModelApi.controllers.datamodel.EntityTypeMetadataApi.i18n().url)
-                .then(response => response.json())
-                .then(data => {
-                    let messages = data;
-                    messages['en'] = messages['default'];
-                    delete messages['default'];
-                    let i18n = VueI18n.createI18n({
-                        locale: 'en',
-                        messages
-                    });
-                    Vue.createApp({
+            getVueI18n(dataModelApi.controllers.admin.Data.i18n().url)
+                .then(i18n => Vue.createApp({
                         render: function() {
                             return Vue.h(AuditorApp.default, {
                                 service: window.SERVICE,
@@ -48,8 +39,8 @@
                                     websocketHandler: "@controllers.admin.routes.AdminAssets.versioned("js/dmeditor/websocket-handler.js")",
                                 }
                             });
-                        },
-                    }).use(i18n).mount("#vue-app");
-                });
+                        }
+                    }).use(i18n).mount("#vue-app")
+                );
     </script>
 }

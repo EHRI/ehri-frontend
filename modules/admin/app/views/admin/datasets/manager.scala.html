@@ -25,26 +25,29 @@
 } {
     <script src="@controllers.admin.routes.AdminAssets.versioned("js/datasets/app.js")"></script>
     <script>
-            Vue.createApp({
-                render: function() {
-                    return Vue.h(App.default, {
-                        service: datasetApi.controllers,
-                        config: {
-                            repoId: "@item.id",
-                            versioned: @isVersioned,
-                            input: "@FileStage.Input",
-                            output: "@FileStage.Output",
-                            config: "@FileStage.Config",
-                            admin: @userOpt.forall(_.isAdmin),
-                            websocketHandler: "@controllers.admin.routes.AdminAssets.versioned("js/datasets/worker.js")",
-                            monitorUrl: jobId => datasetApi.controllers.admin.Tasks.taskMonitorWS(jobId)
-                                    .absoluteURL(location.protocol === "https:")
-                                    .replace(/^http/, "ws"),
-                            defaultTab: "input",
-                            maxPreviewSize: @conf.configuration.get[Int]("ehri.admin.dataManager.maxPreviewSize"),
-                        }
-                    });
-                },
-            }).mount("#vue-app");
+            getVueI18n(datasetApi.controllers.admin.Data.i18n().url)
+                .then(i18n =>
+                    Vue.createApp({
+                        render: function() {
+                            return Vue.h(App.default, {
+                                service: datasetApi.controllers,
+                                config: {
+                                    repoId: "@item.id",
+                                    versioned: @isVersioned,
+                                    input: "@FileStage.Input",
+                                    output: "@FileStage.Output",
+                                    config: "@FileStage.Config",
+                                    admin: @userOpt.forall(_.isAdmin),
+                                    websocketHandler: "@controllers.admin.routes.AdminAssets.versioned("js/datasets/worker.js")",
+                                    monitorUrl: jobId => datasetApi.controllers.admin.Tasks.taskMonitorWS(jobId)
+                                            .absoluteURL(location.protocol === "https:")
+                                            .replace(/^http/, "ws"),
+                                    defaultTab: "input",
+                                    maxPreviewSize: @conf.configuration.get[Int]("ehri.admin.dataManager.maxPreviewSize"),
+                                }
+                            });
+                        },
+                    }).use(i18n).mount("#vue-app")
+                );
     </script>
 }

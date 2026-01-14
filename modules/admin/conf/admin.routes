@@ -43,6 +43,7 @@ GET         /monitor/_events                    @controllers.admin.Utils.sse()
 GET         /api/*path                          @controllers.admin.Data.forward(path: String)
 
 # Get items by id and type/id
+GET         /i18n                               @controllers.admin.Data.i18n()
 GET         /item/:id                           @controllers.admin.Data.getItem(id: String)
 GET         /item/:entityType/:id               @controllers.admin.Data.getItemType(entityType: models.EntityType.Value, id: String)
 GET         /item/:entityType/:id/json          @controllers.admin.Data.getItemRawJson(entityType: models.EntityType.Value, id: String)

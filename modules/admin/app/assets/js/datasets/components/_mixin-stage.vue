@@ -6,7 +6,7 @@ import _forIn from 'lodash/forIn';
 import _fromPairs from 'lodash/fromPairs';
 import _isEmpty from 'lodash/isEmpty';
 
-import {FileMeta} from '../types';
+import {FileMeta, ImportDataset} from '../types';
 import {DatasetManagerApi} from "../api";
 
 let initialStageState = function (): object {
@@ -31,7 +31,7 @@ let initialStageState = function (): object {
 
 export default {
   props: {
-    datasetId: String,
+    dataset: Object as ImportDataset,
     active: Boolean,
     api: DatasetManagerApi,
   },
@@ -69,7 +69,7 @@ export default {
     }, 500),
     load: async function () {
       try {
-        let {files, truncated} = await this.api.listFiles(this.datasetId, this.fileStage, this.filter.value);
+        let {files, truncated} = await this.api.listFiles(this.dataset.id, this.fileStage, this.filter.value);
         this.files = files;
         this.truncated = truncated;
       } catch (e) {
@@ -84,7 +84,7 @@ export default {
           ? this.files[this.files.length - 1].key
           : null;
       try {
-        let {files, truncated} = await this.api.listFiles(this.datasetId, this.fileStage, this.filter.value, from);
+        let {files, truncated} = await this.api.listFiles(this.dataset.id, this.fileStage, this.filter.value, from);
         this.files.push.apply(this.files, files);
         this.truncated = truncated;
       } catch (e) {
@@ -98,7 +98,7 @@ export default {
     },
     downloadFiles: function (keys) {
       keys.forEach(key => this.downloading[key] = true);
-      this.api.fileUrls(this.datasetId, this.fileStage, keys)
+      this.api.fileUrls(this.dataset.id, this.fileStage, keys)
           .then(urls => {
             _forIn(urls, (url, fileName) => {
               window.open(url, '_blank');
@@ -114,7 +114,7 @@ export default {
       }
       let dkeys = _isEmpty(keys) ? this.files.map(f => f.key) : keys;
       dkeys.forEach(key => this.deleting[key] = true);
-      this.api.deleteFiles(this.datasetId, this.fileStage, keys)
+      this.api.deleteFiles(this.dataset.id, this.fileStage, keys)
           .then(() => {
             dkeys.forEach(key => {
               delete this.deleting[key];
@@ -128,7 +128,7 @@ export default {
     },
     info: function (key) {
       this.loadingInfo[key] = true;
-      return this.api.info(this.datasetId, this.fileStage, key)
+      return this.api.info(this.dataset.id, this.fileStage, key)
           .then(r => this.fileInfo = r)
           .catch(error => this.showError("Error fetching file info", error))
           .finally(() => this.loadingInfo = {});
@@ -165,7 +165,7 @@ export default {
         this.load();
       }
     },
-    datasetId: function () {
+    dataset: function () {
       this.reset();
       this.load();
       this.loadConfig();

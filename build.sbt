@@ -20,7 +20,7 @@ ThisBuild / organization := "eu.ehri-project"
 val projectScalaVersion = "2.13.18"
 val appName = "docview"
 
-val backendVersion = "0.15.1"
+val backendVersion = "0.15.4"
 val dataConverterVersion = "1.1.16"
 val pekkoConnectorsVersion = "1.0.2"
 

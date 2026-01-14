@@ -69,7 +69,7 @@ case class Ingest @Inject()(
                 .filter(_.filename.nonEmpty)
                 .map(_.ref)
 
-            val task = ingestTask.copy(properties = FileProperties(props), data = FilePayload(Some(data.ref)))
+            val task = ingestTask.copy(properties = FileConfig(props), data = FilePayload(Some(data.ref)))
             val ingestData = IngestData(task, dataType, contentType, AuthenticatedUser(request.user.id), instance)
 
             mat.system.actorOf(Props(DataImporterManager(IngestJob(jobId, List(ingestData)), ingestApi)), jobId)

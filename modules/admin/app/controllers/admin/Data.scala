@@ -5,6 +5,7 @@ import controllers.AppComponents
 import controllers.base.AdminController
 import models.{EntityType, Model, Readable}
 import play.api.http.{ContentTypes, HeaderNames}
+import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 
@@ -22,6 +23,10 @@ case class Data @Inject()(
     headers.filter(kv => if (filter.isEmpty) true else filter.contains(kv._1)).flatMap { case (k, seq) =>
       seq.map(s => k -> s)
     }.toSeq
+  }
+
+  def i18n(): Action[AnyContent] = WithUserAction { implicit request =>
+    Ok(Json.toJson(messagesApi.messages))
   }
 
   def getItem(id: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>

@@ -59,6 +59,7 @@ export default {
         return;
       }
       this.$emit("saving");
+      console.log(this.headers)
       try {
         let data = await this.api.saveHarvestConfig(this.datasetId, {
           urlMap: this.urlMap,

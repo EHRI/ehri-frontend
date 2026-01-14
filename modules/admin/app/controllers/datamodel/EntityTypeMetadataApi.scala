@@ -76,10 +76,6 @@ case class EntityTypeMetadataApi @Inject()(
     }
   }
 
-  def i18n(): Action[AnyContent] = WithUserAction { implicit request =>
-    Ok(Json.toJson(messagesApi.messages))
-  }
-
   def templates(): Action[AnyContent] = WithUserAction.async { implicit request =>
     entityTypeMetaService.templates().map { tpl =>
       Ok(Json.toJson(tpl.map(p => p._1.toString -> p._2)))
