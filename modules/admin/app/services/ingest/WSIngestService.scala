@@ -26,6 +26,7 @@ import java.nio.file.{Files, Path}
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.{Inject, Named}
+import scala.collection.immutable.SortedMap
 import scala.concurrent.{ExecutionContext, Future}
 
 
@@ -172,7 +173,10 @@ case class WSIngestService @Inject()(
       case UrlMapPayload(urls) =>
         val temp = SingletonTemporaryFileCreator.create("ingest", ".json")
         val writer = new PrintWriter(temp.path.toString, "UTF-8")
-        writer.write(Json.stringify(Json.toJson(urls)))
+        val sortUrls: Map[String, String] = SortedMap(urls.toSeq.sortBy(_._1).map { case (k, v) =>
+          k -> v.toString
+        }: _*)
+        writer.write(Json.stringify(Json.toJson(sortUrls)))
         writer.close()
         Some(temp.path)
     }
@@ -183,6 +187,7 @@ case class WSIngestService @Inject()(
         TOLERANT -> params.tolerant.toString,
         ALLOW_UPDATE -> params.allowUpdate.toString,
         USE_SOURCE_ID -> params.useSourceId.toString,
+        INFER_HIERARCHY -> params.inferHierarchy.toString,
         LOG -> params.log,
         COMMIT -> params.commit.toString) ++
         params.lang.map(LANG -> _).toSeq ++

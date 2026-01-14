@@ -48,6 +48,7 @@ case class IngestParams(
   log: String,
   fonds: Option[String] = None,
   lang: Option[String] = None,
+  inferHierarchy: Boolean = false,
   allowUpdate: Boolean = false,
   useSourceId: Boolean = false,
   tolerant: Boolean = false,
@@ -69,6 +70,7 @@ object IngestParams {
   val ALLOW_UPDATE = "allow-update"
   val USE_SOURCE_ID = "use-source-id"
   val LANG = "lang"
+  val INFER_HIERARCHY = "infer-hierarchy"
   val LOG = "log"
   val HANDLER = "handler"
   val IMPORTER = "importer"
@@ -86,6 +88,7 @@ object IngestParams {
       LOG -> nonEmptyText,
       FONDS -> optional(nonEmptyText),
       LANG -> optional(text),
+      INFER_HIERARCHY -> boolean,
       ALLOW_UPDATE -> boolean,
       USE_SOURCE_ID -> boolean,
       TOLERANT -> boolean,

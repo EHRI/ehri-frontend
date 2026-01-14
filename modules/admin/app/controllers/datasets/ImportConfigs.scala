@@ -66,6 +66,8 @@ case class ImportConfigs @Inject()(
     val urlsF = getUrlMap(request.body, prefix(id, ds, FileStage.Output))
     for (urls <- urlsF; dataset <- datasets.get(id, ds)) yield {
 
+      println(s"URL Map: $urls")
+
       val scopeType = if (dataset.fonds.isDefined && dataset.nest)
         models.ContentTypes.DocumentaryUnit else models.ContentTypes.Repository
 
@@ -81,6 +83,7 @@ case class ImportConfigs @Inject()(
           data = UrlMapPayload(urlBatch),
           allowUpdate = request.body.config.allowUpdates,
           useSourceId = request.body.config.useSourceId,
+          inferHierarchy = dataset.inferHierarchy,
           log = request.body.config.logMessage,
           tolerant = request.body.config.tolerant,
           lang = request.body.config.defaultLang,
@@ -124,7 +127,7 @@ case class ImportConfigs @Inject()(
   }
 
   private def getUrlMap(data: IngestPayload, prefix: String): Future[List[Map[String, java.net.URI]]] = {
-    // NB: Not doing this with regular Future.successful so as to
+    // NB: Not doing this with regular Future.successful in order to
     // limit parallelism to the specified amount
     val keys = if (data.files.isEmpty) storage.streamFiles(Some(prefix)).map(_.key)
     else Source(data.files.map(prefix + _).toList)
