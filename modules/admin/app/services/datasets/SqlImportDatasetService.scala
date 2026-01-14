@@ -15,7 +15,7 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
 
   private implicit val parser: RowParser[ImportDataset] =
     Macro.parser[ImportDataset](
-      "repo_id", "id", "name", "type", "content_type", "created", "item_id", "sync", "nest", "hierarchy_file", "status", "comments")
+      "repo_id", "id", "name", "type", "content_type", "created", "item_id", "sync", "nest", "infer_hierarchy", "status", "comments")
 
   override def listAll(): Future[Map[String, Seq[ImportDataset]]] = Future {
     db.withConnection { implicit conn =>
@@ -54,7 +54,7 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
   override def create(repoId: String, info: ImportDatasetInfo): Future[ImportDataset] = Future {
     db.withConnection { implicit conn =>
       try {
-        SQL"""INSERT INTO import_dataset (repo_id, id, name, type, content_type, item_id, sync, nest, hierarchy_file, status, comments)
+        SQL"""INSERT INTO import_dataset (repo_id, id, name, type, content_type, item_id, sync, nest, infer_hierarchy, status, comments)
           VALUES (
             $repoId,
             ${info.id},
@@ -64,7 +64,7 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
             ${info.fonds.filter(_.trim.nonEmpty)},
             ${info.sync},
             ${info.nest},
-            ${info.hierarchyFile},
+            ${info.inferHierarchy},
             ${info.status},
             ${info.notes}
           )
@@ -86,7 +86,7 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
               item_id = ${info.fonds.filter(_.trim.nonEmpty)},
               sync = ${info.sync},
               nest = ${info.nest},
-              hierarchy_file = ${info.hierarchyFile},
+              infer_hierarchy = ${info.inferHierarchy},
               status = ${info.status},
               comments = ${info.notes.filter(_.trim.nonEmpty)}
             WHERE repo_id = $repoId
@@ -107,13 +107,13 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
           "item_id" -> item.fonds.filter(_.trim.nonEmpty),
           "nest" -> item.nest,
           "sync" -> item.sync,
-          "hierarchy_file" -> item.hierarchyFile,
+          "infer_hierarchy" -> item.inferHierarchy,
           "status" -> item.status,
           "comments" -> item.notes
         )
       }
-      val q = """INSERT INTO import_dataset (repo_id, id, name, type, content_type, item_id, nest, sync, hierarchy_file, status, comments)
-                   VALUES({repo_id}, {id}, {name}, {type}, {content_type}, {item_id}, {nest}, {sync}, {hierarchy_file}, {status}, {comments})
+      val q = """INSERT INTO import_dataset (repo_id, id, name, type, content_type, item_id, nest, sync, infer_hierarchy, status, comments)
+                   VALUES({repo_id}, {id}, {name}, {type}, {content_type}, {item_id}, {nest}, {sync}, {infer_hierarchy}, {status}, {comments})
                    ON CONFLICT (repo_id, id) DO UPDATE SET
                       name = {name},
                       type = {type},
@@ -121,7 +121,7 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
                       item_id = {item_id},
                       sync = {sync},
                       nest = {nest},
-                      hierarchy_file = {hierarchy_file},
+                      infer_hierarchy = {infer_hierarchy},
                       status = {status},
                       comments = {comments}"""
       val batch = BatchSql(q, inserts.head, inserts.tail: _*)

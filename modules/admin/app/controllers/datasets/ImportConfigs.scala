@@ -83,7 +83,6 @@ case class ImportConfigs @Inject()(
           data = UrlMapPayload(urlBatch),
           allowUpdate = request.body.config.allowUpdates,
           useSourceId = request.body.config.useSourceId,
-          hierarchyFile = dataset.hierarchyFile,
           log = request.body.config.logMessage,
           tolerant = request.body.config.tolerant,
           lang = request.body.config.defaultLang,
@@ -91,6 +90,9 @@ case class ImportConfigs @Inject()(
           properties = request.body.config.properties.map(ref =>
               PropertiesHandle(storage.uri(s"${prefix(id, ds, FileStage.Config)}$ref", urlExpiration).toString))
             .getOrElse(PropertiesHandle.empty),
+          hierarchyFile = request.body.config.hierarchyFile.map(ref =>
+            storage.uri(s"${prefix(id, ds, FileStage.Config)}$ref", urlExpiration).toString
+          ),
           fonds = dataset.fonds
         )
       }
