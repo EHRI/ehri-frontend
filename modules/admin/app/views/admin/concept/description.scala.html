@@ -41,5 +41,9 @@
             <dt>@Messages(prefix + "." + URI)</dt>
             <dd><a href="@uri" class="external" target="_blank">@uri</a></dd>
         }
+        @item.data.geo.map { geo =>
+            <dt>@Messages(prefix + "." + LATLON)</dt>
+            <dd>@geo</dd>
+        }
     </dl>
 }

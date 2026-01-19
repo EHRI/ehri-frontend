@@ -409,20 +409,6 @@ object JsonApiV1 {
     implicit val _writes: Writes[JsonApiError] = Json.writes[JsonApiError]
   }
 
-  case class GeoPoint(
-    latitude: BigDecimal,
-    longitude: BigDecimal
-  )
-
-  object GeoPoint {
-    implicit val _writes: Writes[GeoPoint] = Writes { p =>
-      Json.obj(
-        "type" -> "Point",
-        "coordinates" -> Json.arr(p.latitude, p.longitude)
-      )
-    }
-  }
-
   case class JsonApiListResponse(
     data: Seq[Model],
     links: PaginationLinks,

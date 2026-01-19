@@ -25,6 +25,7 @@ object ConceptF {
   val SEEALSO = "seeAlso"
   val LONGITUDE = "longitude"
   val LATITUDE = "latitude"
+  val LATLON = "latlon"
   val ACCESS_POINTS = "accessPoints"
 
   // Defines the sections on the form, with an empty string for the default section
@@ -77,6 +78,7 @@ case class ConceptF(
   seeAlso: Seq[String] = Nil,
   @models.relation(Ontology.DESCRIPTION_FOR_ENTITY) descriptions: Seq[ConceptDescriptionF] = Nil
 ) extends ModelData with Persistable with Described {
+  def geo: Option[GeoPoint] = for(lat <- latitude; lon <- longitude) yield GeoPoint(lat, lon)
 
   type D = ConceptDescriptionF
 }

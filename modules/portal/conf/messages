@@ -1115,6 +1115,7 @@ cvocConcept.narrowerTerms=Narrower Terms
 cvocConcept.narrowerTermsPageHeader={0,choice,0#No narrower terms found|1#One narrower term found|1<{0,number,integer} narrower terms}
 cvocConcept.longitude=Longitude
 cvocConcept.latitude=Latitude
+cvocConcept.latlon=Latitude/Longitude
 cvocConcept.url=URL
 cvocConcept.uri=URI
 cvocConcept.seeAlso=See Also
