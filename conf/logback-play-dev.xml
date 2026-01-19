@@ -61,8 +61,8 @@
   <!-- <logger name="services.search" level="TRACE" /> -->
   <logger name="services.geocoding" level="DEBUG" />
 
-  <!-- Uncomment to see Solr requests -->
-  <!-- <logger name="eu.ehri.project.search.solr" level="DEBUG" /> -->
+  <!-- Switch to DEBUG to see more Solr info: -->
+  <logger name="eu.ehri.project.search.solr" level="WARN" />
 
   <!-- Uncomment to log backend transaction opening and closing -->
   <!-- <logger name="eu.ehri.project.core.impl" level="TRACE" /> -->
