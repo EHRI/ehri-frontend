@@ -1,9 +1,7 @@
 @(item: Concept, desc: ConceptDescriptionF, annotations: Seq[Annotation], visible: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, fieldPrefix: String)
 
 @import ConceptF._
-@import views.html.common.descriptionSection
-@import views.html.common.textField
-@import views.html.common.listField
+@import views.html.common.{listField, textField}
 
 @views.html.common.descriptionOutline(item, desc, annotations, visible, showAnnotations = false) {
     @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
@@ -19,6 +17,7 @@
             @listField(item, descId, HISTORYNOTE, desc.historyNote)
             @listField(item, descId, SCOPENOTE, desc.scopeNote)
             @listField(item, descId, SEEALSO, item.data.seeAlso)
+            @textField(item, descId, LATLON, item.data.geo.map(_.toString))
         }
     }
 }
