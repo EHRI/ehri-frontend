@@ -1,10 +1,11 @@
 package eu.ehri.project.search.solr
 
 import models.EntityType
+import play.api.PlayException
+import services.search._
 
 import javax.inject.Inject
-import play.api.PlayException
-import services.search.{SearchHit, _}
+import models.json._
 
 
 
@@ -22,7 +23,7 @@ case class SolrJsonResponseParser @Inject()(config: play.api.Configuration) exte
 
   // Intermediate structures...
   private case class SolrData(
-    query: Option[String],
+    query: Seq[String],
     count: Int,
     rawDocs: Seq[JsObject],
     highLights: Option[Map[String, Map[String, Seq[String]]]],
@@ -33,7 +34,7 @@ case class SolrJsonResponseParser @Inject()(config: play.api.Configuration) exte
   )
 
   private implicit val solrDataReads: Reads[SolrData] = (
-    (__ \ "responseHeader" \ "params" \ "q").readNullable[String] and
+    (__ \ "responseHeader" \ "params" \ "q").readSeqOrSingle[String] and
     (__ \ "grouped" \ "itemId" \ "ngroups").read[Int] and
     (__ \ "grouped" \ "itemId" \ "doclist" \ "docs").read[Seq[JsObject]] and
     (__ \ "highlighting").readNullable[Map[String, Map[String, Seq[String]]]] and
@@ -127,8 +128,10 @@ case class SolrJsonResponseParser @Inject()(config: play.api.Configuration) exte
   override def parse(responseBody: String, allFacets: Seq[FacetClass[Facet]] = Nil, appliedFacets: Seq[AppliedFacet] = Nil): QueryResult = {
 
     val raw: SolrData = Json.parse(responseBody).validate[SolrData].fold(
-      err => throw Json.parse(responseBody).asOpt[SolrServerError]
-        .getOrElse(new PlayException(s"Unexpected Solr response: ", responseBody)),
+      err => {
+        throw Json.parse(responseBody).asOpt[SolrServerError]
+          .getOrElse(new PlayException(s"Unexpected Solr response: ", responseBody))
+      },
       data => {
         logger.debug(s"Timings: ${data.debugTiming}")
         data
@@ -148,7 +151,7 @@ case class SolrJsonResponseParser @Inject()(config: play.api.Configuration) exte
     // word "collation").
     def collatedSpellcheckSuggestions: Option[(String, String)] = for {
       collationList <- (raw.spellcheck  \ "collations").asOpt[Seq[String]] if collationList.size > 1
-      q <- raw.query
+      q <- raw.query.headOption
     } yield (
         // Hack! strip any local param sections in the collated query...
         q.replaceAll("^\\{![^\\}]+\\}\\s*", ""),

@@ -43,6 +43,21 @@ case class SolrSearchEngine @Inject()(
   private def dispatch(query: Seq[(String, String)]): Future[WSResponse] = {
     ws.url(solrSelectUrl)
       .post(paramsToForm(query))
+      .map { response =>
+        if (response.status >= 404) {
+          // If we get a server error the server is probably offline or broken for some reason, so
+          // we don't want to log thousands of messages until it's fixed. Separate Solr monitoring
+          // *should* take care of notification. Note: this includes a 404 error because that's what
+          // Solr will give it you attempt to access a core that's been unloaded.
+          throw SearchEngineOffline(solrSelectUrl, new SolrServerError(response.status, response.body))
+        } else if (response.status >= 400) {
+          // If we get a client error it's probably our fault so log a warning and pretend to the
+          // user that the server is offline...
+          logger.warn(s"Solr client request error: ${response.status}: ${response.body}")
+          throw SearchEngineOffline(solrSelectUrl, new SolrServerError(response.status, response.body))
+        }
+        response
+      }
       .recover {
         case e: ConnectException => throw SearchEngineOffline(solrSelectUrl, e)
       }
