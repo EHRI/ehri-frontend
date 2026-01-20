@@ -549,11 +549,11 @@ facet.parent=Structure
 facet.parent.tooltip=Whether this item is a container for other records.
 facet.parent.true=Container Item
 facet.parent.false=Single Item
-facet.source=Description Source
-facet.source.tooltip=The source of the electronic description, e.g. whether it was\
+facet.creation=Description Source
+facet.creation.tooltip=The source of the electronic description, e.g. whether it was\
   created by EHRI staff or imported from structured data provided by a partner institution.
-facet.source.MANUAL=EHRI
-facet.source.IMPORT=EHRI Partner
+facet.creation.MANUAL=EHRI
+facet.creation.IMPORT=EHRI Partner
 facet.lod=Level of Detail
 facet.lod.tooltip=A rough approximation of the detail of the record based on character count.
 facet.lod.low=Low
