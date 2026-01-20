@@ -322,11 +322,11 @@ facet.parent=Structure
 facet.parent.tooltip=Si cet élément est un conteneur pour d''autres enregistrements.
 facet.parent.true=Élément conteneur
 facet.parent.false=Élément unique
-facet.source=Source de description
-facet.source.tooltip=La source de la description électronique, par exemple, si elle a été \
+facet.creation=Source de description
+facet.creation.tooltip=La source de la description électronique, par exemple, si elle a été \
     créée par l''équipe EHRI ou importée à partir de données structurées fournies par une institution partenaire.
-facet.source.MANUAL=EHRI
-facet.source.IMPORT=Partenaire EHRI
+facet.creation.MANUAL=EHRI
+facet.creation.IMPORT=Partenaire EHRI
 facet.lod=Niveau de détails
 facet.lod.tooltip=Une approximation du niveau de détails de l''enregistrement en fonction du nombre de caractères.
 facet.lod.low=Faible

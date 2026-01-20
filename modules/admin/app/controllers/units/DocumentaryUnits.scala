@@ -75,9 +75,9 @@ case class DocumentaryUnits @Inject()(
       ),
       FieldFacetClass(
         key = CREATION_PROCESS,
-        name = Messages("facet.source"),
-        param = "source",
-        render = s => Messages("facet.source." + s),
+        name = Messages("facet.creation"),
+        param = "creation",
+        render = s => Messages("facet.creation." + s),
         sort = FacetSort.Name,
         display = FacetDisplay.List
       ),

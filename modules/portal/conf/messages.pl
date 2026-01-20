@@ -322,11 +322,11 @@ facet.parent=Struktura
 facet.parent.tooltip=Czy ta pozycja jest kontenerem dla innych zapisów.
 facet.parent.true=Pozycja kontenera
 facet.parent.false=Pozycja pojedyncza
-facet.source=Źródło opisu
-facet.source.tooltip=Źródło opisu elektronicznego, np. czy był\
+facet.creation=Źródło opisu
+facet.creation.tooltip=Źródło opisu elektronicznego, np. czy był\
     stworzony przez pracowników EHRI, czy zaimportowany z ustrukturyzowanych danych dostarczonych przez instytucję partnerską.
-facet.source.MANUAL=EHRI
-facet.source.IMPORT=Partner EHRI
+facet.creation.MANUAL=EHRI
+facet.creation.IMPORT=Partner EHRI
 facet.lod=Poziom szczegółowości
 facet.lod.tooltip=Przybliżona szczegółowość zapisu na podstawie liczby znaków.
 facet.lod.low=Niska
