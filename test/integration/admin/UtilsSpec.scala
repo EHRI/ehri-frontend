@@ -32,7 +32,7 @@ class UtilsSpec extends IntegrationTestRunner with FakeMultipartUpload {
       val check = FakeRequest(controllers.admin.routes.Utils.checkUserSync()).call()
       status(check) must equalTo(OK)
       // User joeblogs exists in the account mocks but not the
-      // graph DB fixtures, so the sync check should (correcly)
+      // graph DB fixtures, so the sync check should (correctly)
       // highlight this.
       contentAsString(check) must contain("joeblogs")
     }
