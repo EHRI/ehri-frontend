@@ -1,7 +1,7 @@
 package controllers.admin
 
 import org.apache.pekko.actor.ActorRef
-import org.apache.pekko.stream.scaladsl.{BroadcastHub, Keep, Source}
+import org.apache.pekko.stream.scaladsl.{BroadcastHub, Keep, Sink, Source}
 import org.apache.pekko.stream.{CompletionStrategy, Materializer, OverflowStrategy}
 import org.apache.pekko.{Done, NotUsed}
 import controllers.AppComponents
@@ -93,6 +93,8 @@ case class Utils @Inject()(
     }
   }
 
+  private case class CheckUser(id: String, active: Boolean, staff: Boolean)
+
   /** Check users in the accounts DB have profiles in
     * the graph DB, and vice versa.
     */
@@ -100,12 +102,15 @@ case class Utils @Inject()(
 
     for {
       allAccounts <- accounts.findAll(PageParams.empty.withoutLimit)
-      profileIds <- cypher.get("MATCH (n:UserProfile) RETURN n.__id").map {
-        res => res.data.collect { case JsString(id) :: _ => id }.flatten
-      }
-      accountIds = allAccounts.map(_.id)
+      profiles <- cypher.rows(
+          """MATCH (n:UserProfile)
+            |RETURN n.__id, COALESCE(n.active, false), COALESCE(n.staff, false)""".stripMargin)
+        .collect {
+          case JsString(id) :: JsBoolean(active) :: JsBoolean(staff) :: _ => CheckUser(id, active, staff)
+        }.runWith(Sink.seq).map(_.toSet)
+      accounts = allAccounts.map(a => CheckUser(a.id, a.active, a.staff)).toSet
     } yield {
-      val noProfile = accountIds.diff(profileIds)
+      val noProfile = accounts.map(_.id).diff(profiles.map(_.id))
       // Going nicely imperative here - sorry!
       var out = ""
       if (noProfile.nonEmpty) {
@@ -114,6 +119,7 @@ case class Utils @Inject()(
           out += s"  $u\n"
         }
       }
+
       Ok(out)
     }
   }
