@@ -95,6 +95,8 @@ with SessionPreferences[SessionPrefs] {
           renderError("errors.searchEngineError", searchEngineError())))
         case _: ServiceOffline => immediate(InternalServerError(
           renderError("errors.databaseError", serverTimeout())))
+
+        // Other unhandled errors, propagate to the application error handler.
         case _ => super.onServerError(request, exception)
       }
     }
