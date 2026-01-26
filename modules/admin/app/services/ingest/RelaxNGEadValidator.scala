@@ -1,22 +1,19 @@
 package services.ingest
 
-import java.io.{InputStreamReader, StringReader}
-import java.nio.file.Path
-import org.apache.pekko.http.scaladsl.model.Uri
-import org.apache.pekko.stream.Materializer
-import org.apache.pekko.stream.scaladsl.{Source, StreamConverters}
-import org.apache.pekko.util.ByteString
 import com.google.common.io.Resources
 import com.thaiopensource.util.PropertyMapBuilder
 import com.thaiopensource.validate.prop.rng.RngProperty
 import com.thaiopensource.validate.{ValidateProperty, ValidationDriver}
-import org.apache.commons.io.input.BOMInputStream
-import org.xml.sax
-
-import javax.inject.Inject
+import org.apache.pekko.http.scaladsl.model.Uri
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.scaladsl.{Source, StreamConverters}
+import org.apache.pekko.util.ByteString
 import org.xml.sax.{EntityResolver, ErrorHandler, InputSource, SAXParseException}
 import play.api.Logger
 
+import java.io.{InputStreamReader, StringReader}
+import java.nio.file.Path
+import javax.inject.Inject
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{ExecutionContext, Future}
 
