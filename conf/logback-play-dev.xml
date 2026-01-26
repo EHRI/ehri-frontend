@@ -2,7 +2,6 @@
   ~ Copyright (C) 2009-2013 Typesafe Inc. <http://www.typesafe.com>
   -->
 <configuration>
-
   <appender name="FILE" class="ch.qos.logback.core.FileAppender">
      <file>${application.home}/logs/application.log</file>
      <encoder>
@@ -11,15 +10,6 @@
    </appender>
 
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-
-    <!-- Woraround for issue https://github.com/playframework/playframework/issues/4574 -->
-    <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
-      <evaluator>
-        <expression>event.getMessage().contains("Logger configuration in conf files is deprecated and has no effect.")</expression>
-      </evaluator>
-      <onMatch>DENY</onMatch>
-    </filter>
-
     <encoder>
       <pattern>%highlight(%-5level) %logger{15} - %message%n%xException{5}</pattern>
     </encoder>
