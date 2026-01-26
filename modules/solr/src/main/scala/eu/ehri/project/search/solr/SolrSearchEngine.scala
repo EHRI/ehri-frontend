@@ -9,6 +9,7 @@ import services.search._
 import utils.Page
 
 import java.net.ConnectException
+import java.util.concurrent.TimeoutException
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -59,7 +60,7 @@ case class SolrSearchEngine @Inject()(
         response
       }
       .recover {
-        case e: ConnectException => throw SearchEngineOffline(solrSelectUrl, e)
+        case e @ (_: ConnectException | _: TimeoutException) => throw SearchEngineOffline(solrSelectUrl, e)
       }
   }
 
