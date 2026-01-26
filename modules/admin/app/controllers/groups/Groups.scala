@@ -4,13 +4,13 @@ import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import forms._
-import models.{Accessor, EntityType, Group, PermissionType, UserProfile}
-import play.api.data.Forms.{nonEmptyText, seq, single}
+import models.{Accessor, EntityType, Group, UserProfile}
+import play.api.data.Forms.{nonEmptyText, single}
 import play.api.data.{Form, Forms}
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Request}
 import services.data.{Constants, DataHelpers}
-import services.search.{FacetBuilder, FacetDisplay, QueryFacet, QueryFacetClass, SearchParams, Val}
+import services.search._
 import utils.{PageParams, RangeParams}
 
 import javax.inject._
