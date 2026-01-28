@@ -137,6 +137,7 @@ export default {
 
       <modal-ingest-config
           v-if="showOptions"
+          v-bind:infer-hierarchy="true"
           v-bind:waiting="waiting"
           v-bind:opts="opts"
           v-bind:api="api"

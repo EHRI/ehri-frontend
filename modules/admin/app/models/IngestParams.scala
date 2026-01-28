@@ -48,7 +48,6 @@ case class IngestParams(
   log: String,
   fonds: Option[String] = None,
   lang: Option[String] = None,
-  hierarchyFile: Option[String] = None,
   allowUpdate: Boolean = false,
   useSourceId: Boolean = false,
   tolerant: Boolean = false,
@@ -59,6 +58,7 @@ case class IngestParams(
   suffix: Option[String] = None,
   data: PayloadHandle = PayloadHandle.empty,
   properties: PropertiesHandle = PropertiesHandle.empty,
+  hierarchyFile: Option[String] = None,
   commit: Boolean = false
 )
 
@@ -88,7 +88,6 @@ object IngestParams {
       LOG -> nonEmptyText,
       FONDS -> optional(nonEmptyText),
       LANG -> optional(text),
-      HIERARCHY_FILE -> optional(text),
       ALLOW_UPDATE -> boolean,
       USE_SOURCE_ID -> boolean,
       TOLERANT -> boolean,
@@ -101,6 +100,7 @@ object IngestParams {
       SUFFIX -> optional(text),
       DATA_FILE -> ignored(PayloadHandle.empty),
       PROPERTIES_FILE -> ignored(PropertiesHandle.empty),
+      HIERARCHY_FILE -> optional(text),
       COMMIT -> default(boolean, false)
     )(IngestParams.apply)(IngestParams.unapply)
   )

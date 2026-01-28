@@ -2,20 +2,15 @@
 
 import ModalWindow from './_modal-window';
 import FormConfigFileManager from './_form-config-file-manager.vue';
-import {FileMeta} from '../types';
 import {DatasetManagerApi} from "../api";
-
-import _pick from 'lodash/pick';
-import _size from 'lodash/size';
 import {timeToRelative} from "../common";
-import _forIn from "lodash/forIn";
-import _formConfigFileManager from "./_form-config-file-manager.vue";
 
 
 export default {
   components: {ModalWindow, FormConfigFileManager},
   props: {
     datasetId: String,
+    inferHierarchy: Boolean,
     api: DatasetManagerApi,
     config: Object,
     opts: Object,
@@ -28,12 +23,12 @@ export default {
       tolerant: this.opts ? this.opts.tolerant : false,
       defaultLang: this.opts ? this.opts.defaultLang : null,
       properties: this.opts ? this.opts.properties : null,
+      hierarchyFile: this.opts ? this.opts.hierarchyFile : null,
       logMessage: this.opts ? this.opts.logMessage : "",
       batchSize: this.opts ? this.opts.batchSize : null,
       loading: false,
       commit: false,
       error: null,
-      propertyConfigs: [],
     }
   },
   methods: {
@@ -46,6 +41,7 @@ export default {
             tolerant: this.tolerant,
             defaultLang: this.defaultLang,
             properties: this.properties,
+            hierarchyFile: this.hierarchyFile,
             logMessage: this.logMessage,
             batchSize: this.batchSize || null,
           })
@@ -87,14 +83,22 @@ export default {
         </label>
       </div>
 
-      <form-config-file-manager
-          title="Properties File"
-          suffix=".properties"
+        <form-config-file-manager
+                title="Properties File"
+                suffix=".properties"
+                v-bind:dataset-id="datasetId"
+                v-bind:api="api"
+                v-bind:config="config"
+                v-model="properties"
+        />
+
+        <form-config-file-manager v-if="inferHierarchy"
+          title="Hierarchy File"
+          suffix=".tsv"
           v-bind:dataset-id="datasetId"
           v-bind:api="api"
           v-bind:config="config"
-          v-bind:config-options="propertyConfigs"
-          v-model="properties"
+          v-model="hierarchyFile"
           />
 
       <div class="form-group">
