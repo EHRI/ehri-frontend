@@ -23,6 +23,9 @@ minio-down:
 test-down:
 	$(CONTAINER_RUNTIME) --project-name docview-test -f docker-compose.test.yml down
 
+minio-ps:
+	$(CONTAINER_RUNTIME) --project-name docview-minio -f docker-compose.minio.yml ps
+
 all-up: 
 	$(CONTAINER_RUNTIME) --project-name docview-test -f docker-compose.test.yml up -d
 	$(CONTAINER_RUNTIME) --project-name docview-minio -f docker-compose.minio.yml up -d

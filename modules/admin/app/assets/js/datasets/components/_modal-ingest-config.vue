@@ -1,6 +1,7 @@
 <script lang="ts">
 
 import ModalWindow from './_modal-window';
+import FormConfigFileManager from './_form-config-file-manager.vue';
 import {FileMeta} from '../types';
 import {DatasetManagerApi} from "../api";
 
@@ -8,17 +9,17 @@ import _pick from 'lodash/pick';
 import _size from 'lodash/size';
 import {timeToRelative} from "../common";
 import _forIn from "lodash/forIn";
+import _formConfigFileManager from "./_form-config-file-manager.vue";
 
 
 export default {
-  components: {ModalWindow},
+  components: {ModalWindow, FormConfigFileManager},
   props: {
     datasetId: String,
     api: DatasetManagerApi,
     config: Object,
     opts: Object,
     waiting: Boolean,
-    props: Array,
   },
   data: function (): object {
     return {
@@ -32,6 +33,7 @@ export default {
       loading: false,
       commit: false,
       error: null,
+      propertyConfigs: [],
     }
   },
   methods: {
@@ -65,11 +67,11 @@ export default {
         fileSpec['meta'] = {source: 'user'};
         let data = await this.api.uploadHandle(this.datasetId, this.config.config, fileSpec)
         await this.api.uploadFile(data.presignedUrl, file, () => true);
-        this.$emit("update");
         this.properties = file.name;
         if (event.target.files) {
           event.target.files = null;
         }
+        await this.update();
       } catch (e) {
         this.error = "Error uploading properties: " + e;
       } finally {
@@ -95,7 +97,7 @@ export default {
       }
       try {
         await this.api.deleteFiles(this.datasetId, this.config.config, [file.key]);
-        this.$emit("update");
+        await this.update();
       } finally {
         this.loading = false;
       }
@@ -103,16 +105,33 @@ export default {
     selectPropFile: function (file: FileMeta) {
       this.properties = this.properties === file.key ? null : file.key;
     },
+    loadPropertyConfigs: async function () {
+      this.loading = true;
+      try {
+        let data = await this.api.listFiles(this.datasetId, this.config.config);
+        this.propertyConfigs = data.files.filter(f => f.key.endsWith(".properties"));
+      } catch (e) {
+        this.showError("Error loading files", e);
+      } finally {
+        this.loading = false;
+      }
+    },
     prettyDate: timeToRelative,
+    update: async function() {
+      await this.loadPropertyConfigs();
+    }
   },
   computed: {
     isValidConfig: function () {
       return this.logMessage && this.logMessage.trim() !== "";
     },
-    hasProps: function () {
-      return _size(this.props) > 0;
+    hasProps: function() {
+      return _size(this.propertyConfigs) > 0;
     }
   },
+  async created() {
+    await this.update();
+  }
 };
 </script>
 
@@ -140,19 +159,31 @@ export default {
           descriptions in the same language if they come from different EAD files)
         </label>
       </div>
+
+      <form-config-file-manager
+          title="Properties File"
+          suffix=".properties"
+          v-bind:dataset-id="datasetId"
+          v-bind:api="api"
+          v-bind:config="config"
+          v-bind:config-options="propertyConfigs"
+          v-model="properties"
+          v-on:update="update"
+          />
+
       <div class="form-group">
-        <label class="form-label" for="opt-new-props">
+        <label class="form-label" for="option-new-config">
           Properties File
-          <span class="text-success" title="Upload Properties File" id="opt-new-props">
+          <span class="text-success" title="Upload Properties File" id="option-new-config">
               <i class="fa fa-plus-circle"></i>
               &nbsp;
-              <label class="sr-only" for="opt-new-props-input">Upload Properties File...</label>
-              <input v-on:change.prevent="uploadProperties" id="opt-new-props-input"
+              <label class="sr-only" for="option-new-config-input">Upload Properties File...</label>
+              <input v-on:change.prevent="uploadProperties" id="option-new-config-input"
                      type="file" pattern=".*.properties$"/>
             </span>
         </label>
-        <div class="ingest-options-properties-container">
-          <table v-if="hasProps" class="ingest-options-properties table table-bordered table-sm table-striped">
+        <div class="config-options-selector-container">
+          <table v-if="hasProps" class="config-options-selector table table-bordered table-sm table-striped">
               <tr>
                   <th></th>
                   <th>File</th>
@@ -160,7 +191,7 @@ export default {
                   <th></th>
                   <th></th>
               </tr>
-            <tr v-for="f in props" v-on:click="selectPropFile(f)" v-bind:class="{'active': f.key===properties}">
+            <tr v-for="f in propertyConfigs" v-on:click="selectPropFile(f)" v-bind:class="{'active': f.key===properties}">
               <td><i v-bind:class="{
                   'fa-check': f.key===properties,
                   'text-success': f.key===properties,
@@ -178,7 +209,7 @@ export default {
           </div>
           <div v-else class="panel-placeholder">
             No custom properties...
-            <input class="opt-new-props-input"
+            <input class="option-new-config-input"
                    type="file" pattern=".*.properties$" v-on:change.prevent="uploadProperties"/>
           </div>
         </div>

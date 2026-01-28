@@ -1,0 +1,151 @@
+<script lang="ts">
+
+import _pick from "lodash/pick";
+import _forIn from "lodash/forIn";
+import {FileMeta} from "../types";
+import {timeToRelative} from "../common";
+import {DatasetManagerApi} from "../api";
+import _size from "lodash/size";
+
+export default {
+  props: {
+    modelValue: String,
+    title: String,
+    suffix: String,
+    datasetId: String,
+    api: DatasetManagerApi,
+    config: Object,
+    disabled: Boolean,
+    configOptions: Array,
+  },
+  data: function () {
+    return {
+      configFile: this.modelValue,
+      loading: false,
+
+    }
+  },
+  methods: {
+    uploadConfig: async function (event: Event | DragEvent) {
+      let fileList = event.dataTransfer ? event.dataTransfer.files : event.target.files;
+      if (fileList.length == 0) {
+        return;
+      }
+      let file = fileList[0];
+
+      // NB: the fileStage arg here is 'config', since we are uploading a config file, rather then
+      // the stage of the ingest manager ('output').
+      try {
+        this.loading = true;
+        let fileSpec = _pick(file, ['name', 'type', 'size']);
+        fileSpec['meta'] = {source: 'user'};
+        let data = await this.api.uploadHandle(this.datasetId, this.config.config, fileSpec)
+        await this.api.uploadFile(data.presignedUrl, file, () => true);
+        this.configFile = file.name;
+        this.update();
+        if (event.target.files) {
+          event.target.files = null;
+        }
+      } catch (e) {
+        this.error = "Error uploading config: " + e;
+      } finally {
+        this.loading = false;
+      }
+    },
+    downloadConfig: async function (key) {
+      this.loading = true;
+      this.$emit("update");
+      try {
+        let urls = await this.api.fileUrls(this.datasetId, this.config.config, [key]);
+        _forIn(urls, (url, fileName) => window.open(url, key));
+      } catch (e) {
+        this.error = "Error fetching download URLs" + e;
+      } finally {
+        this.loading = false;
+      }
+    },
+    deleteConfig: async function (file: FileMeta) {
+      this.loading = true;
+      if (file.key === this.configFile) {
+        this.configFile = null;
+      }
+      try {
+        await this.api.deleteFiles(this.datasetId, this.config.config, [file.key]);
+        this.update();
+      } finally {
+        this.loading = false;
+      }
+    },
+    selectConfigFile: function (file: FileMeta) {
+      this.configFile = this.configFile === file.key ? null : file.key;
+    },
+    prettyDate: timeToRelative,
+    update: function () {
+      this.$emit("update:modelValue", this.configFile);
+      this.$emit("update");
+    }
+  },
+  computed: {
+    hasConfigs: function () {
+      return _size(this.configOptions) > 0;
+    },
+    patternRegex: function() {
+      return this.suffix ? (".*\\" + this.suffix + "$") : ".*";
+    }
+  },
+  watch: {
+    show: function () {
+      this.update();
+    },
+    configFile: function() {
+      this.update();
+    }
+  }
+}
+</script>
+
+<template>
+  <div class="config-file-manager">
+      <div class="form-group">
+          <label class="form-label" for="option-new-config">
+              {{ title }}
+              <span class="text-success" title="Upload Properties File" id="option-new-config">
+              <i class="fa fa-plus-circle"></i>
+              &nbsp;
+              <label class="sr-only" for="option-new-config-input">Upload Config File...</label>
+              <input v-on:change.prevent="uploadConfig" id="option-new-config-input" type="file" v-bind:pattern="patternRegex"/>
+            </span>
+          </label>
+          <div class="config-options-selector-container">
+              <table v-if="hasConfigs" class="config-options-selector table table-bordered table-sm table-striped">
+                  <tr>
+                      <th></th>
+                      <th>File</th>
+                      <th>Last Modified</th>
+                      <th></th>
+                      <th></th>
+                  </tr>
+                  <tr v-for="f in configOptions" v-on:click="selectConfigFile(f)" v-bind:class="{'active': f.key===configFile}">
+                      <td><i v-bind:class="{
+                  'fa-check': f.key===configFile,
+                  'text-success': f.key===configFile,
+                  'fa-minus': f.key!==configFile,
+                  'text-muted': f.key!==configFile,
+                }" class="fa fa-fw"></i></td>
+                      <td>{{ f.key }}</td>
+                      <td v-bind:title="f.lastModified">{{ prettyDate(f.lastModified) }}</td>
+                      <td title="Download config file" v-on:click.stop.prevent="downloadConfig(f.key)"><i class="fa fa-download"></i></td>
+                      <td title="Delete config file" v-on:click.stop.prevent="deleteConfig(f)"><i class="fa fa-trash-o"></i></td>
+                  </tr>
+              </table>
+              <div v-else-if="loading" class="panel-placeholder">
+                  Loading config...
+              </div>
+              <div v-else class="panel-placeholder">
+                  No config...
+                  <input class="option-new-config-input" type="file" v-bind:pattern="patternRegex" v-on:change.prevent="uploadConfig"/>
+              </div>
+          </div>
+      </div>
+  </div>
+</template>

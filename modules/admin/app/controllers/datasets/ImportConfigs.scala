@@ -83,7 +83,7 @@ case class ImportConfigs @Inject()(
           data = UrlMapPayload(urlBatch),
           allowUpdate = request.body.config.allowUpdates,
           useSourceId = request.body.config.useSourceId,
-          inferHierarchy = dataset.inferHierarchy,
+          hierarchyFile = dataset.hierarchyFile,
           log = request.body.config.logMessage,
           tolerant = request.body.config.tolerant,
           lang = request.body.config.defaultLang,

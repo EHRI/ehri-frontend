@@ -1,2 +1,2 @@
 ALTER TABLE import_dataset
-    ADD COLUMN infer_hierarchy BOOLEAN NOT NULL DEFAULT FALSE;
+    ADD COLUMN hierarchy_file VARCHAR[1024] NULL;

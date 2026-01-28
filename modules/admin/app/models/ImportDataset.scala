@@ -17,7 +17,7 @@ case class ImportDataset(
   fonds: Option[String] = None,
   sync: Boolean = false,
   nest: Boolean = false,
-  inferHierarchy: Boolean = false,
+  hierarchyFile: Option[String] = None,
   status: ImportDataset.Status.Value = ImportDataset.Status.Active,
   notes: Option[String] = None,
 )
@@ -52,7 +52,7 @@ case class ImportDatasetInfo(
   fonds: Option[String] = None,
   sync: Boolean = false,
   nest: Boolean = false,
-  inferHierarchy: Boolean = false,
+  hierarchyFile: Option[String] = None,
   status: ImportDataset.Status.Value = ImportDataset.Status.Active,
   notes: Option[String] = None,
 )

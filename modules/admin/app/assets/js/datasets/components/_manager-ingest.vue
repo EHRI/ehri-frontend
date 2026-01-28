@@ -49,7 +49,6 @@ export default {
     return {
       waiting: false,
       showOptions: false,
-      propertyConfigs: [],
       opts: null,
     }
   },
@@ -91,21 +90,9 @@ export default {
     loadConfig: async function () {
       this.opts = await this.api.getImportConfig(this.datasetId);
     },
-    loadPropertyConfigs: async function () {
-      this.loading = true;
-      try {
-        let data = await this.api.listFiles(this.datasetId, this.config.config);
-        this.propertyConfigs = data.files.filter(f => f.key.endsWith(".properties"));
-      } catch (e) {
-        this.showError("Error loading files", e);
-      } finally {
-        this.loading = false;
-      }
-    },
   },
   created() {
     this.resumeMonitor();
-    this.loadPropertyConfigs();
     this.loadConfig();
   },
 };
@@ -151,14 +138,12 @@ export default {
       <modal-ingest-config
           v-if="showOptions"
           v-bind:waiting="waiting"
-          v-bind:props="propertyConfigs"
           v-bind:opts="opts"
           v-bind:api="api"
           v-bind:config="config"
           v-bind:dataset-id="datasetId"
           v-on:saving="waiting = true"
           v-on:saved-config="doIngest"
-          v-on:update="loadPropertyConfigs"
           v-on:close="showOptions = false"/>
 
       <modal-info v-if="fileInfo !== null" v-bind:file-info="fileInfo" v-on:close="fileInfo = null"/>

@@ -187,9 +187,9 @@ case class WSIngestService @Inject()(
         TOLERANT -> params.tolerant.toString,
         ALLOW_UPDATE -> params.allowUpdate.toString,
         USE_SOURCE_ID -> params.useSourceId.toString,
-        INFER_HIERARCHY -> params.inferHierarchy.toString,
         LOG -> params.log,
         COMMIT -> params.commit.toString) ++
+        params.hierarchyFile.map(HIERARCHY_FILE -> _).toSeq ++
         params.lang.map(LANG -> _).toSeq ++
         params.fonds.map(FONDS -> _).toSeq ++
         params.handler.map(HANDLER -> _).toSeq ++

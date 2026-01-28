@@ -97,7 +97,7 @@ export interface ImportDatasetInfo {
   fonds?: string,
   sync: boolean,
   nest: boolean,
-  inferHierarchy: boolean,
+  hierarchyFile?: string,
   status: ImportDatasetStatus,
   contentType?: string,
   notes?: string,

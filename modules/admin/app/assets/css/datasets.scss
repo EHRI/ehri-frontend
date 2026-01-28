@@ -943,7 +943,7 @@ $active-table-row: #e7f1ff;
   }
 }
 
-.ingest-options-properties-container {
+.config-options-selector-container {
   height: 8rem;
   display: flex;
   flex-direction: column;
@@ -957,11 +957,11 @@ $active-table-row: #e7f1ff;
   }
 }
 
-#opt-new-props {
+#option-new-config {
   position: relative;
 }
 
-.opt-new-props-input {
+.option-new-config-input {
   opacity: 0;
   position: absolute;
   top: 0;
@@ -971,13 +971,13 @@ $active-table-row: #e7f1ff;
   cursor: pointer;
 }
 
-.ingest-options-properties th {
+.config-options-selector th {
   position: sticky;
   top: 0;
   background-color: $gray-200;
 }
 
-.ingest-options-properties tr {
+.config-options-selector tr {
   cursor: pointer;
   &.active {
     background-color: $active-table-row;
