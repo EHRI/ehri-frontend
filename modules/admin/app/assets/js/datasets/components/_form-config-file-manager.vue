@@ -16,13 +16,12 @@ export default {
     api: DatasetManagerApi,
     config: Object,
     disabled: Boolean,
-    configOptions: Array,
   },
   data: function () {
     return {
       configFile: this.modelValue,
+      configOptions: [],
       loading: false,
-
     }
   },
   methods: {
@@ -42,6 +41,7 @@ export default {
         let data = await this.api.uploadHandle(this.datasetId, this.config.config, fileSpec)
         await this.api.uploadFile(data.presignedUrl, file, () => true);
         this.configFile = file.name;
+        await this.loadConfigOptions();
         this.update();
         if (event.target.files) {
           event.target.files = null;
@@ -71,6 +71,7 @@ export default {
       }
       try {
         await this.api.deleteFiles(this.datasetId, this.config.config, [file.key]);
+        await this.loadConfigOptions();
         this.update();
       } finally {
         this.loading = false;
@@ -78,12 +79,23 @@ export default {
     },
     selectConfigFile: function (file: FileMeta) {
       this.configFile = this.configFile === file.key ? null : file.key;
+      this.update();
     },
     prettyDate: timeToRelative,
     update: function () {
       this.$emit("update:modelValue", this.configFile);
-      this.$emit("update");
-    }
+    },
+    loadConfigOptions: async function () {
+      this.loading = true;
+      try {
+        let data = await this.api.listFiles(this.datasetId, this.config.config);
+        this.configOptions = data.files.filter(f => f.key.endsWith(this.suffix));
+      } catch (e) {
+        this.showError("Error loading files", e);
+      } finally {
+        this.loading = false;
+      }
+    },
   },
   computed: {
     hasConfigs: function () {
@@ -94,12 +106,12 @@ export default {
     }
   },
   watch: {
-    show: function () {
-      this.update();
+    show: async function () {
+      await this.update();
     },
-    configFile: function() {
-      this.update();
-    }
+  },
+  async created() {
+    await this.loadConfigOptions();
   }
 }
 </script>
@@ -139,10 +151,10 @@ export default {
                   </tr>
               </table>
               <div v-else-if="loading" class="panel-placeholder">
-                  Loading config...
+                  Loading file list...
               </div>
               <div v-else class="panel-placeholder">
-                  No config...
+                  No file loaded...
                   <input class="option-new-config-input" type="file" v-bind:pattern="patternRegex" v-on:change.prevent="uploadConfig"/>
               </div>
           </div>
