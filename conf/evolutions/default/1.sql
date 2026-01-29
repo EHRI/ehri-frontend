@@ -123,7 +123,7 @@ CREATE TABLE import_dataset (
     item_id         TEXT,
     sync            BOOLEAN DEFAULT FALSE,
     nest            BOOLEAN DEFAULT FALSE,
-    infer_hierarchy BOOLEAN DEFAULT FALSE,
+    set_hierarchy   BOOLEAN DEFAULT FALSE,
     status          VARCHAR(10) NOT NULL DEFAULT 'active',
     comments        TEXT,
     PRIMARY KEY (id, repo_id),

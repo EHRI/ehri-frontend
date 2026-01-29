@@ -11,7 +11,7 @@ export default {
   components: {ModalWindow, FormConfigFileManager},
   props: {
     dataset: Object as ImportDataset,
-    inferHierarchy: Boolean,
+    setHierarchy: Boolean,
     api: DatasetManagerApi,
     config: Object,
     opts: Object as ImportConfig,
@@ -54,7 +54,7 @@ export default {
   computed: {
 
     isValidConfig: function () {
-      let hasRequiredHierarchy = this.dataset.inferHierarchy ? this.hierarchyFile : true;
+      let hasRequiredHierarchy = this.dataset.setHierarchy ? this.hierarchyFile : true;
       return this.logMessage && this.logMessage.trim() !== "" && hasRequiredHierarchy;
     },
   },
@@ -89,19 +89,21 @@ export default {
         <form-config-file-manager
                 title="Properties File"
                 suffix=".properties"
+                input-id="opt-properties-file"
                 v-bind:dataset-id="dataset.id"
                 v-bind:api="api"
                 v-bind:config="config"
                 v-model="properties"
         />
 
-        <form-config-file-manager v-if="dataset.inferHierarchy"
+        <form-config-file-manager v-if="dataset.setHierarchy"
           title="Hierarchy File"
           suffix=".tsv"
+          input-id="opt-hierarchy-file"
           v-bind:dataset-id="dataset.id"
           v-bind:api="api"
           v-bind:config="config"
-          v-bind:required="!hierarchyFile"
+          v-bind:required="dataset.setHierarchy"
           v-model="hierarchyFile"
           />
 

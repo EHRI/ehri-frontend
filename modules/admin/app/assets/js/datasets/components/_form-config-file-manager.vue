@@ -11,6 +11,7 @@ export default {
   props: {
     modelValue: String,
     title: String,
+    inputId: String,
     suffix: String,
     datasetId: String,
     api: DatasetManagerApi,
@@ -26,12 +27,12 @@ export default {
     }
   },
   methods: {
-    uploadConfig: async function (event: Event | DragEvent) {
+    uploadConfig: async function (event: InputEvent | DragEvent) {
       let fileList = event.dataTransfer ? event.dataTransfer.files : event.target.files;
       if (fileList.length == 0) {
         return;
       }
-      let file = fileList[0];
+      let file: FileList = fileList[0];
 
       // NB: the fileStage arg here is 'config', since we are uploading a config file, rather then
       // the stage of the ingest manager ('output').
@@ -47,6 +48,7 @@ export default {
         if (event.target.files) {
           event.target.files = null;
         }
+        event.target.value = '';
       } catch (e) {
         this.error = "Error uploading config: " + e;
       } finally {
@@ -120,21 +122,23 @@ export default {
 <template>
   <div class="config-file-manager">
       <div class="form-group">
-          <label class="form-label" for="option-new-config">
-              {{ title }}
-              <span class="text-success" title="Upload Properties File" id="option-new-config">
-              <i class="fa fa-plus-circle"></i>
-              &nbsp;
-              <label class="sr-only" for="option-new-config-input">Upload Config File...</label>
+          <div class="input-group">
+              <label class="form-label" v-bind:for="inputId">
+                  <i class="fa fa-plus-circle" v-bind:class="{
+                'text-success': required && hasConfigs,
+                'text-warning': required && !hasConfigs,
+              }"></i>
+                  {{ title }}
+              </label>
               <input
                       v-on:change.prevent="uploadConfig"
                       v-bind:pattern="patternRegex"
                       v-bind:accept="suffix"
                       v-bind:required="required"
-                      id="option-new-config-input"
+                      v-bind:id="inputId"
+                      class="sr-only"
                       type="file" />
-            </span>
-          </label>
+          </div>
           <div v-if="hasConfigs" class="config-options-selector-container">
               <table v-if="hasConfigs" class="config-options-selector table table-bordered table-sm table-striped">
                   <tr>

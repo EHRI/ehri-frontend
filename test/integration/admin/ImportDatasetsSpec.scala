@@ -29,7 +29,7 @@ class ImportDatasetsSpec extends IntegrationTestRunner with ResourceUtils {
         "notes" -> None,
         "sync" -> false,
         "nest" -> false,
-        "inferHierarchy" -> false,
+        "setHierarchy" -> false,
         "status" -> ImportDataset.Status.Active,
       )
       val r = FakeRequest(routes.create("r1")).withUser(privilegedUser).callWith(data)
@@ -46,7 +46,7 @@ class ImportDatasetsSpec extends IntegrationTestRunner with ResourceUtils {
         "notes" -> None,
         "sync" -> true,
         "nest" -> false,
-        "inferHierarchy" -> false,
+        "setHierarchy" -> false,
         "status" -> ImportDataset.Status.Active,
       )
       val r = FakeRequest(routes.update("r1", "default")).withUser(privilegedUser).callWith(data)
@@ -63,7 +63,7 @@ class ImportDatasetsSpec extends IntegrationTestRunner with ResourceUtils {
         "notes" -> None,
         "sync" -> false,
         "nest" -> false,
-        "inferHierarchy" -> false,
+        "setHierarchy" -> false,
         "status" -> ImportDataset.Status.Active,
       )
       val r = FakeRequest(routes.update("r1", "default")).withUser(privilegedUser).callWith(data)

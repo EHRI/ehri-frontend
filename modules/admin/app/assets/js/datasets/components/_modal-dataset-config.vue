@@ -20,7 +20,7 @@ export default {
       name: this.info ? this.info.name : null,
       src: this.info ? this.info.src : null,
       fonds: this.info ? this.info.fonds : null,
-      inferHierarchy: this.info ? this.info.inferHierarchy : false,
+      setHierarchy: this.info ? this.info.setHierarchy : false,
       sync: this.info ? this.info.sync : false,
       nest: this.info ? this.info.nest : false,
       status: this.info ? this.info.status : "active",
@@ -42,7 +42,7 @@ export default {
         name: this.name,
         src: this.src,
         fonds: this.fonds,
-        inferHierarchy: this.inferHierarchy,
+        setHierarchy: this.setHierarchy,
         sync: this.sync,
         nest: this.nest,
         status: this.status,
@@ -108,7 +108,7 @@ export default {
               || this.info.src !== this.src
               || this.info.notes !== this.notes
               || this.info.fonds !== this.fonds
-              || this.info.inferHierarchy != this.inferHierarchy
+              || this.info.setHierarchy != this.setHierarchy
               || this.info.contentType !== this.contentType
               || Boolean(this.info.sync) !== Boolean(this.sync)
               || Boolean(this.info.nest) !== Boolean(this.nest))
@@ -203,9 +203,9 @@ export default {
         </label>
       </div>
       <div class="form-group form-check">
-          <input v-model="inferHierarchy" class="form-check-input" id="opt-infer-hierarchy" type="checkbox"/>
-          <label class="form-check-label" for="opt-infer-hierarchy" data-toggle="tooltip" title="Construct the item hierarchy by detecting local identifier prefixes in filenames.">
-              Infer hierarchy
+          <input v-model="setHierarchy" class="form-check-input" id="opt-set-hierarchy" type="checkbox"/>
+          <label class="form-check-label" for="opt-set-hierarchy" data-toggle="tooltip" title="Construct the item hierarchy via a TSV given at ingest time.">
+              Set hierarchy with TSV
           </label>
       </div>
       <div class="form-group">
