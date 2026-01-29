@@ -19,7 +19,7 @@ import MixinUtil from './_mixin-util';
 import MixinTasklog from './_mixin-tasklog';
 import {DatasetManagerApi} from '../api';
 
-import {ImportConfig} from "../types";
+import {ImportConfig, ImportDataset} from "../types";
 
 
 export default {
@@ -36,7 +36,7 @@ export default {
   },
   mixins: [MixinStage, MixinTwoPanel, MixinPreview, MixinValidator, MixinError, MixinUtil, MixinTasklog],
   props: {
-    datasetId: String,
+    dataset: Object as ImportDataset,
     fileStage: String,
     urlKey: {
       type: String,
@@ -71,7 +71,7 @@ export default {
       this.opts = opts;
 
       try {
-        let {url, jobId} = await this.api.ingestFiles(this.datasetId, this.selectedKeys, opts, commit);
+        let {url, jobId} = await this.api.ingestFiles(this.dataset.id, this.selectedKeys, opts, commit);
         // Switch to ingest tab...
         this.tab = "info";
         // Clear existing log...
@@ -88,7 +88,7 @@ export default {
       }
     },
     loadConfig: async function () {
-      this.opts = await this.api.getImportConfig(this.datasetId);
+      this.opts = await this.api.getImportConfig(this.dataset.id);
     },
   },
   created() {
@@ -142,7 +142,7 @@ export default {
           v-bind:opts="opts"
           v-bind:api="api"
           v-bind:config="config"
-          v-bind:dataset-id="datasetId"
+          v-bind:dataset="dataset"
           v-on:saving="waiting = true"
           v-on:saved-config="doIngest"
           v-on:close="showOptions = false"/>
@@ -208,7 +208,8 @@ export default {
 
         <div class="status-panels">
           <div class="status-panel" v-show="tab === 'preview'">
-            <panel-file-preview v-bind:dataset-id="datasetId"
+            <panel-file-preview v-bind:dataset-id="dataset.id"
+                                v-bind:content-type="dataset.contentType"
                                 v-bind:file-stage="fileStage"
                                 v-bind:previewing="previewing"
                                 v-bind:panel-size="panelSize"

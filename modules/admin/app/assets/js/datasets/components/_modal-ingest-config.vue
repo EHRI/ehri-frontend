@@ -4,16 +4,17 @@ import ModalWindow from './_modal-window';
 import FormConfigFileManager from './_form-config-file-manager.vue';
 import {DatasetManagerApi} from "../api";
 import {timeToRelative} from "../common";
+import {ImportConfig, ImportDataset} from "../types";
 
 
 export default {
   components: {ModalWindow, FormConfigFileManager},
   props: {
-    datasetId: String,
+    dataset: Object as ImportDataset,
     inferHierarchy: Boolean,
     api: DatasetManagerApi,
     config: Object,
-    opts: Object,
+    opts: Object as ImportConfig,
     waiting: Boolean,
   },
   data: function (): object {
@@ -35,7 +36,7 @@ export default {
     submit: function () {
       this.$emit("saving");
       this.api.saveImportConfig(
-          this.datasetId, {
+          this.dataset.id, {
             allowUpdates: this.allowUpdates,
             useSourceId: this.useSourceId,
             tolerant: this.tolerant,
@@ -51,8 +52,10 @@ export default {
     prettyDate: timeToRelative,
   },
   computed: {
+
     isValidConfig: function () {
-      return this.logMessage && this.logMessage.trim() !== "";
+      let hasRequiredHierarchy = this.dataset.inferHierarchy ? this.hierarchyFile : true;
+      return this.logMessage && this.logMessage.trim() !== "" && hasRequiredHierarchy;
     },
   },
 };
@@ -86,24 +89,25 @@ export default {
         <form-config-file-manager
                 title="Properties File"
                 suffix=".properties"
-                v-bind:dataset-id="datasetId"
+                v-bind:dataset-id="dataset.id"
                 v-bind:api="api"
                 v-bind:config="config"
                 v-model="properties"
         />
 
-        <form-config-file-manager v-if="inferHierarchy"
+        <form-config-file-manager v-if="dataset.inferHierarchy"
           title="Hierarchy File"
           suffix=".tsv"
-          v-bind:dataset-id="datasetId"
+          v-bind:dataset-id="dataset.id"
           v-bind:api="api"
           v-bind:config="config"
+          v-bind:required="!hierarchyFile"
           v-model="hierarchyFile"
           />
 
       <div class="form-group">
         <label class="form-label" for="opt-log-message">Log Message</label>
-        <input v-model="logMessage" class="form-control form-control-sm" id="opt-log-message" placeholder="(required)"/>
+        <input v-model="logMessage" class="form-control form-control-sm" id="opt-log-message" placeholder="(required)" required />
       </div>
 
       <hr class="form-group" />

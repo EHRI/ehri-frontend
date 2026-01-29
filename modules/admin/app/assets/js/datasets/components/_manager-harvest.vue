@@ -21,7 +21,7 @@ import MixinUtil from './_mixin-util';
 import MixinTasklog from './_mixin-tasklog';
 
 import {DatasetManagerApi} from '../api';
-import {HarvestConfig} from "../types";
+import {HarvestConfig, ImportDataset} from "../types";
 
 
 export default {
@@ -40,8 +40,7 @@ export default {
   },
   mixins: [MixinStage, MixinTwoPanel, MixinValidator, MixinError, MixinPreview, MixinUtil, MixinTasklog],
   props: {
-    datasetType: String,
-    datasetContentType: String,
+    dataset: Object as ImportDataset,
     fileStage: String,
     urlKey: {
       type: String,
@@ -63,7 +62,7 @@ export default {
       this.opts = opts;
 
       try {
-        let {url, jobId} = await this.api.harvest(this.datasetId, opts, fromLast);
+        let {url, jobId} = await this.api.harvest(this.dataset.id, opts, fromLast);
         this.showOptions = false;
         this.replaceUrlState(this.urlKey, jobId);
         this.tab = "info";
@@ -89,7 +88,7 @@ export default {
       }
     },
     loadConfig: async function () {
-      this.opts = await this.api.getHarvestConfig(this.datasetId);
+      this.opts = await this.api.getHarvestConfig(this.dataset.id);
     },
   },
   created: function () {
@@ -134,9 +133,9 @@ export default {
 
     <template v-if="showOptions">
       <modal-oaipmh-config
-          v-if="datasetType === 'oaipmh'"
+          v-if="dataset.src === 'oaipmh'"
           v-bind:waiting="waiting"
-          v-bind:dataset-id="datasetId"
+          v-bind:dataset-id="dataset.id"
           v-bind:opts="opts"
           v-bind:api="api"
           v-bind:config="config"
@@ -145,9 +144,9 @@ export default {
           v-on:error="showError"
           v-on:close="showOptions = false"/>
       <modal-rs-config
-          v-else-if="datasetType === 'rs'"
+          v-else-if="dataset.src === 'rs'"
           v-bind:waiting="waiting"
-          v-bind:dataset-id="datasetId"
+          v-bind:dataset-id="dataset.id"
           v-bind:opts="opts"
           v-bind:api="api"
           v-bind:config="config"
@@ -157,9 +156,9 @@ export default {
           v-on:error="showError"
           v-on:close="showOptions = false"/>
       <modal-urlset-config
-          v-else-if="datasetType === 'urlset'"
+          v-else-if="dataset.src === 'urlset'"
           v-bind:waiting="waiting"
-          v-bind:dataset-id="datasetId"
+          v-bind:dataset-id="dataset.id"
           v-bind:opts="opts"
           v-bind:api="api"
           v-bind:config="config"
@@ -228,8 +227,8 @@ export default {
 
         <div class="status-panels">
           <div class="status-panel" v-show="tab === 'preview'">
-            <panel-file-preview v-bind:dataset-id="datasetId"
-                                v-bind:content-type="datasetContentType"
+            <panel-file-preview v-bind:dataset-id="dataset.id"
+                                v-bind:content-type="dataset.contentType"
                                 v-bind:file-stage="fileStage"
                                 v-bind:previewing="previewing"
                                 v-bind:panel-size="panelSize"

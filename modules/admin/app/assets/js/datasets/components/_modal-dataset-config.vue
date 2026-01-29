@@ -5,13 +5,14 @@ import ModalAlert from './_modal-alert';
 
 import {DatasetManagerApi} from '../api';
 import FormConfigFileManager from "./_form-config-file-manager.vue";
+import {ImportDataset} from "../types";
 
 export default {
   components: {FormConfigFileManager, ModalWindow, ModalAlert},
   props: {
     api: DatasetManagerApi,
     config: Object,
-    info: Object,
+    info: Object as ImportDataset,
   },
   data: function () {
     return {
@@ -77,17 +78,6 @@ export default {
           )
           .catch(error => this.error = error)
           .finally(() => this.deleting = false);
-    },
-    loadHierarchyMaps: async function () {
-      this.loading = true;
-      try {
-        let data = await this.api.listFiles(this.datasetId, this.config.config);
-        this.hierarchyMapOptions = data.files.filter(f => f.key.endsWith(".tsv"));
-      } catch (e) {
-        this.showError("Error loading files", e);
-      } finally {
-        this.loading = false;
-      }
     },
   },
   watch: {

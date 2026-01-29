@@ -10,7 +10,7 @@ import _find from 'lodash/find';
 import _isEqual from 'lodash/isEqual';
 import _isArray from 'lodash/isArray';
 import _fromPairs from 'lodash/fromPairs';
-import {FileMeta, XmlValidationError} from "../types";
+import {FileMeta, ImportDataset, XmlValidationError} from "../types";
 import {DatasetManagerApi} from "../api";
 
 
@@ -19,10 +19,7 @@ export default {
   props: {
     api: DatasetManagerApi,
     datasetId: String,
-    contentType: {
-      type: String,
-      default: null,
-    },
+    contentType: String,
     fileStage: String,
     panelSize: Number,
     previewing: Object,
@@ -255,7 +252,7 @@ export default {
 
     this.load();
   },
-  beforeDestroy: function () {
+  beforeUnmount: function () {
     if (this.editor) {
       this.editor.toTextArea();
     }

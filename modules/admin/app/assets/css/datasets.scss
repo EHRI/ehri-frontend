@@ -944,13 +944,17 @@ $active-table-row: #e7f1ff;
 }
 
 .config-options-selector-container {
-  height: 8rem;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  max-height: 8rem;
   width: 100%;
   font-size: $font-size-sm;
   background-color: $gray-100;
+
+  table {
+    margin-bottom: 0;
+  }
 
   .panel-placeholder {
     position: relative;

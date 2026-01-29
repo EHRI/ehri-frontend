@@ -90,9 +90,9 @@ case class ImportConfigs @Inject()(
           properties = request.body.config.properties.map(ref =>
               PropertiesHandle(storage.uri(s"${prefix(id, ds, FileStage.Config)}$ref", urlExpiration).toString))
             .getOrElse(PropertiesHandle.empty),
-          hierarchyFile = request.body.config.hierarchyFile.map(ref =>
-            storage.uri(s"${prefix(id, ds, FileStage.Config)}$ref", urlExpiration).toString
-          ),
+          hierarchyFile = if (dataset.inferHierarchy) request.body.config.hierarchyFile.map(ref =>
+              storage.uri(s"${prefix(id, ds, FileStage.Config)}$ref", urlExpiration).toString
+          ) else None,
           fonds = dataset.fonds
         )
       }

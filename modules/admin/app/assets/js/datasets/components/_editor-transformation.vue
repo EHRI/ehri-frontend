@@ -16,6 +16,8 @@ import MixinTwoPanel from './_mixin-two-panel';
 
 import _concat from 'lodash/concat';
 import _isEqual from 'lodash/isEqual';
+import {ImportDataset} from "../types";
+import {DatasetManagerApi} from "../api";
 
 
 export default {
@@ -39,12 +41,11 @@ export default {
     body: String,
     comments: String,
     hasParams: Boolean,
-    datasetId: String,
-    datasetContentType: String,
+    dataset: Object as ImportDataset,
     fileStage: String,
     initPreviewing: Object,
     config: Object,
-    api: Object,
+    api: DatasetManagerApi,
     inputPipeline: Array,
     initParameters: {
       type: Object,
@@ -327,7 +328,7 @@ export default {
             <div id="transformation-editor-preview-select">
               <label for="transformation-editor-preview-options">Preview transformation</label>
               <file-picker id="transformation-editor-preview-options" v-bind:disabled="loading"
-                           v-bind:dataset-id="datasetId"
+                           v-bind:dataset-id="dataset.id"
                            v-bind:file-stage="config.input"
                            v-bind:api="api"
                            v-bind:config="config"
@@ -348,8 +349,8 @@ export default {
               <div class="transformation-editor-preview-window">
                 <panel-file-preview
                     v-if="previewing !== null"
-                    v-bind:dataset-id="datasetId"
-                    v-bind:content-type="datasetContentType"
+                    v-bind:dataset-id="dataset.id"
+                    v-bind:content-type="dataset.contentType"
                     v-bind:file-stage="fileStage"
                     v-bind:previewing="previewing"
                     v-bind:panel-size="panelSize"
@@ -364,7 +365,8 @@ export default {
               <div class="transformation-editor-preview-window">
                 <panel-convert-preview
                     v-if="previewing !== null"
-                    v-bind:dataset-id="datasetId"
+                    v-bind:dataset-id="dataset.id"
+                    v-bind:content-type="dataset.contentType"
                     v-bind:file-stage="fileStage"
                     v-bind:mappings="mappings"
                     v-bind:trigger="JSON.stringify(data)"

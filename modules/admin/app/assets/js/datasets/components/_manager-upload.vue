@@ -21,6 +21,7 @@ import {DatasetManagerApi} from '../api';
 
 import _findIndex from 'lodash/findIndex';
 import _pick from 'lodash/pick';
+import {ImportDataset} from "../types";
 
 /**
  * Custom Error class
@@ -78,7 +79,7 @@ export default {
   },
   mixins: [MixinStage, MixinTwoPanel, MixinPreview, MixinValidator, MixinError, MixinUtil, MixinTasklog],
   props: {
-    datasetContentType: String,
+    dataset: Object as ImportDataset,
     fileStage: String,
     config: Object,
     api: DatasetManagerApi,
@@ -124,7 +125,7 @@ export default {
       let meta = {source: 'user'}; // This is necessary for the backend to accept the upload,
                                    // and it must match the value used in the uploadFiles method
       let fileSpec = {..._pick(file, ['name', 'type', 'size']), ...{meta: meta}};
-      return this.api.uploadHandle(this.datasetId, this.fileStage, fileSpec)
+      return this.api.uploadHandle(this.dataset.id, this.fileStage, fileSpec)
           .then(data => {
             let self = this;
             this.setUploadProgress(file, 0);
@@ -289,8 +290,8 @@ export default {
 
         <div class="status-panels">
           <div class="status-panel" v-show="tab === 'preview'">
-            <panel-file-preview v-bind:dataset-id="datasetId"
-                                v-bind:content-type="datasetContentType"
+            <panel-file-preview v-bind:dataset-id="dataset.id"
+                                v-bind:content-type="dataset.contentType"
                                 v-bind:file-stage="fileStage"
                                 v-bind:previewing="previewing"
                                 v-bind:panel-size="panelSize"

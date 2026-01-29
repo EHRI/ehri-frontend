@@ -16,6 +16,7 @@ export default {
     api: DatasetManagerApi,
     config: Object,
     disabled: Boolean,
+    required: Boolean,
   },
   data: function () {
     return {
@@ -125,10 +126,16 @@ export default {
               <i class="fa fa-plus-circle"></i>
               &nbsp;
               <label class="sr-only" for="option-new-config-input">Upload Config File...</label>
-              <input v-on:change.prevent="uploadConfig" id="option-new-config-input" type="file" v-bind:pattern="patternRegex"/>
+              <input
+                      v-on:change.prevent="uploadConfig"
+                      v-bind:pattern="patternRegex"
+                      v-bind:accept="suffix"
+                      v-bind:required="required"
+                      id="option-new-config-input"
+                      type="file" />
             </span>
           </label>
-          <div class="config-options-selector-container">
+          <div v-if="hasConfigs" class="config-options-selector-container">
               <table v-if="hasConfigs" class="config-options-selector table table-bordered table-sm table-striped">
                   <tr>
                       <th></th>
