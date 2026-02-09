@@ -285,7 +285,7 @@ case class HarvestConfigs @Inject()(
     if (r.status != 200)
       Some(s"Unexpected HTTP response status code: ${r.status}")
     else if (r.header(HeaderNames.CONTENT_LENGTH).map(_.toLong).getOrElse(0L) <= 0)
-      Some("Changelist is of zero or unknown length")
+      Some("Content is of zero or unknown length (possibly chunked encoding)")
     else if (!allowedTypes.exists(r.contentType.toLowerCase.startsWith)) {
       Some(s"Unknown or unexpected content type: '${r.contentType}'")
     } else None
