@@ -1,11 +1,11 @@
 package services.ingest
 
+import com.fasterxml.jackson.databind.JsonMappingException
+import models._
 import org.apache.pekko.actor.ActorRef
 import org.apache.pekko.stream.Materializer
 import org.apache.pekko.stream.scaladsl.{FileIO, Source}
 import org.apache.pekko.util.ByteString
-import com.fasterxml.jackson.databind.JsonMappingException
-import models._
 import play.api.cache.AsyncCacheApi
 import play.api.http.{HeaderNames, MimeTypes}
 import play.api.libs.Files.SingletonTemporaryFileCreator
@@ -143,29 +143,36 @@ case class WSIngestService @Inject()(
   override def importData(data: IngestData): Future[IngestResult] = {
     import scala.concurrent.duration._
 
-    // We need to pass the server a reference of the properties file
-    // which it can read, which involves copying it.
-    // NB: Hack that assumes the server is on the same
-    // host and we really shouldn't do this!
-    val propFile: Option[Path] = data.params.properties match {
-      case FileProperties(f) => f.map { propTmp =>
-        import scala.jdk.CollectionConverters._
-        val readTmp = Files.createTempFile(s"ingest", ".properties")
-        propTmp.moveTo(readTmp, replace = true)
-        val perms = Set(
-          PosixFilePermission.OTHERS_READ,
-          PosixFilePermission.GROUP_READ,
-          PosixFilePermission.OWNER_READ,
-          PosixFilePermission.OWNER_WRITE)
-        Files.setPosixFilePermissions(readTmp, perms.asJava)
-        readTmp
-      }
-      case UrlProperties(_) => None
+    /**
+      * Vestigial function for making a file upload readable to other
+      * services on the same server. This is no longer used, because
+      * the backend is on a different server now.
+      * @param handle an upload file or URL reference
+      * @return a path to a readable file
+      */
+    def makeUploadReadable(handle: ConfigHandle): Option[Path] = handle match {
+      case FileConfig(tmp) =>
+        tmp.map { propTmp =>
+          import scala.jdk.CollectionConverters._
+          val readTmp = Files.createTempFile(s"ingest", ".properties")
+          propTmp.moveTo(readTmp, replace = true)
+          val perms = Set(
+            PosixFilePermission.OTHERS_READ,
+            PosixFilePermission.GROUP_READ,
+            PosixFilePermission.OWNER_READ,
+            PosixFilePermission.OWNER_WRITE)
+          Files.setPosixFilePermissions(readTmp, perms.asJava)
+          readTmp
+        }
+      case UrlConfig(_) => None
     }
 
-    val propStr: Option[String] = data.params.properties match {
-      case FileProperties(_) => propFile.map(_.toAbsolutePath.toString)
-      case UrlProperties(url) => Some(url)
+    val localProperties: Option[Path] = makeUploadReadable(data.params.properties)
+    val localHierarchyFile: Option[Path] = makeUploadReadable(data.params.hierarchyFile)
+
+    def normaliseConfig(handle: ConfigHandle, local: Option[Path]): Option[String] = handle match {
+      case FileConfig(_) => local.map(_.toAbsolutePath.toString)
+      case UrlConfig(url) => Some(url)
     }
 
     val dataFile: Option[Path] = data.params.data match {
@@ -189,13 +196,13 @@ case class WSIngestService @Inject()(
         USE_SOURCE_ID -> params.useSourceId.toString,
         LOG -> params.log,
         COMMIT -> params.commit.toString) ++
-        params.hierarchyFile.map(HIERARCHY_FILE -> _).toSeq ++
         params.lang.map(LANG -> _).toSeq ++
         params.fonds.map(FONDS -> _).toSeq ++
         params.handler.map(HANDLER -> _).toSeq ++
         params.importer.map(IMPORTER -> _).toSeq ++
         params.excludes.map(EXCLUDES -> _) ++
-        propStr.map(PROPERTIES_FILE -> _)
+        normaliseConfig(params.properties, localProperties).map(PROPERTIES_FILE -> _) ++
+        normaliseConfig(params.hierarchyFile, localHierarchyFile).map(HIERARCHY_FILE -> _)
     }
 
     val bodyWritable: BodyWritable[Path] =
@@ -225,8 +232,9 @@ case class WSIngestService @Inject()(
     }
 
     ingestResult.onComplete { _ =>
-      // Delete properties temp file...
-      propFile.foreach(f => f.toFile.delete())
+      // Delete config temp file...
+      localProperties.foreach(f => f.toFile.delete())
+      localHierarchyFile.foreach(f => f.toFile.delete())
     }
 
     ingestResult

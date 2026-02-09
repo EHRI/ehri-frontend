@@ -66,8 +66,6 @@ case class ImportConfigs @Inject()(
     val urlsF = getUrlMap(request.body, prefix(id, ds, FileStage.Output))
     for (urls <- urlsF; dataset <- datasets.get(id, ds)) yield {
 
-      println(s"URL Map: $urls")
-
       val scopeType = if (dataset.fonds.isDefined && dataset.nest)
         models.ContentTypes.DocumentaryUnit else models.ContentTypes.Repository
 
@@ -88,11 +86,11 @@ case class ImportConfigs @Inject()(
           lang = request.body.config.defaultLang,
           commit = request.body.commit,
           properties = request.body.config.properties.map(ref =>
-              PropertiesHandle(storage.uri(s"${prefix(id, ds, FileStage.Config)}$ref", urlExpiration).toString))
-            .getOrElse(PropertiesHandle.empty),
-          hierarchyFile = if (dataset.setHierarchy) request.body.config.hierarchyFile.map(ref =>
-              storage.uri(s"${prefix(id, ds, FileStage.Config)}$ref", urlExpiration).toString
-          ) else None,
+              ConfigHandle(storage.uri(s"${prefix(id, ds, FileStage.Config)}$ref", urlExpiration).toString))
+            .getOrElse(ConfigHandle.empty),
+          hierarchyFile = request.body.config.hierarchyFile.map(ref =>
+              ConfigHandle(storage.uri(s"${prefix(id, ds, FileStage.Config)}$ref", urlExpiration).toString))
+            .getOrElse(ConfigHandle.empty),
           fonds = dataset.fonds
         )
       }
