@@ -42,11 +42,12 @@ export default {
           name: i.name,
           src: i.src,
           contentType: i.contentType,
-          notes: i.notes,
+          fonds: i.fonds,
           sync: i.sync,
           nest: i.nest,
+          setHierarchy: i.setHierarchy,
           status: i.status,
-          fonds: i.fonds,
+          notes: i.notes,
         } as ImportDatasetInfo;
       }
 
