@@ -14,15 +14,17 @@
 } {
     <script src="@controllers.admin.routes.AdminAssets.versioned("js/datasets/dashboard-app.js")"></script>
     <script>
-            Vue.createApp({
-                render: function() {
-                    return Vue.h(DashboardApp.default, {
-                        service: datasetApi.controllers,
-                        config: {
-                            title: "@Messages("ingest.datasets")"
-                        }
-                    });
-                }
-            }).mount("#vue-app");
+            getVueI18n(datasetApi.controllers.admin.Data.i18n().url)
+                    .then(i18n => Vue.createApp({
+                            render: function() {
+                                return Vue.h(DashboardApp.default, {
+                                    service: datasetApi.controllers,
+                                    config: {
+                                        title: "@Messages("ingest.datasets")"
+                                    }
+                                });
+                            }
+                        }).use(i18n).mount("#vue-app")
+                    );
     </script>
 }

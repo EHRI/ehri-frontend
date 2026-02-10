@@ -15,6 +15,7 @@ import services.datasets.{ImportDatasetExists, ImportDatasetService}
 import services.ingest.ImportLogService
 import services.storage.FileStorage
 
+import java.time.Instant
 import javax.inject._
 import scala.concurrent.Future
 
@@ -151,7 +152,7 @@ case class ImportDatasets @Inject()(
           r.data.logoUrl.getOrElse(defaultLogo),
           sets
         )
-      }.sortBy(_.repoId)
+      }.sortBy(_.name)
     } yield Ok(Json.toJson(combined))
   }
 

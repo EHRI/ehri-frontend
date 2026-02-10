@@ -1535,6 +1535,7 @@ ingest.importer.description=The fully-qualified class name of the XML importer c
 ingest.properties=Import properties (Optional)
 ingest.properties.description=A properties file
 ingest.hierarchy-file=Hierarchy definition
+ingest.hierarchy-file.required=Hierarchy definition required
 ingest.hierarchy-file.description=A TSV mapping local item IDs to the local IDs of their parent items.
 ingest.batch-size=Batch size
 ingest.batch-size.description=Break up the ingest into batches of a given size. Useful for very large datasets.

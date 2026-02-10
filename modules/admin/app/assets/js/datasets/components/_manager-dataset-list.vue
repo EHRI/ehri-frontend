@@ -309,6 +309,9 @@ export default {
                   <i v-if="ds.id in working" class="fa fa-gear fa-spin fa-fw"></i>
                 </h3>
                 <div class="item-badge">
+                  <div v-if="ds.setHierarchy" v-bind:title="$t(`ingest.hierarchy-file.required`)" class="badge badge-mandatory">
+                     <i class="fa fa-folder-tree"></i>
+                  </div>
                   <div class="badge badge-light">
                     <template v-if="ds.id in stats">{{ stats[ds.id] }} File{{ stats[ds.id] === 1 ? '' : 's' }}
                     </template>
