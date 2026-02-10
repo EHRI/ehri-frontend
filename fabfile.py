@@ -141,7 +141,7 @@ def check_file_exists(ctx, remote_path):
         return False
 
 def check_target_java_version(ctx):
-    result = ctx.run('java -version', hide=True, warn=True)
+    result = local('java -version').stderr.strip()
 
-    if 'version "{}'.format(target_java_version) not in result.stderr:
+    if 'version "{}'.format(target_java_version) not in result:
         raise Exception("Error: Java {} required".format(target_java_version))
