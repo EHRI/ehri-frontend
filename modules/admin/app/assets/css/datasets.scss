@@ -1135,3 +1135,7 @@ $active-table-row: #e7f1ff;
   padding: $margin-xxs;
 }
 
+.options-form .form-group .help {
+  display: block;
+  @extend %small-muted
+}

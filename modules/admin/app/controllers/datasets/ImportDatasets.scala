@@ -37,6 +37,7 @@ case class ImportDatasets @Inject()(
   def jsRoutes(): Action[AnyContent] = Action.apply { implicit request =>
     Ok(
       JavaScriptReverseRouter("datasetApi")(
+        controllers.admin.routes.javascript.Data.i18n,
         controllers.admin.routes.javascript.Tasks.taskMonitorWS,
         controllers.admin.routes.javascript.Tasks.cancel,
         controllers.datasets.routes.javascript.ImportDatasets.manager,
@@ -91,6 +92,10 @@ case class ImportDatasets @Inject()(
         controllers.datasets.routes.javascript.CoreferenceTables.applyTable,
       )
     ).as(MimeTypes.JAVASCRIPT)
+  }
+
+  def i18n(): Action[AnyContent] = WithUserAction { implicit request =>
+    Ok(Json.toJson(messagesApi.messages))
   }
 
   def dashboard(): Action[AnyContent] = OptionalUserAction.apply { implicit request =>

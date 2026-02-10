@@ -5,7 +5,6 @@ GET           /editor                           @controllers.datamodel.EntityTyp
 GET           /audit                            @controllers.datamodel.EntityTypeMetadata.auditor()
 
 GET           /templates                        @controllers.datamodel.EntityTypeMetadataApi.templates()
-GET           /i18n                             @controllers.datamodel.EntityTypeMetadataApi.i18n()
 POST          /run-audit                        @controllers.datamodel.EntityTypeMetadataApi.runAudit()
 GET           /entities                         @controllers.datamodel.EntityTypeMetadataApi.list()
 GET           /entities/:entityType             @controllers.datamodel.EntityTypeMetadataApi.get(entityType: models.EntityType.Value)

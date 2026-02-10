@@ -69,27 +69,29 @@ export default {
       <div class="form-group form-check">
         <input v-model="allowUpdates" class="form-check-input" id="opt-allowUpdates-check" type="checkbox"/>
         <label class="form-check-label" for="opt-allowUpdates-check">
-          Allow updates: check this if it is expected that existing items will be modified
+          {{ $t(`ingest.allow-update`) }}
+            <span class="help">{{ $t(`ingest.allow-update.description`) }}</span>
         </label>
       </div>
       <div class="form-group form-check">
         <input v-model="tolerant" class="form-check-input" id="opt-tolerant-check" type="checkbox"/>
         <label class="form-check-label" for="opt-tolerant-check">
-          Tolerant mode: do not abort on individual item validation errors
+            {{ $t(`ingest.tolerant`) }}
+            <span class="help">{{ $t(`ingest.tolerant.description`) }}</span>
         </label>
       </div>
       <div class="form-group form-check">
         <input v-model="useSourceId" class="form-check-input" id="opt-useSourceId-check" type="checkbox"/>
         <label class="form-check-label" for="opt-useSourceId-check">
-          Use source file ID as well as language code to identify descriptions (this will allow adding multiple
-          descriptions in the same language if they come from different EAD files)
+            {{ $t(`ingest.use-source-id`) }}
+            <span class="help">{{ $t(`ingest.use-source-id.description`) }}</span>
         </label>
       </div>
 
         <form-config-file-manager
-                title="Properties File"
                 suffix=".properties"
                 input-id="opt-properties-file"
+                v-bind:title="$t(`ingest.properties`)"
                 v-bind:dataset-id="dataset.id"
                 v-bind:api="api"
                 v-bind:config="config"
@@ -97,9 +99,9 @@ export default {
         />
 
         <form-config-file-manager v-if="dataset.setHierarchy"
-          title="Hierarchy File"
           suffix=".tsv"
           input-id="opt-hierarchy-file"
+          v-bind:title="$t(`ingest.hierarchy-file`)"
           v-bind:dataset-id="dataset.id"
           v-bind:api="api"
           v-bind:config="config"
@@ -108,7 +110,7 @@ export default {
           />
 
       <div class="form-group">
-        <label class="form-label" for="opt-log-message">Log Message</label>
+        <label class="form-label" for="opt-log-message">{{ $t(`ingest.log`)}}</label>
         <input v-model="logMessage" class="form-control form-control-sm" id="opt-log-message" placeholder="(required)" required />
       </div>
 
@@ -117,12 +119,18 @@ export default {
       <div class="form-group form-check">
         <input tabindex="-1" v-model="commit" class="form-check-input" id="opt-commit-check" type="checkbox"/>
         <label class="form-check-label" for="opt-commit-check">
-          Commit ingest: make changes to database
+            {{ $t(`ingest.commit`) }}
+            <span class="help">{{ $t(`ingest.commit.description`) }}</span>
         </label>
       </div>
         <div class="form-group">
-            <label class="form-check-label" for="opt-batch-size">Import Batch Size</label>
+            <label class="form-check-label" for="opt-batch-size">
+                {{ $t(`ingest.batch-size`)}}
+            </label>
             <input v-model.number.trim="batchSize" class="form-control form-control-sm" id="opt-batch-size" type="number" min="50"/>
+            <span class="help">
+                {{ $t(`ingest.batch-size.description`)}}
+            </span>
         </div>
       <div v-if="error" class="alert alert-danger">
         {{ error }}

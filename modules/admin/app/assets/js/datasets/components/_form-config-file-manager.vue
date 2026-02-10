@@ -141,6 +141,7 @@ export default {
           </div>
           <div v-if="hasConfigs" class="config-options-selector-container">
               <table v-if="hasConfigs" class="config-options-selector table table-bordered table-sm table-striped">
+                <thead>
                   <tr>
                       <th></th>
                       <th>File</th>
@@ -148,6 +149,8 @@ export default {
                       <th></th>
                       <th></th>
                   </tr>
+                </thead>
+                <tbody>
                   <tr v-for="f in configOptions" v-on:click="selectConfigFile(f)" v-bind:class="{'active': f.key===configFile}">
                       <td><i v-bind:class="{
                   'fa-check': f.key===configFile,
@@ -160,6 +163,7 @@ export default {
                       <td title="Download config file" v-on:click.stop.prevent="downloadConfig(f.key)"><i class="fa fa-download"></i></td>
                       <td title="Delete config file" v-on:click.stop.prevent="deleteConfig(f)"><i class="fa fa-trash-o"></i></td>
                   </tr>
+                </tbody>
               </table>
               <div v-else-if="loading" class="panel-placeholder">
                   Loading file list...

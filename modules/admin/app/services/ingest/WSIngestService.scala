@@ -145,8 +145,7 @@ case class WSIngestService @Inject()(
 
     /**
       * Vestigial function for making a file upload readable to other
-      * services on the same server. This is no longer used, because
-      * the backend is on a different server now.
+      * services on the same server.
       * @param handle an upload file or URL reference
       * @return a path to a readable file
       */

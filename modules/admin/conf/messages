@@ -1513,6 +1513,11 @@ ingest.parameters=Parameters
 ingest.parameters.advanced=Advanced
 ingest.allow-update=Allow item updates
 ingest.allow-update.description=Permit the importer to update existing items
+ingest.use-source-id=Use source file ID
+ingest.use-source-id.description=If checked an EAD will only update an existing description if both the language and source \
+  file ID (derived from the EAD ID) match. This provides the ability to import multiple descriptions in the same language, \
+  providing the source file ID differs. The default behaviour is to update existing descriptions that match the language of \
+  the files being ingested and ignore the source file ID.
 ingest.tolerant=Tolerant
 ingest.tolerant.description=Continue importing items even if there are individual validation errors
 ingest.ex=Excluded IDs
@@ -1529,6 +1534,10 @@ ingest.importer=Importer class (Optional)
 ingest.importer.description=The fully-qualified class name of the XML importer class
 ingest.properties=Import properties (Optional)
 ingest.properties.description=A properties file
+ingest.hierarchy-file=Hierarchy definition
+ingest.hierarchy-file.description=A TSV mapping local item IDs to the local IDs of their parent items.
+ingest.batch-size=Batch size
+ingest.batch-size.description=Break up the ingest into batches of a given size. Useful for very large datasets.
 ingest.baseURI=Base URI
 ingest.baseURI.description=The common URI prefix for items in this vocabulary.
 ingest.suffix=URI suffix
