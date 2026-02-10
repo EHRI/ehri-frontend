@@ -55,6 +55,7 @@ case class IngestParams(
   importer: Option[String] = None,
   excludes: Seq[String] = Nil,
   baseURI: Option[String] = None,
+  fieldSeparator: Option[String] = None,
   suffix: Option[String] = None,
   data: PayloadHandle = PayloadHandle.empty,
   properties: ConfigHandle = ConfigHandle.empty,
@@ -69,6 +70,7 @@ object IngestParams {
   val TOLERANT = "tolerant"
   val ALLOW_UPDATE = "allow-update"
   val USE_SOURCE_ID = "use-source-id"
+  val FIELD_SEPARATOR = "field-separator"
   val LANG = "lang"
   val HIERARCHY_FILE = "hierarchy-file"
   val LOG = "log"
@@ -97,6 +99,7 @@ object IngestParams {
         _.map(_.split("\r?\n").map(_.trim).toSeq).toSeq.flatten,
         s => if(s.isEmpty) None else Some(s.mkString("\n"))),
       BASE_URI -> optional(text),
+      FIELD_SEPARATOR -> optional(text),
       SUFFIX -> optional(text),
       DATA_FILE -> ignored(PayloadHandle.empty),
       PROPERTIES_FILE -> ignored(ConfigHandle.empty),

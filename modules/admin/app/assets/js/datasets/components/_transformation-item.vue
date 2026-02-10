@@ -1,8 +1,10 @@
 <script lang="ts">
 
+import {DataTransformationInfo} from "../types";
+
 export default {
   props: {
-    item: Object,
+    item: Object as DataTransformationInfo,
     parameters: {
       type: Object,
       default: null
@@ -13,6 +15,7 @@ export default {
     },
     active: Boolean,
   },
+  emits: ['edit', 'edit-params', 'disable', 'delete']
 }
 </script>
 

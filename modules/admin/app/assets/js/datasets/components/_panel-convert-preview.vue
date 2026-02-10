@@ -13,6 +13,15 @@ export default {
     validate: function () {
       // FIXME: not yet supported
     },
+    prettyPrint: function(): void {
+      if (this.previewing === null) {
+        return;
+      }
+
+      // Since the convert preview is ephemeral the usual way we pretty print
+      // the file doesn't work and we need to do it a different way.
+      // FIXME: not supported...
+    },
     load: function () {
       if (this.previewing === null) {
         return;

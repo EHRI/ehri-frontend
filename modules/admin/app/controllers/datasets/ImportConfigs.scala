@@ -79,6 +79,17 @@ case class ImportConfigs @Inject()(
             .getOrElse(ConfigHandle.empty)
       else ConfigHandle.empty
 
+      // Use the sync endpoint if this fonds is synced and we a) are doing the complete
+      // set and b) have a fonds.
+      // Don't allow sync on the repository scope, because it is too dangerous.
+      val taskType = if (dataset.fonds.isDefined && request.body.files.isEmpty && dataset.sync)
+        IngestDataType.EadSync
+      else if (dataset.contentType.contains("text/csv")) IngestDataType.Csv
+      else IngestDataType.Ead
+
+      // Field separator for tabular datasets: only CSV supported at the moment
+      val fieldSeparator = if (taskType == IngestDataType.Csv) Some(",") else None
+
       // In the normal case this will be a list of one item, but
       // if batchSize is set, it will be a list of batches.
       val params: List[IngestParams] = urls.map { urlBatch =>
@@ -91,6 +102,7 @@ case class ImportConfigs @Inject()(
           log = request.body.config.logMessage,
           tolerant = request.body.config.tolerant,
           lang = request.body.config.defaultLang,
+          fieldSeparator = fieldSeparator,
           commit = request.body.commit,
           properties = request.body.config.properties.map(ref =>
               ConfigHandle(configFileRefToFullUrl(id, ds, ref).toString))
@@ -104,12 +116,6 @@ case class ImportConfigs @Inject()(
 
       // Type is json, since it's a mapping of key -> URL
       val contentType = play.api.http.ContentTypes.JSON
-
-      // Use the sync endpoint if this fonds is synced and we a) are doing the complete
-      // set and b) have a fonds.
-      // Don't allow sync on the repository scope, because it is too dangerous.
-      val taskType = if (dataset.fonds.isDefined && request.body.files.isEmpty && dataset.sync)
-        IngestDataType.EadSync else IngestDataType.Ead
 
       val ingestTasks = params.zipWithIndex.map { case (batchParams, i) =>
         val batchNum = if (params.size > 1) Some(i + 1) else None

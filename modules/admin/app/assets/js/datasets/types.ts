@@ -2,6 +2,10 @@
  * These types mirror those consumed and produced by the server.
  */
 
+export type DashboardConfigType = {
+  title: string
+}
+
 export type ConfigType = {
   repoId: string,
   versioned: boolean,
@@ -140,6 +144,11 @@ export interface FileToUpload {
   meta: Record<string, string>
 }
 
+export interface FileUploadProgress {
+  progress: number
+  spec: FileToUpload
+}
+
 export interface FileInfo {
   meta: FileMeta,
   user: object,
@@ -152,7 +161,7 @@ export interface CopyResult {
   url: string
 }
 
-export interface XmlValidationError {
+export interface FileValidationError {
   line: number,
   pos: number,
   error: string,
@@ -161,7 +170,7 @@ export interface XmlValidationError {
 export interface ValidationResult {
   key: string,
   eTag?: string,
-  errors: XmlValidationError[],
+  errors: FileValidationError[],
 }
 
 export interface Snapshot {

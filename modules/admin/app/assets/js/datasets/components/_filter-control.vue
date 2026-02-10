@@ -3,6 +3,7 @@ export default {
   props: {
     filter: Object as { value: string, active: boolean }
   },
+  emits: ['filter', 'clear'],
 };
 </script>
 

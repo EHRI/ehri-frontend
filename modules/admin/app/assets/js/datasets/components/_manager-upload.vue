@@ -33,6 +33,13 @@ class UploadCancelled extends Error {
   }
 }
 
+const ALLOWED_TYPES = [
+  "text/xml",
+  "text/csv",
+  "text/tsv",
+  "application/json",
+];
+
 /**
  * Sequentially invoke an upload function. Cancellation of individual
  * files or the whole batch is handled via throwing an {{UploadCancelled}}
@@ -84,6 +91,7 @@ export default {
     config: Object,
     api: DatasetManagerApi,
   },
+  emits: ['updated'],
   data: function () {
     return {
       dropping: false,
@@ -156,7 +164,7 @@ export default {
       let files = [];
       for (let i = 0; i < fileList.length; i++) {
         let file = fileList[i];
-        if (file.type === "text/xml") {
+        if (ALLOWED_TYPES.includes(file.type)) {
           this.uploading.push({
             spec: file,
             progress: 0,
@@ -167,7 +175,7 @@ export default {
 
       // Files were dropped but there were no file ones
       if (files.length === 0 && fileList.length > 0) {
-        this.showError("No valid files found; expecting type to be text/xml");
+        this.showError("No valid files found; expecting type to be one of: " + this.allowedFileTypes);
         return Promise.resolve();
       }
 
@@ -188,6 +196,11 @@ export default {
           });
     },
   },
+  computed: {
+    allowedFileTypes() {
+      return ALLOWED_TYPES.join(", ");
+    }
+  }
 };
 </script>
 
@@ -223,7 +236,7 @@ export default {
                v-on:dragleave.prevent="dragLeave"
                v-on:drop.prevent="uploadFiles"
                type="file"
-               accept="text/xml" multiple/>
+               v-bind:accept="allowedFileTypes" multiple/>
         <i class="fa fa-cloud-upload"/>
         Upload Files...
       </button>
