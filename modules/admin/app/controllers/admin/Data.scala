@@ -4,16 +4,20 @@ import javax.inject._
 import controllers.AppComponents
 import controllers.base.AdminController
 import models.{EntityType, Model, Readable}
+import play.api.cache.Cached
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import play.api.mvc.{Action, AnyContent, ControllerComponents, EssentialAction}
+
+import scala.concurrent.duration.DurationInt
 
 
 case class Data @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
-  ws: WSClient
+  ws: WSClient,
+  cached: Cached
 ) extends AdminController {
 
   implicit val rd: Readable[Model] = Model.Converter
@@ -25,8 +29,17 @@ case class Data @Inject()(
     }.toSeq
   }
 
-  def i18n(): Action[AnyContent] = WithUserAction { implicit request =>
-    Ok(Json.toJson(messagesApi.messages))
+  def i18n(): EssentialAction = cached.status(_ => "admin:i18n", OK, 72.hours) {
+    Action {
+      val messages = messagesApi.messages
+      val jsonData = Json.toJson(messages)
+      val etag = s""""${jsonData.hashCode().toString}""""
+
+      Ok(jsonData).withHeaders(
+        CACHE_CONTROL -> "public, max-age=259200",
+        ETAG -> etag
+      )
+    }
   }
 
   def getItem(id: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
