@@ -10,11 +10,13 @@ from invoke import run as local
 
 deploys_dir = "/opt/docview/deploys"
 target_link = "/opt/docview/target"
+target_java_version = 11
 
 
 @task
 def deploy(ctx, clean=False):
     """Build (optionally with clean) and deploy the distribution"""
+    check_target_java_version(ctx)
     version = get_version_stamp(ctx)
     build_cmd = "sbt dist" if not clean else "sbt clean dist"
     local(build_cmd)
@@ -137,3 +139,9 @@ def check_file_exists(ctx, remote_path):
         return result.stdout.strip() == "EXISTS"
     except Exception as e:
         return False
+
+def check_target_java_version(ctx):
+    result = ctx.run('java -version', hide=True, warn=True)
+
+    if 'version "{}'.format(target_java_version) not in result.stderr:
+        raise Exception("Error: Java {} required".format(target_java_version))
