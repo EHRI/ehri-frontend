@@ -56,6 +56,14 @@ let tsvOpts = {
   skipEmptyLines: true
 };
 
+let csvOpts = {
+  delimiter: ",",
+  quoteChar: "\"",
+  escapeChar: "\"",
+  header: false,
+  skipEmptyLines: true
+}
+
 function decodeTsv(tsv: string, expectedColumns: number): string[][] {
   return Papa.parse<string[]>(tsv, tsvOpts as ParseConfig)
       .data;
@@ -65,4 +73,13 @@ function encodeTsv(data: string[][], expectedColumns: number): string {
   return Papa.unparse(data, {...tsvOpts, newline: "\n"} as UnparseConfig);
 }
 
-export {humanFileSize, timeToRelative, displayDate, apiCall, decodeTsv, encodeTsv};
+function decodeCsv(csv: string, expectedColumns: number): string[][] {
+  return Papa.parse<string[]>(csv, csvOpts as ParseConfig)
+      .data;
+}
+
+function encodeCsv(data: string[][], expectedColumns: number): string {
+  return Papa.unparse(data, {...csvOpts, newline: "\n"} as UnparseConfig);
+}
+
+export {humanFileSize, timeToRelative, displayDate, apiCall, decodeTsv, encodeTsv, decodeCsv, encodeCsv};

@@ -1,8 +1,11 @@
 <script lang="ts">
+import {FileUploadProgress} from "../types";
+
 export default {
   props: {
-    uploading: Array,
+    uploading: Array as FileUploadProgress[],
   },
+  emits: ['cancel-upload', 'finish-item'],
   data: function () {
     return {
       showProgress: true,

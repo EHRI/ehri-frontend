@@ -7,11 +7,11 @@ export default {
       default: 'danger'
     },
     accept: {
-      type: String,
+      type: String as string,
       default: "Okay"
     },
     cancel: {
-      type: String,
+      type: String as string | null,
       default: "Cancel"
     },
     large: {
@@ -19,6 +19,7 @@ export default {
       default: false,
     }
   },
+  emits: ["close", "accept"],
   computed: {
     hasDefaultSlot() {
       return !!this.$slots.default

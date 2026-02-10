@@ -30,7 +30,7 @@ export default {
       cleaning: false,
       error: null,
       inputError: null,
-      orphanCheck: null,
+      orphanCheck: null as string[] | null,
       tab: 'urls',
       flash: false,
     }

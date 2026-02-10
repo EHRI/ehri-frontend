@@ -10,6 +10,6 @@ insert_final_newline = true
 charset = utf-8
 
 # 2 space indentation
-[*.{scala,js}]
+[*.{scala,js,ts,vue}]
 indent_style = space
 indent_size = 2

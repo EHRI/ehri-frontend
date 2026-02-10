@@ -60,6 +60,7 @@ case class WSIngestService @Inject()(
   private def entityType(dataType: IngestDataType.Value): EntityType.Value = dataType match {
     case IngestDataType.Eac => EntityType.HistoricalAgent
     case IngestDataType.Ead | IngestDataType.EadSync => EntityType.DocumentaryUnit
+    case IngestDataType.Csv => EntityType.DocumentaryUnit
     case IngestDataType.Skos => EntityType.Concept
   }
 
@@ -194,9 +195,11 @@ case class WSIngestService @Inject()(
         ALLOW_UPDATE -> params.allowUpdate.toString,
         USE_SOURCE_ID -> params.useSourceId.toString,
         LOG -> params.log,
-        COMMIT -> params.commit.toString) ++
+        COMMIT -> params.commit.toString
+      ) ++
         params.lang.map(LANG -> _).toSeq ++
         params.fonds.map(FONDS -> _).toSeq ++
+        params.fieldSeparator.map(FIELD_SEPARATOR -> _).toSeq ++
         params.handler.map(HANDLER -> _).toSeq ++
         params.importer.map(IMPORTER -> _).toSeq ++
         params.excludes.map(EXCLUDES -> _) ++
