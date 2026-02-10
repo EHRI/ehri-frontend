@@ -16,6 +16,7 @@ object IngestService {
     val Ead = Value("ead")
     val EadSync = Value("ead-sync")
     val Skos = Value("skos")
+    val Csv = Value("csv")
 
     implicit val binder: QueryStringBindable[IngestDataType.Value] =
       utils.binders.queryStringBinder(this)
