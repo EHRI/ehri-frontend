@@ -785,7 +785,7 @@ $active-table-row: #e7f1ff;
   }
 }
 
-.import-coreferences-tsv-action-buttons {
+.coreferences-tsv-action-buttons {
   display: flex;
   gap: 0.5rem;
 
@@ -794,7 +794,7 @@ $active-table-row: #e7f1ff;
   }
 }
 
-.import-coreferences-tsv {
+.coreferences-tsv {
   display: flex;
   flex-direction: column;
   margin-bottom: $margin-xs;

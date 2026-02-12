@@ -5,7 +5,7 @@ import MixinError from './_mixin-error';
 import {DatasetManagerApi} from "../api";
 import {Coreference} from "../types";
 import _includes from 'lodash/includes';
-import {decodeTsv} from "../common";
+import {decodeTsv, encodeTsv} from "../common";
 import _fromPairs from "lodash/fromPairs";
 
 export default {
@@ -23,11 +23,13 @@ export default {
       applyInProgress: false,
       deleteInProgress: false,
       importFromTSV: false,
+      showTSV: false,
       validationErrors: false,
       validationMessages: "",
       loading: false,
       result: null,
       initialised: false,
+      toggle: false,
       filter: "",
       set: null,
     }
@@ -154,12 +156,21 @@ export default {
       return [ref.text, ref.targetId, ref.setId].join('-');
     }
   },
+  watch: {
+    toggle: function() {
+      this.toggleAll(this.toggle);
+    }
+  },
   computed: {
     created: function () {
       return this.countObjValues(this.result, "created_keys");
     },
     updated: function () {
       return this.countObjValues(this.result, "updated_keys");
+    },
+    coreferencesAsTsv: function() {
+      let rows = this.references.map(r => [r.text, r.targetId, r.setId]);
+      return encodeTsv(rows, 3);
     },
     sets: function (): string[] {
       let out = [];
@@ -201,9 +212,13 @@ export default {
           <option v-for="setId in sets" v-bind:value="setId">{{ setId }}</option>
         </select>
       </div>
-      <button @click="importFromTSV = !importFromTSV" v-bind:disabled="importFromTSV" class="btn btn-sm btn-default">
-        <i class="fa fa-cloud-upload"></i>
-        Import from TSV
+        <button v-on:click="importFromTSV = !importFromTSV" v-bind:disabled="importFromTSV || showTSV" class="btn btn-sm btn-default">
+            <i class="fa fa-cloud-upload"></i>
+            Import from TSV
+        </button>
+      <button v-on:click="showTSV = !showTSV" v-bind:disabled="showTSV || importFromTSV" class="btn btn-sm btn-default">
+        <i class="fa fa-copy"></i>
+        Show TSV
       </button>
       <button v-on:click.prevent="extractCoreferences" class="btn btn-sm btn-info" title="Build from existing terms">
         <i v-if="!extractInProgress" class="fa fa-fw fa-refresh"></i>
@@ -223,20 +238,32 @@ export default {
       ones, to vocabulary items.
     </p>
 
-    <div class="import-coreferences-tsv" v-if="importFromTSV">
-      <label for="opt-import-coreference-tsv" class="sr-only">Paste TSV here</label>
-      <textarea :value="pasteText"
-                @input="updateOnTsvImport($event.target.value)"
-                class="form-control" id="opt-import-coreference-tsv" placeholder="Paste TSV here..."></textarea>
-      <div class="import-coreferences-tsv-action-buttons">
-        <button @click="importFromTSV = !importFromTSV; refresh()" class="btn btn-sm btn-default">
+      <div class="coreferences-tsv" v-if="importFromTSV">
+          <label for="opt-import-coreference-tsv" class="sr-only">Paste TSV here</label>
+          <textarea v-on:value="pasteText"
+                    v-on:input="updateOnTsvImport($event.target.value)"
+                    class="form-control" id="opt-import-coreference-tsv" placeholder="Paste TSV here..."></textarea>
+          <div class="coreferences-tsv-action-buttons">
+              <button v-on:click="importFromTSV = !importFromTSV; refresh()" class="btn btn-sm btn-default">
+                  <i class="fa fa-times"></i>
+                  Cancel
+              </button>
+              <button v-on:click.prevent="importCoreferences" v-bind:disabled="pasteText === ''"
+                      class="btn btn-sm btn-danger">
+                  <i class="fa fa-fw fa-floppy-o"></i>
+                  Save copied coreferences
+              </button>
+          </div>
+      </div>
+      <div class="coreferences-tsv" v-else-if="showTSV">
+      <label for="opt-show-coreference-tsv" class="sr-only">TSV Data</label>
+      <textarea v-bind:value="coreferencesAsTsv"
+                readonly="readonly"
+                class="form-control" id="opt-show-coreference-tsv"></textarea>
+      <div class="coreferences-tsv-action-buttons">
+        <button v-on:click="showTSV = !showTSV" class="btn btn-sm btn-default">
           <i class="fa fa-times"></i>
-          Cancel
-        </button>
-        <button v-on:click.prevent="importCoreferences" v-bind:disabled="pasteText === ''"
-                class="btn btn-sm btn-danger">
-          <i class="fa fa-fw fa-floppy-o"></i>
-          Save copied coreferences
+          Hide
         </button>
       </div>
     </div>
@@ -265,9 +292,8 @@ export default {
           <tr>
             <th><input type="checkbox"
                        v-bind:id="'coreference-manager-coreference-table-checkall'"
-                       v-bind:checked="Object.keys(selected).length === references.length"
                        v-bind:indeterminate.prop="Object.keys(selected).length > 0 && Object.keys(selected).length < references.length"
-                       v-on:change="toggleAll"/></th>
+                       v-model="toggle"/></th>
             <th>Text</th>
             <th>Target ID</th>
             <th>Set ID</th>
