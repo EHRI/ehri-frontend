@@ -49,7 +49,7 @@ case class CoreferenceTables @Inject()(
          MATCH (:Repository {__id:$scope})
             <-[:heldBy|childOf*]-(:DocumentaryUnit)
             <-[:describes]-(:DocumentaryUnitDescription)-[:relatesTo]->(ap:AccessPoint)
-            <-[:hasLinkBody]-(:Link)-[:hasLinkTarget]->(c:CvocConcept)-[:inAuthoritativeSet]->(s:CvocVocabulary)
+            <-[:hasLinkBody]-(:Link)-[:hasLinkTarget]->(c)-[:inAuthoritativeSet]->(s)
          RETURN DISTINCT ap.name as text, c.__id as target, s.__id as set
         """
     for {
