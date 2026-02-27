@@ -75,8 +75,12 @@ export default {
       if (this.contentType.includes("xml")) {
         return this.prettifyXml(data);
       } else if (this.contentType.includes("json")) {
-        let data = JSON.parse(data);
-        return JSON.stringify(data, null, 2);
+        try {
+          let json = JSON.parse(data);
+          return JSON.stringify(json, null, 2);
+        } catch (e) {
+          return data;
+        }
       } else {
         return data;
       }
@@ -276,6 +280,7 @@ export default {
   },
   mounted: function () {
     if (this.isCode()) {
+      console.log("Code mode: ", this.codeMode());
       this.editor = CodeMirror.fromTextArea(this.$el.querySelector("textarea"), {
         mode: this.codeMode(),
         lineWrapping: this.wrap,
@@ -304,8 +309,8 @@ export default {
 <template>
   <div class="preview-container">
     <panel-tabular-view v-if="isTabular()" v-bind:data="previewData" v-bind:content-type="contentType"></panel-tabular-view>
-    <textarea v-else class="preview-data-container" v-bind:id="datasetId + '-' + fileStage">{{previewData}}</textarea>
-    <div class="validation-loading-indicator" v-if="validating">
+    <textarea v-else class="preview-data-container" v-bind:name="datasetId + '-' + fileStage">{{previewData}}</textarea>
+    <div class="validation-loading-indicator" v-if="canValidate() && validating">
       <i class="fa fa-circle"></i>
     </div>
     <div class="valid-indicator" title="No errors detected"
@@ -315,7 +320,7 @@ export default {
     <div class="preview-loading-indicator" v-if="loading">
       <i class="fa fa-3x fa-spinner fa-spin"></i>
     </div>
-    <button v-else-if="!showingError"
+    <button v-else-if="isCode() && !showingError"
             v-on:click="makePretty"
             v-bind:class="{'active': !prettified}"
             v-bind:disabled="previewTruncated || prettified"

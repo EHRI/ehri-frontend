@@ -42,8 +42,13 @@ export default {
 <template>
   <div class="tabular-view-container">
     <table v-if="data" class="table table-striped table-bordered table-sm tabular-view">
+      <thead>
+      <tr v-for="(row, i) in decodedData.slice(0, 1)" :key="i">
+        <th v-for="col in row">{{ col }}</th>
+      </tr>
+      </thead>
       <tbody>
-      <tr v-for="row in decodedData">
+      <tr v-for="(row, i) in decodedData.slice(1)" :key="i">
         <td v-for="col in row">{{ col }}</td>
       </tr>
       </tbody>
@@ -57,6 +62,7 @@ export default {
   overflow: auto;
 }
 
-.tabular-view {
+.tabular-view th {
+  white-space: nowrap;
 }
 </style>
