@@ -2,18 +2,20 @@
 
 import {nextTick} from "vue";
 import MixinError from './_mixin-error';
-import CodeMirror from 'codemirror';
-import 'codemirror/lib/codemirror.css';
-import 'codemirror/mode/xml/xml';
+import {basicSetup, EditorView} from 'codemirror'
+import {json} from '@codemirror/lang-json';
+import {xml} from '@codemirror/lang-xml';
 
 import _find from 'lodash/find';
 import _isEqual from 'lodash/isEqual';
 import _isArray from 'lodash/isArray';
 import _fromPairs from 'lodash/fromPairs';
-import {FileMeta, XmlValidationError} from "../types";
+import {FileMeta} from "../types";
 import {DatasetManagerApi} from "../api";
 import PanelTabularView from "./_panel-tabular-view.vue";
+import {Compartment, EditorState} from "@codemirror/state";
 
+import {setValidationErrors, validationExtension} from "../codemirror-error-ext";
 
 export default {
   components: {PanelTabularView},
@@ -50,6 +52,8 @@ export default {
       errors: null,
       lineHandles: [],
       firstLoad: true,
+      editor: null as EditorView | null,
+      compartment: null as Compartment | null,
     }
   },
   methods: {
@@ -66,15 +70,15 @@ export default {
     },
     codeMode: function() {
       if (this.isCode() && this.contentType && this.contentType.includes("json")) {
-        return "javascript";
+        return json();
       } else {
-        return "xml";
+        return xml();
       }
     },
     prettifyData: function(data: string): string {
-      if (this.contentType.includes("xml")) {
+      if (!this.contentType || this.contentType.includes("xml")) {
         return this.prettifyXml(data);
-      } else if (this.contentType.includes("json")) {
+      } else if (this.contentType && this.contentType.includes("json")) {
         try {
           let json = JSON.parse(data);
           return JSON.stringify(json, null, 2);
@@ -86,6 +90,7 @@ export default {
       }
     },
     prettifyXml: function (xml: string): string {
+      // FIXME: if/when XSLT gets removed from browsers this will stop working...
       let stripBom = xml.charAt(0) == '\uFEFF' ? xml.substring(1) : xml;
       let parser = new DOMParser();
       let xmlDoc = parser.parseFromString(stripBom, 'application/xml');
@@ -142,46 +147,9 @@ export default {
       }
     },
     updateErrors: function () {
-      function makeWidget(err) {
-        let widget = document.createElement("div");
-        widget.style.color = "#822";
-        widget.style.backgroundColor = "rgba(255,197,199,0.44)";
-        widget.innerHTML = err.error;
-        return widget;
-      }
-
-      function makeMarker(doc: CodeMirror.Doc, err: XmlValidationError) {
-        let marker = document.createElement("div");
-        marker.style.color = "#822";
-        marker.style.marginLeft = "3px";
-        marker.className = "validation-error";
-        marker.innerHTML = '<i class="fa fa-exclamation-circle"></i>';
-        marker.querySelector("i").setAttribute("title", err.error);
-        marker.addEventListener("click", function () {
-          if (marker.widget) {
-            marker.widget.clear();
-            delete marker.widget;
-          } else {
-            marker.widget = doc.addLineWidget(err.line - 1, makeWidget(err));
-          }
-        });
-        return marker;
-      }
-
-      // First clear any existing errors on the document...
-      if (this.previewing && this.editor) {
-        let doc = this.editor.getDoc();
-        this.lineHandles.forEach(handle => doc.removeLineClass(handle, 'background'));
-        doc.clearGutter('validation-errors');
-        this.lineHandles = [];
-
-        if (this.errors) {
-          this.errors.forEach(e => {
-            this.lineHandles.push(doc.addLineClass(e.line - 1, 'background', 'line-error'));
-            doc.setGutterMarker(e.line - 1, 'validation-errors', makeMarker(doc, e));
-          });
-        }
-      }
+      this.editor?.dispatch({
+        effects: setValidationErrors.of(this.errors ?? [])
+      })
     },
     setLoading: function () {
       this.loading = true;
@@ -204,7 +172,7 @@ export default {
           .finally(() => this.loading = false);
     },
     refresh: function () {
-      this.editor && this.editor.refresh();
+      this.editor?.requestMeasure();
     },
     receiveMessage: function (msg: object) {
       if (msg.data.error) {
@@ -212,18 +180,20 @@ export default {
         this.previewData = errObj.line
             ? "Error at line " + errObj.line + ": " + errObj.error
             : "Error: " + msg.data.error.error;
-        this.editor && this.editor.setOption("mode", null);
+        this.editor && this.compartment.reconfigure([]);
         this.loading = false;
         this.showingError = true;
       } else if (msg.data.init) {
         if (this.editor) {
           this.validate();
-          this.editor.setOption("mode", "xml");
+          this.compartment.reconfigure(this.codeMode());
 
           // On the first load of a given file scroll back
           // to the beginning...
           if (this.firstLoad) {
-            this.editor.scrollTo(0, 0);
+            this.editor.dispatch({
+              effects: EditorView.scrollIntoView(0)
+            })
             this.firstLoad = false;
           }
         }
@@ -242,17 +212,22 @@ export default {
     }
   },
   watch: {
-    previewData: function (newValue: string, oldValue: string) {
+    previewData: function (incoming: string, oldValue: string) {
       if (this.editor) {
-        let editorValue = this.editor.getValue();
-        if (newValue !== editorValue) {
-          let scrollInfo = this.editor.getScrollInfo();
-          this.editor.setValue(newValue);
-          this.editor.scrollTo(scrollInfo.left, scrollInfo.top);
+        const current = this.editor?.state.doc.toString()
+        if (current !== incoming) {
+          const scrollTop = this.editor.scrollDOM.scrollTop
+          this.editor.dispatch({
+            changes: { from: 0, to: this.editor.state.doc.length, insert: incoming }
+          })
+          requestAnimationFrame(() => {
+            this.editor.scrollDOM.scrollTop = scrollTop
+          })
         }
+
         // FIXME: why is this only needed some times, e.g for convert
         // previews but not file previews?
-        if (newValue !== oldValue) {
+        if (incoming !== oldValue) {
           if (!this.prettifying) {
             this.prettified = false;
           }
@@ -281,14 +256,33 @@ export default {
   mounted: function () {
     if (this.isCode()) {
       console.log("Code mode: ", this.codeMode());
-      this.editor = CodeMirror.fromTextArea(this.$el.querySelector("textarea"), {
-        mode: this.codeMode(),
-        lineWrapping: this.wrap,
-        lineNumbers: true,
-        readOnly: true,
-        gutters: [{className: "validation-errors", style: "width: 18px"}]
+
+      this.compartment = new Compartment();
+      let state = EditorState.create({
+        extensions: [
+          basicSetup,
+          xml(),
+          json(),
+          this.compartment.of(this.codeMode()),
+          EditorState.readOnly.of(true),
+          EditorView.editable.of(false),
+          EditorView.updateListener.of(update => {
+            if (update.docChanged) {
+              this.updateErrors();
+            }
+          }),
+          ...validationExtension,
+        ]
       });
-      this.editor.on("refresh", () => this.updateErrors());
+
+      this.editor = new EditorView({
+        state,
+        doc: this.previewData,
+        parent: this.$el.querySelector('.preview-data-container'),
+      });
+      this.editor?.dispatch({
+        effects: setValidationErrors.of(this.errors ?? [])
+      });
     } else if (this.isTabular()) {
 
     }
@@ -296,9 +290,7 @@ export default {
     this.load();
   },
   beforeUnmount: function () {
-    if (this.editor) {
-      this.editor.toTextArea();
-    }
+    this.editor?.destroy();
     if (this.worker) {
       this.worker.terminate();
     }
@@ -309,7 +301,8 @@ export default {
 <template>
   <div class="preview-container">
     <panel-tabular-view v-if="isTabular()" v-bind:data="previewData" v-bind:content-type="contentType"></panel-tabular-view>
-    <textarea v-else class="preview-data-container" v-bind:name="datasetId + '-' + fileStage">{{previewData}}</textarea>
+<!--    <textarea v-else class="preview-data-container" v-bind:name="datasetId + '-' + fileStage" readonly>{{previewData}}</textarea>-->
+    <div v-else class="preview-data-container"></div>
     <div class="validation-loading-indicator" v-if="canValidate() && validating">
       <i class="fa fa-circle"></i>
     </div>

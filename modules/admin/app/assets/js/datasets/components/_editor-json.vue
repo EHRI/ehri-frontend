@@ -1,59 +1,78 @@
 <script lang="ts">
 
-import CodeMirror from 'codemirror';
-import 'codemirror/lib/codemirror.css';
-import 'codemirror/mode/javascript/javascript';
+import { EditorView, basicSetup } from 'codemirror'
+import { json } from '@codemirror/lang-json'
+import { EditorState } from '@codemirror/state'
 
 export default {
   props: {
     modelValue: Object,
     resize: {
-      // this value provides a trigger to refresh the editor when size changes
-      // it does not reflect the actual value of the panel
       type: Number,
     },
   },
-  data: function () {
+  data() {
     return {
       error: false,
+      editor: null as EditorView | null,
+    }
+  },
+  watch: {
+    resize() {
+      this.editor?.requestMeasure()
+    },
+    modelValue(newVal) {
+      // Only update editor if content actually differs, to avoid cursor jumping
+      const current = this.editor?.state.doc.toString()
+      const incoming = this.toString(newVal)
+      if (current !== incoming) {
+        this.editor?.dispatch({
+          changes: { from: 0, to: this.editor?.state.doc.length, insert: incoming }
+        })
+      }
     }
   },
   methods: {
-    fromString: function (s: string): object {
+    fromString(s: string): object {
       try {
-        let value = JSON.parse(s);
-        this.error = false;
-        return value;
+        const value = JSON.parse(s)
+        this.error = false
+        return value
       } catch (e) {
-        this.error = true;
-        return {};
+        this.error = true
+        return {}
       }
     },
-    toString: function (obj: object): string {
-      return JSON.stringify(obj, null, 2);
+    toString(obj: object): string {
+      return JSON.stringify(obj, null, 2)
     }
   },
-  mounted: function () {
-    this.editor = CodeMirror.fromTextArea(this.$el.querySelector("textarea"), {
-      mode: 'javascript',
-      lineNumbers: false,
-      readOnly: false,
+  mounted() {
+    let state = EditorState.create({
+      extensions: [
+        basicSetup,
+        json(),
+        EditorState.readOnly.of(false),
+        EditorView.updateListener.of(update => {
+          if (update.docChanged) {
+            this.$emit('update:modelValue', this.fromString(update.state.doc.toString()))
+          }
+        }),
+      ],
     });
-    this.editor.on("change", () => {
-      this.$emit('update:modelValue', this.fromString(this.editor.getValue()));
+    this.editor = new EditorView({
+      state,
+      doc: this.modelValue,
+      parent: this.$el,
     });
   },
-  beforeDestroy: function () {
-    if (this.editor) {
-      this.editor.toTextArea();
-    }
+  beforeUnmount() {
+    this.editor?.destroy()
   },
-};
+}
 </script>
 
 <template>
-  <div v-bind:class="{'has-error': error}" class="json-editor">
-    <textarea>{{ toString(modelValue) }}</textarea>
-  </div>
+  <div v-bind:class="{'has-error': error}" class="json-editor"></div>
 </template>
 

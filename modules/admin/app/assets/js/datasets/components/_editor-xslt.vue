@@ -1,8 +1,12 @@
 <script lang="ts">
 
-import CodeMirror from 'codemirror';
-import 'codemirror/lib/codemirror.css';
-import 'codemirror/mode/xml/xml';
+// import CodeMirror from 'codemirror';
+// import 'codemirror/lib/codemirror.css';
+// import 'codemirror/mode/xml/xml';
+import { EditorView, basicSetup } from 'codemirror'
+import { json } from '@codemirror/lang-json';
+import { xml } from '@codemirror/lang-xml';
+import {EditorState} from "@codemirror/state";
 
 export default {
   props: {
@@ -14,36 +18,48 @@ export default {
     },
     timestamp: String,
   },
+  data: function() {
+    return {
+      editor: null as EditorView | null,
+    }
+  },
   watch: {
     resize: function () {
-      this.editor.refresh();
+      this.editor.requestMeasure();
     },
     timestamp: function () {
       console.debug("XSLT editor value updated...")
-      this.editor.setValue(this.modelValue);
+      this.editor.dispatch({
+        changes: { from: 0, to: this.editor.state.doc.length, insert: this.modelValue }
+      });
     }
   },
   mounted: function () {
-    this.editor = CodeMirror.fromTextArea(this.$el.querySelector("textarea"), {
-      mode: 'xml',
-      lineNumbers: false,
-      readOnly: false,
+    this.editor = new EditorView({
+      doc: this.modelValue,
+      extensions: [
+        basicSetup,
+        xml(),
+        EditorState.readOnly.of(false),
+        EditorView.updateListener.of(update => {
+          if (update.docChanged) {
+            this.$emit('update:modelValue', this.editor.state.doc.toString());
+          }
+        })
+      ],
+      parent: this.$el
     });
-    this.editor.on("change", () => {
-      this.$emit('update:modelValue', this.editor.getValue());
-    });
+    console.log("Initalised editor...")
   },
-  beforeDestroy: function () {
+  beforeUnmount: function () {
     if (this.editor) {
-      this.editor.toTextArea();
+      this.editor.destroy();
     }
   },
 };
 </script>
 
 <template>
-  <div class="xslt-editor">
-    <textarea>{{ modelValue }}</textarea>
-  </div>
+  <div class="xslt-editor"></div>
 </template>
 
