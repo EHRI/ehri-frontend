@@ -10,11 +10,13 @@ import _find from 'lodash/find';
 import _isEqual from 'lodash/isEqual';
 import _isArray from 'lodash/isArray';
 import _fromPairs from 'lodash/fromPairs';
-import {FileMeta, ImportDataset, XmlValidationError} from "../types";
+import {FileMeta, XmlValidationError} from "../types";
 import {DatasetManagerApi} from "../api";
+import PanelTabularView from "./_panel-tabular-view.vue";
 
 
 export default {
+  components: {PanelTabularView},
   mixins: [MixinError],
   props: {
     api: DatasetManagerApi,
@@ -52,7 +54,33 @@ export default {
   },
   methods: {
     _isArray,
-
+    isCode: function() {
+      // For historical reasons a null contentType means 'XML'
+      return !this.contentType || (this.contentType.includes("json") || this.contentType.includes("xml"));
+    },
+    isTabular: function() {
+      return this.contentType && (this.contentType.includes("csv") || this.contentType.includes("tsv"));
+    },
+    canValidate: function() {
+      return !this.contentType || this.contentType.includes("xml");
+    },
+    codeMode: function() {
+      if (this.isCode() && this.contentType && this.contentType.includes("json")) {
+        return "javascript";
+      } else {
+        return "xml";
+      }
+    },
+    prettifyData: function(data: string): string {
+      if (this.contentType.includes("xml")) {
+        return this.prettifyXml(data);
+      } else if (this.contentType.includes("json")) {
+        let data = JSON.parse(data);
+        return JSON.stringify(data, null, 2);
+      } else {
+        return data;
+      }
+    },
     prettifyXml: function (xml: string): string {
       let stripBom = xml.charAt(0) == '\uFEFF' ? xml.substring(1) : xml;
       let parser = new DOMParser();
@@ -75,7 +103,7 @@ export default {
     },
     makePretty: function () {
       this.prettifying = true;
-      this.previewData = this.prettifyXml(this.previewData);
+      this.previewData = this.prettifyData(this.previewData);
       nextTick(() => {
         this.prettified = true
         this.prettifying = false;
@@ -91,18 +119,22 @@ export default {
         this.updateErrors();
       } else {
         this.validating = true;
-        let tagToKey = _fromPairs([[this.previewing.eTag, this.previewing.key]]);
-        this.api.validateFiles(this.datasetId, this.fileStage, tagToKey)
-            .then(errors => {
-              let e = _find(errors, e => this.previewing.eTag === e.eTag);
-              if (e) {
-                this.errors = e.errors;
-                this.updateErrors()
-                this.$emit("validation-results", this.previewing.eTag, e.errors);
-              }
-            })
-            .catch(error => this.showError("Error attempting validation", error))
-            .finally(() => this.validating = false);
+        if (this.canValidate()) {
+          let tagToKey = _fromPairs([[this.previewing.eTag, this.previewing.key]]);
+          this.api.validateFiles(this.datasetId, this.fileStage, tagToKey)
+              .then(errors => {
+                let e = _find(errors, e => this.previewing.eTag === e.eTag);
+                if (e) {
+                  this.errors = e.errors;
+                  this.updateErrors()
+                  this.$emit("validation-results", this.previewing.eTag, e.errors);
+                }
+              })
+              .catch(error => this.showError("Error attempting validation", error))
+              .finally(() => this.validating = false);
+        } else {
+          this.errors = null;
+        }
       }
     },
     updateErrors: function () {
@@ -168,7 +200,7 @@ export default {
           .finally(() => this.loading = false);
     },
     refresh: function () {
-      this.editor.refresh();
+      this.editor && this.editor.refresh();
     },
     receiveMessage: function (msg: object) {
       if (msg.data.error) {
@@ -176,7 +208,7 @@ export default {
         this.previewData = errObj.line
             ? "Error at line " + errObj.line + ": " + errObj.error
             : "Error: " + msg.data.error.error;
-        this.editor.setOption("mode", null);
+        this.editor && this.editor.setOption("mode", null);
         this.loading = false;
         this.showingError = true;
       } else if (msg.data.init) {
@@ -207,19 +239,21 @@ export default {
   },
   watch: {
     previewData: function (newValue: string, oldValue: string) {
-      let editorValue = this.editor.getValue();
-      if (newValue !== editorValue) {
-        let scrollInfo = this.editor.getScrollInfo();
-        this.editor.setValue(newValue);
-        this.editor.scrollTo(scrollInfo.left, scrollInfo.top);
-      }
-      // FIXME: why is this only needed some times, e.g for convert
-      // previews but not file previews?
-      if (newValue !== oldValue) {
-        if (!this.prettifying) {
-          this.prettified = false;
+      if (this.editor) {
+        let editorValue = this.editor.getValue();
+        if (newValue !== editorValue) {
+          let scrollInfo = this.editor.getScrollInfo();
+          this.editor.setValue(newValue);
+          this.editor.scrollTo(scrollInfo.left, scrollInfo.top);
         }
-        this.refresh();
+        // FIXME: why is this only needed some times, e.g for convert
+        // previews but not file previews?
+        if (newValue !== oldValue) {
+          if (!this.prettifying) {
+            this.prettified = false;
+          }
+          this.refresh();
+        }
       }
     },
     previewing: function (newValue: FileMeta, oldValue: FileMeta) {
@@ -241,14 +275,18 @@ export default {
     this.worker.onmessage = this.receiveMessage;
   },
   mounted: function () {
-    this.editor = CodeMirror.fromTextArea(this.$el.querySelector("textarea"), {
-      mode: 'xml',
-      lineWrapping: this.wrap,
-      lineNumbers: true,
-      readOnly: true,
-      gutters: [{className: "validation-errors", style: "width: 18px"}]
-    });
-    this.editor.on("refresh", () => this.updateErrors());
+    if (this.isCode()) {
+      this.editor = CodeMirror.fromTextArea(this.$el.querySelector("textarea"), {
+        mode: this.codeMode(),
+        lineWrapping: this.wrap,
+        lineNumbers: true,
+        readOnly: true,
+        gutters: [{className: "validation-errors", style: "width: 18px"}]
+      });
+      this.editor.on("refresh", () => this.updateErrors());
+    } else if (this.isTabular()) {
+
+    }
 
     this.load();
   },
@@ -265,7 +303,8 @@ export default {
 
 <template>
   <div class="preview-container">
-    <textarea>{{previewData}}</textarea>
+    <panel-tabular-view v-if="isTabular()" v-bind:data="previewData" v-bind:content-type="contentType"></panel-tabular-view>
+    <textarea v-else class="preview-data-container" v-bind:id="datasetId + '-' + fileStage">{{previewData}}</textarea>
     <div class="validation-loading-indicator" v-if="validating">
       <i class="fa fa-circle"></i>
     </div>
@@ -280,7 +319,7 @@ export default {
             v-on:click="makePretty"
             v-bind:class="{'active': !prettified}"
             v-bind:disabled="previewTruncated || prettified"
-            class="pretty-xml btn btn-sm"
+            class="prettify-data btn btn-sm"
             title="Apply code formatting...">
       <i class="fa fa-code"></i>
     </button>
