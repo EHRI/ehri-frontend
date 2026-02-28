@@ -148,7 +148,7 @@ export default {
     },
     updateErrors: function () {
       this.editor?.dispatch({
-        effects: setValidationErrors.of(this.errors ?? [])
+        effects: setValidationErrors.of(this.errors)
       })
     },
     setLoading: function () {
@@ -280,11 +280,6 @@ export default {
         doc: this.previewData,
         parent: this.$el.querySelector('.preview-data-container'),
       });
-      this.editor?.dispatch({
-        effects: setValidationErrors.of(this.errors ?? [])
-      });
-    } else if (this.isTabular()) {
-
     }
 
     this.load();
@@ -305,10 +300,6 @@ export default {
     <div v-else class="preview-data-container"></div>
     <div class="validation-loading-indicator" v-if="canValidate() && validating">
       <i class="fa fa-circle"></i>
-    </div>
-    <div class="valid-indicator" title="No errors detected"
-         v-if="!validating && previewing && (_isArray(errors) && errors.length === 0)">
-      <i class="fa fa-check"></i>
     </div>
     <div class="preview-loading-indicator" v-if="loading">
       <i class="fa fa-3x fa-spinner fa-spin"></i>

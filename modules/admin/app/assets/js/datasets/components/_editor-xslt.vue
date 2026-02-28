@@ -1,11 +1,7 @@
 <script lang="ts">
 
-// import CodeMirror from 'codemirror';
-// import 'codemirror/lib/codemirror.css';
-// import 'codemirror/mode/xml/xml';
-import { EditorView, basicSetup } from 'codemirror'
-import { json } from '@codemirror/lang-json';
-import { xml } from '@codemirror/lang-xml';
+import {basicSetup, EditorView} from 'codemirror'
+import {xml} from '@codemirror/lang-xml';
 import {EditorState} from "@codemirror/state";
 
 export default {
