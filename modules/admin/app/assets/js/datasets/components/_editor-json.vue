@@ -15,21 +15,30 @@ export default {
     return {
       error: false,
       editor: null as EditorView | null,
+      isInternalChange: false,
     }
   },
   watch: {
     resize() {
       this.editor?.requestMeasure()
     },
-    modelValue(newVal) {
-      // Only update editor if content actually differs, to avoid cursor jumping
-      const current = this.editor?.state.doc.toString()
-      const incoming = this.toString(newVal)
-      if (current !== incoming) {
-        this.editor?.dispatch({
-          changes: { from: 0, to: this.editor?.state.doc.length, insert: incoming }
-        })
-      }
+    modelValue: {
+      handler(newVal: object) {
+        if (this.isInternalChange) {
+          this.isInternalChange = false; // Reset and skip
+          return;
+        }
+
+        // Only update editor if content actually differs, to avoid cursor jumping
+        const current = this.editor?.state.doc.toString()
+        const incoming = this.toString(newVal)
+        if (current !== incoming) {
+          this.editor?.dispatch({
+            changes: {from: 0, to: this.editor?.state.doc.length, insert: incoming}
+          })
+        }
+      },
+      deep: true
     }
   },
   methods: {
@@ -49,20 +58,25 @@ export default {
   },
   mounted() {
     let state = EditorState.create({
+      doc: this.toString(this.modelValue),
       extensions: [
         basicSetup,
         json(),
-        EditorState.readOnly.of(false),
         EditorView.updateListener.of(update => {
           if (update.docChanged) {
-            this.$emit('update:modelValue', this.fromString(update.state.doc.toString()))
+            console.log("changed listener", update.state.doc.toString())
+            const nextValue = this.fromString(update.state.doc.toString());
+            if (!this.error) {
+              this.isInternalChange = true; // Block the next watcher execution
+              this.$emit('update:modelValue', nextValue);
+            }
           }
         }),
       ],
     });
+    console.log("Mounted w/ modelValue", this.modelValue)
     this.editor = new EditorView({
       state,
-      doc: this.modelValue,
       parent: this.$el,
     });
   },
