@@ -1,10 +1,14 @@
+/**
+ * Configuration for CodeMirror 6 error and success markers.
+ *
+ * The validator starts with a NULL array of {FileValidationError} instances, indicating
+ * that it hasn't yet been checked.
+ */
+
 import {Decoration, EditorView, gutter, GutterMarker, WidgetType} from '@codemirror/view';
 import {RangeSet, StateEffect, StateField} from '@codemirror/state';
-import {XmlValidationError} from "./types";
+import {FileValidationError} from "./types";
 
-/**
- * 1. Marker & Widget Definitions
- */
 class ErrorMarker extends GutterMarker {
   constructor(readonly error: string) { super(); }
   toDOM() {
@@ -36,18 +40,14 @@ class ErrorWidget extends WidgetType {
   }
 }
 
-/**
- * 2. State & Effects
- */
-
-export const setValidationErrors = StateEffect.define<XmlValidationError[] | null>();
+export const setValidationErrors = StateEffect.define<FileValidationError[] | null>();
 export const toggleErrorWidget = StateEffect.define<number | null>();
 
 const errorState = StateField.define<{
-  errors: XmlValidationError[] | null,
+  errors: FileValidationError[] | null,
   activeLine: number | null,
 }>({
-  create(): { errors: XmlValidationError[] | null, activeLine: number | null } {
+  create(): { errors: FileValidationError[] | null, activeLine: number | null } {
     return {
       errors: null,
       activeLine: null,
@@ -55,7 +55,6 @@ const errorState = StateField.define<{
   },
   update(value, tr) {
     let { errors, activeLine } = value;
-
     if (tr.docChanged) {
       activeLine = null;
     }
@@ -133,9 +132,7 @@ const errorState = StateField.define<{
   ]
 });
 
-/**
- * 3. Styling
- */
+// Styling
 const errorTheme = EditorView.baseTheme({
   ".validation-errors": { width: "25px" },
   ".validation-error, .validation-success": {

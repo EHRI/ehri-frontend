@@ -2,9 +2,6 @@
 
 import {nextTick} from "vue";
 import MixinError from './_mixin-error';
-import {basicSetup, EditorView} from 'codemirror'
-import {json} from '@codemirror/lang-json';
-import {xml} from '@codemirror/lang-xml';
 
 import _find from 'lodash/find';
 import _isEqual from 'lodash/isEqual';
@@ -12,13 +9,11 @@ import _isArray from 'lodash/isArray';
 import _fromPairs from 'lodash/fromPairs';
 import {FileMeta} from "../types";
 import {DatasetManagerApi} from "../api";
-import PanelTabularView from "./_panel-tabular-view.vue";
-import {Compartment, EditorState} from "@codemirror/state";
-
-import {setValidationErrors, validationExtension} from "../codemirror-error-ext";
+import PanelTabularView from "./_panel-tabular-view";
+import PanelCodeView from "./_panel-code-view";
 
 export default {
-  components: {PanelTabularView},
+  components: {PanelTabularView, PanelCodeView},
   mixins: [MixinError],
   props: {
     api: DatasetManagerApi,
@@ -26,7 +21,7 @@ export default {
     contentType: String,
     fileStage: String,
     panelSize: Number,
-    previewing: Object,
+    previewing: Object as FileMeta | null,
     config: Object,
     maxSize: Number,
     validationResults: {
@@ -52,8 +47,6 @@ export default {
       errors: null,
       lineHandles: [],
       firstLoad: true,
-      editor: null as EditorView | null,
-      compartment: null as Compartment | null,
     }
   },
   methods: {
@@ -67,13 +60,6 @@ export default {
     },
     canValidate: function() {
       return !this.contentType || this.contentType.includes("xml");
-    },
-    codeMode: function() {
-      if (this.isCode() && this.contentType && this.contentType.includes("json")) {
-        return json();
-      } else {
-        return xml();
-      }
     },
     prettifyData: function(data: string): string {
       if (!this.contentType || this.contentType.includes("xml")) {
@@ -123,33 +109,29 @@ export default {
         return;
       }
 
+      // Check if we have previously validated this file
       if (this.validationResults[this.previewing.eTag]) {
         this.errors = this.validationResults[this.previewing.eTag];
-        this.updateErrors();
       } else {
-        this.validating = true;
         if (this.canValidate()) {
+          console.log("Validating", this.previewing.key)
+          this.validating = true;
           let tagToKey = _fromPairs([[this.previewing.eTag, this.previewing.key]]);
           this.api.validateFiles(this.datasetId, this.fileStage, tagToKey)
               .then(errors => {
                 let e = _find(errors, e => this.previewing.eTag === e.eTag);
                 if (e) {
                   this.errors = e.errors;
-                  this.updateErrors()
                   this.$emit("validation-results", this.previewing.eTag, e.errors);
                 }
               })
               .catch(error => this.showError("Error attempting validation", error))
               .finally(() => this.validating = false);
         } else {
+          console.log("Can't validate...")
           this.errors = null;
         }
       }
-    },
-    updateErrors: function () {
-      this.editor?.dispatch({
-        effects: setValidationErrors.of(this.errors)
-      })
     },
     setLoading: function () {
       this.loading = true;
@@ -171,32 +153,29 @@ export default {
           .catch(error => this.showError('Unable to load preview URL', error))
           .finally(() => this.loading = false);
     },
-    refresh: function () {
-      this.editor?.requestMeasure();
-    },
     receiveMessage: function (msg: object) {
       if (msg.data.error) {
         let errObj = msg.data.error;
         this.previewData = errObj.line
             ? "Error at line " + errObj.line + ": " + errObj.error
             : "Error: " + msg.data.error.error;
-        this.editor && this.compartment.reconfigure([]);
         this.loading = false;
         this.showingError = true;
       } else if (msg.data.init) {
-        if (this.editor) {
+        // TODO: addess if this is needed
+        // if (this.editor) {
           this.validate();
-          this.compartment.reconfigure(this.codeMode());
-
-          // On the first load of a given file scroll back
-          // to the beginning...
-          if (this.firstLoad) {
-            this.editor.dispatch({
-              effects: EditorView.scrollIntoView(0)
-            })
-            this.firstLoad = false;
-          }
-        }
+        //   this.compartment.reconfigure(this.codeMode());
+        //
+        //   // On the first load of a given file scroll back
+        //   // to the beginning...
+        //   if (this.firstLoad) {
+        //     this.editor.dispatch({
+        //       effects: EditorView.scrollIntoView(0)
+        //     })
+        //     this.firstLoad = false;
+        //   }
+        // }
         // Stop loading indicator when first data arrives
         this.loading = false;
         this.showingError = false;
@@ -212,40 +191,12 @@ export default {
     }
   },
   watch: {
-    previewData: function (incoming: string, oldValue: string) {
-      if (this.editor) {
-        const current = this.editor?.state.doc.toString()
-        if (current !== incoming) {
-          const scrollTop = this.editor.scrollDOM.scrollTop
-          this.editor.dispatch({
-            changes: { from: 0, to: this.editor.state.doc.length, insert: incoming }
-          })
-          requestAnimationFrame(() => {
-            this.editor.scrollDOM.scrollTop = scrollTop
-          })
-        }
-
-        // FIXME: why is this only needed some times, e.g for convert
-        // previews but not file previews?
-        if (incoming !== oldValue) {
-          if (!this.prettifying) {
-            this.prettified = false;
-          }
-          this.refresh();
-        }
-      }
-    },
-    previewing: function (newValue: FileMeta, oldValue: FileMeta) {
+    previewing: function (newValue?: FileMeta, oldValue?: FileMeta) {
       if (!_isEqual(newValue, oldValue)) {
         this.load();
       }
       if (newValue && oldValue && newValue.key !== oldValue.key) {
         this.firstLoad = true;
-      }
-    },
-    panelSize: function (newValue: number, oldValue: number) {
-      if (newValue !== null && newValue !== oldValue) {
-        this.refresh();
       }
     },
   },
@@ -254,38 +205,11 @@ export default {
     this.worker.onmessage = this.receiveMessage;
   },
   mounted: function () {
-    if (this.isCode()) {
-      console.log("Code mode: ", this.codeMode());
-
-      this.compartment = new Compartment();
-      let state = EditorState.create({
-        extensions: [
-          basicSetup,
-          xml(),
-          json(),
-          this.compartment.of(this.codeMode()),
-          EditorState.readOnly.of(true),
-          EditorView.editable.of(false),
-          EditorView.updateListener.of(update => {
-            if (update.docChanged) {
-              this.updateErrors();
-            }
-          }),
-          ...validationExtension,
-        ]
-      });
-
-      this.editor = new EditorView({
-        state,
-        doc: this.previewData,
-        parent: this.$el.querySelector('.preview-data-container'),
-      });
-    }
-
+    // this.initViewer();
     this.load();
   },
   beforeUnmount: function () {
-    this.editor?.destroy();
+    // this.deinitViewer();
     if (this.worker) {
       this.worker.terminate();
     }
@@ -296,8 +220,12 @@ export default {
 <template>
   <div class="preview-container">
     <panel-tabular-view v-if="isTabular()" v-bind:data="previewData" v-bind:content-type="contentType"></panel-tabular-view>
-<!--    <textarea v-else class="preview-data-container" v-bind:name="datasetId + '-' + fileStage" readonly>{{previewData}}</textarea>-->
-    <div v-else class="preview-data-container"></div>
+    <panel-code-view v-else
+                     v-bind:data="previewData??''"
+                     v-bind:content-type="contentType"
+                     v-bind:errors="errors"
+                     v-bind:file-key="previewing ? previewing.key : null"
+                    />
     <div class="validation-loading-indicator" v-if="canValidate() && validating">
       <i class="fa fa-circle"></i>
     </div>
