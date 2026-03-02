@@ -52,12 +52,15 @@ export default {
         });
       }
     },
-    contentType: function () {
-      this.compartment?.reconfigure([this.codeMode()]);
+    contentType: function (newValue, oldValue) {
+      if (this.compartment && (newValue !== oldValue)) {
+        this.editor?.dispatch({
+          effects: this.compartment.reconfigure([this.codeMode()])
+        })
+      }
     },
     data: function (incoming, oldValue) {
       if (this.editor) {
-        console.log("Editor is active...")
         const current = this.editor?.state.doc.toString()
         if (current !== incoming) {
           const scrollTop = this.editor.scrollDOM.scrollTop
@@ -91,16 +94,9 @@ export default {
       doc: this.data,
       extensions: [
         basicSetup,
-        xml(),
-        json(),
         this.compartment.of(this.codeMode()),
         EditorState.readOnly.of(true),
         EditorView.editable.of(false),
-        // EditorView.updateListener.of(update => {
-        //   if (update.docChanged) {
-        //     this.updateErrors();
-        //   }
-        // }),
         ...validationExtension,
       ]
     });
