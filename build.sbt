@@ -367,7 +367,7 @@ lazy val xquery = Project(appName + "-xquery", file("modules/xquery"))
     "ch.qos.logback" % "logback-classic" % "1.5.6",
 
     // EAD transformation...
-    "org.basex" % "basex" % "8.5",
+    "org.basex" % "basex" % "10.7",
 
     // Command line parsing
     "com.github.scopt" %% "scopt" % "4.1.0",
