@@ -42,8 +42,6 @@ case class Tools @Inject()(
 
   import models.FindReplaceTask
 
-  private val toolRoutes = controllers.tools.routes.Tools
-
   private val pathPrefixField = nonEmptyText.verifying("isPath",
     s => s.split(',').forall(_.startsWith("/") && s.endsWith("/")))
 
@@ -52,6 +50,25 @@ case class Tools @Inject()(
   )
 
   private val fileForm = Form(single("file" -> text))
+
+  def reformatPost: Action[AnyContent] = OptionalUserAction.apply { implicit request =>
+    // TODO: improve this function to work more reliably.
+    request.contentType match {
+      case Some(ct) if ct.contains("/xml") =>
+        request.body.asXml.map { xml =>
+          import scala.xml._
+          val printer = new PrettyPrinter(width = 80, step = 2)
+          Ok(printer.formatNodes(xml))
+        }.getOrElse(NotAcceptable("Invalid XML"))
+      case Some(play.api.http.ContentTypes.JSON) =>
+        request.body.asJson.map { jsValue =>
+          Ok(Json.prettyPrint(jsValue))
+        }.getOrElse(NotAcceptable("Invalid JSON"))
+      case e =>
+        println(e)
+        UnsupportedMediaType("Unsupported Media Type")
+    }
+  }
 
   def validateEad: Action[AnyContent] = OptionalUserAction.apply { implicit request =>
     Ok(views.html.admin.tools.validateEad(Map.empty[String, Seq[XmlValidationError]], fileForm,
