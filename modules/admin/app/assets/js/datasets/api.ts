@@ -126,6 +126,10 @@ export class DatasetManagerApi {
       });
   }
 
+  reformatUrl(ds: string, stage: string, key: string, versionId?: string): string {
+    return this.service.datasets.PrettyPrinting.reformat(this.repoId, ds, stage, key, versionId).url;
+  }
+
   harvest(ds: string, config: HarvestConfig, fromLast?: boolean): Promise<JobMonitor> {
     return apiCall(this.service.datasets.HarvestConfigs.harvest(this.repoId, ds, fromLast), config);
   }

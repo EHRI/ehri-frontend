@@ -61,49 +61,6 @@ export default {
     canValidate: function() {
       return !this.contentType || this.contentType.includes("xml");
     },
-    prettifyData: function(data: string): string {
-      if (!this.contentType || this.contentType.includes("xml")) {
-        return this.prettifyXml(data);
-      } else if (this.contentType && this.contentType.includes("json")) {
-        try {
-          let json = JSON.parse(data);
-          return JSON.stringify(json, null, 2);
-        } catch (e) {
-          return data;
-        }
-      } else {
-        return data;
-      }
-    },
-    prettifyXml: function (xml: string): string {
-      // FIXME: if/when XSLT gets removed from browsers this will stop working...
-      let stripBom = xml.charAt(0) == '\uFEFF' ? xml.substring(1) : xml;
-      let parser = new DOMParser();
-      let xmlDoc = parser.parseFromString(stripBom, 'application/xml');
-      let xsltDoc = parser.parseFromString(`
-        <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
-          <xsl:template match="node()|@*">
-            <xsl:copy>
-              <xsl:apply-templates select="node()|@*"/>
-            </xsl:copy>
-          </xsl:template>
-          <xsl:output indent="yes"/>
-        </xsl:stylesheet>
-      `, 'application/xml');
-
-      let xsltProcessor = new XSLTProcessor();
-      xsltProcessor.importStylesheet(xsltDoc);
-      let resultDoc = xsltProcessor.transformToDocument(xmlDoc);
-      return new XMLSerializer().serializeToString(resultDoc);
-    },
-    makePretty: function () {
-      this.prettifying = true;
-      this.previewData = this.prettifyData(this.previewData);
-      nextTick(() => {
-        this.prettified = true
-        this.prettifying = false;
-      });
-    },
     validate: function (): void {
       if (this.previewing === null) {
         return;
@@ -136,6 +93,21 @@ export default {
     setLoading: function () {
       this.loading = true;
       this.$emit("loading");
+    },
+    prettyPrint: function(): void {
+      if (this.previewing === null) {
+        return;
+      }
+
+      console.log("Pretty printing")
+      let prettyPrintUrl = this.api.reformatUrl(this.datasetId, this.fileStage, [this.previewing.key])
+      console.log("Pretty printing", prettyPrintUrl)
+      this.worker.postMessage({
+        type: 'preview',
+        url: prettyPrintUrl,
+        contentType: this.contentType,
+        max: this.config.maxPreviewSize,
+      });
     },
     load: function (): void {
       if (this.previewing === null) {
@@ -229,11 +201,11 @@ export default {
     <div class="validation-loading-indicator" v-if="canValidate() && validating">
       <i class="fa fa-circle"></i>
     </div>
-    <div class="preview-loading-indicator" v-if="loading">
+    <div v-if="loading" class="preview-loading-indicator">
       <i class="fa fa-3x fa-spinner fa-spin"></i>
     </div>
     <button v-else-if="isCode() && !showingError"
-            v-on:click="makePretty"
+            v-on:click="prettyPrint"
             v-bind:class="{'active': !prettified}"
             v-bind:disabled="previewTruncated || prettified"
             class="prettify-data btn btn-sm"

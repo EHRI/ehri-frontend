@@ -1,10 +1,10 @@
 package controllers.datasets
 
-import org.apache.pekko.stream.Materializer
 import controllers.AppComponents
 import controllers.base.{AdminController, ApiBodyParsers}
 import controllers.generic._
 import models._
+import org.apache.pekko.stream.Materializer
 import play.api.cache.AsyncCacheApi
 import play.api.http.MimeTypes
 import play.api.libs.json.{Format, Json}
@@ -15,7 +15,6 @@ import services.datasets.{ImportDatasetExists, ImportDatasetService}
 import services.ingest.ImportLogService
 import services.storage.FileStorage
 
-import java.time.Instant
 import javax.inject._
 import scala.concurrent.Future
 
@@ -58,6 +57,7 @@ case class ImportDatasets @Inject()(
         controllers.datasets.routes.javascript.ImportFiles.uploadHandle,
         controllers.datasets.routes.javascript.ImportFiles.fileUrls,
         controllers.datasets.routes.javascript.ImportFiles.copyFile,
+        controllers.datasets.routes.javascript.PrettyPrinting.reformat,
         controllers.datasets.routes.javascript.HarvestConfigs.harvest,
         controllers.datasets.routes.javascript.HarvestConfigs.get,
         controllers.datasets.routes.javascript.HarvestConfigs.save,

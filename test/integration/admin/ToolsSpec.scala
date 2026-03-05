@@ -1,14 +1,14 @@
 package integration.admin
 
-import java.io.File
 import eu.ehri.project.definitions.Entities
 import helpers._
 import mockdata._
 import models.ContentTypes
 import org.apache.commons.io.FileUtils
-import play.api.libs.json.Json
 import play.api.mvc.Flash
 import play.api.test.FakeRequest
+
+import java.io.File
 
 /**
  * Spec to test various page views operate as expected.
@@ -188,23 +188,6 @@ class ToolsSpec extends IntegrationTestRunner with FakeMultipartUpload {
       val redir = FakeRequest(GET, from).withUser(privilegedUser).call()
       status(redir) must_== MOVED_PERMANENTLY
       redirectLocation(redir) must beSome(to)
-    }
-
-    "allow reformatting JSON data" in new ITestApp() {
-      val json = Json.parse("""{"foo": "bar", "baz": [1,2,3,4]}""")
-      val res = FakeRequest(toolRoutes.reformatPost())
-        .withUser(privilegedUser)
-        .callWith(json)
-      status(res) must_== OK
-    }
-
-    "allow reformatting XML data" in new ITestApp() {
-      val xml = scala.xml.XML.loadString("""<ead><eadheader><eadid>1</eadid></eadheader></ead>""")
-      val res = FakeRequest(toolRoutes.reformatPost())
-        .withUser(privilegedUser)
-        .callWith(xml)
-      println(contentAsString(res))
-      status(res) must_== OK
     }
   }
 }

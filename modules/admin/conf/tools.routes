@@ -26,9 +26,6 @@ POST        /delete                             @controllers.tools.Tools.batchDe
 GET         /redirect                           @controllers.tools.Tools.redirect()
 POST        /redirect                           @controllers.tools.Tools.redirectPost()
 
-# Reformatting
-POST        /reformat                           @controllers.tools.Tools.reformatPost()
-
 # EAD validation
 GET         /validate-ead                       @controllers.tools.Tools.validateEad()
 POST        /validate-ead                       @controllers.tools.Tools.validateEadPost()
