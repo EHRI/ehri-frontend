@@ -588,11 +588,6 @@ $active-table-row: #e7f1ff;
   position: relative;
   @extend %expanding-column;
 
-  //.cm-editor {
-  //  flex: 1;
-  //  flex-basis: 0;
-  //  height: 100%;
-  //}
   .cm-scroller {
     overflow: auto;
   }
