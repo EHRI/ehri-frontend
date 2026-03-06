@@ -152,7 +152,7 @@ export interface CopyResult {
   url: string
 }
 
-export interface XmlValidationError {
+export interface FileValidationError {
   line: number,
   pos: number,
   error: string,
@@ -161,7 +161,7 @@ export interface XmlValidationError {
 export interface ValidationResult {
   key: string,
   eTag?: string,
-  errors: XmlValidationError[],
+  errors: FileValidationError[],
 }
 
 export interface Snapshot {

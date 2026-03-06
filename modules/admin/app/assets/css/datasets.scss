@@ -27,13 +27,16 @@ $active-table-row: #e7f1ff;
   .item-icon {
     grid-area: icon;
   }
+
   .item-meta {
     grid-area: meta;
     @extend %small-muted;
   }
+
   .item-heading {
     grid-area: heading;
   }
+
   .item-badge {
     grid-area: badge;
     display: grid;
@@ -41,6 +44,7 @@ $active-table-row: #e7f1ff;
     grid-auto-flow: column;
     margin-left: auto;
   }
+
   .item-controls {
     grid-area: controls;
     grid-gap: $margin-xs;
@@ -86,6 +90,7 @@ $active-table-row: #e7f1ff;
       display: inline-flex;
       margin-left: $margin-sm;
       min-width: max-content;
+
       > .btn {
         margin-right: 0;
       }
@@ -100,6 +105,7 @@ $active-table-row: #e7f1ff;
 
 .dataset-actions {
   display: flex;
+
   :first-child {
     flex-basis: 100%;
   }
@@ -121,21 +127,26 @@ $active-table-row: #e7f1ff;
       color: $white;
       background-color: $info;
     }
+
     &.badge-oaipmh {
       color: $white;
       background-color: $purple;
     }
+
     &.badge-rs {
       color: $white;
       background-color: $blue;
     }
+
     &.badge-active {
       @extend .badge-info;
     }
+
     &.badge-onhold {
       color: $white;
       background-color: $gray-600;
     }
+
     &.badge-inactive {
       color: $white;
       background-color: $black;
@@ -161,9 +172,9 @@ $active-table-row: #e7f1ff;
   flex: 1;
   justify-content: flex-end;
 }
+
 #stage-tabs,
-#dataset-manager-tabs
-{
+#dataset-manager-tabs {
   font-size: $font-size-lg;
   margin-bottom: $margin-sm;
 }
@@ -172,8 +183,7 @@ $active-table-row: #e7f1ff;
   @extend %expanding-column;
 }
 
-.stage-manager-container
-{
+.stage-manager-container {
   @extend %expanding-column;
   margin-bottom: $margin-sm;
 }
@@ -213,10 +223,10 @@ $active-table-row: #e7f1ff;
 
     .file-picker-suggestion {
       &.selected,
-      &:hover
-      {
+      &:hover {
         background-color: $gray-100;
       }
+
       padding: $margin-xxs $margin-sm;
       white-space: nowrap;
     }
@@ -297,6 +307,7 @@ $active-table-row: #e7f1ff;
     padding: 0;
     border-collapse: collapse;
     margin: $margin-sm;
+
     &:first-child {
       margin-right: 0;
     }
@@ -331,6 +342,7 @@ $active-table-row: #e7f1ff;
           color: $white;
           background-color: $info;
         }
+
         &.badge-xquery {
           color: $white;
           background-color: $green;
@@ -439,6 +451,7 @@ $active-table-row: #e7f1ff;
     margin-left: $margin-sm;
     min-width: max-content;
     justify-content: flex-end;
+
     > .btn {
       margin-right: 0;
     }
@@ -455,17 +468,11 @@ $active-table-row: #e7f1ff;
   @extend %expanding-column;
   overflow-y: auto;
   background-color: $gray-100;
-
-  textarea {
-    flex: 1;
-  }
 }
 
 #transformation-editor-map-parameters {
-  .CodeMirror {
-    height: 100px;
-    box-shadow: none;
-  }
+  height: 100px;
+  position: relative;
 }
 
 #transformation-editor-preview-section {
@@ -473,12 +480,15 @@ $active-table-row: #e7f1ff;
 
 #transformation-editor-preview-select {
   padding: $margin-xxs 0;
+  border-top: 1px solid $gray-400;
   display: flex;
   flex-direction: row;
   align-items: center;
+
   label {
     margin: 0 $margin-sm 0 0;
   }
+
   :last-child {
     flex: 1;
   }
@@ -539,8 +549,7 @@ $active-table-row: #e7f1ff;
 }
 
 .tabular-editor-header,
-.tabular-editor-mappings
-{
+.tabular-editor-mappings {
   font-size: $font-size-xs;
 
   .selected {
@@ -575,18 +584,17 @@ $active-table-row: #e7f1ff;
   grid-template-columns: 2fr 1fr;
 }
 
-.xslt-editor {
+#transformation-editor-map-input {
   position: relative;
   @extend %expanding-column;
-  overflow: hidden;
 
-  textarea {
-    flex: 1;
-  }
-
-  .CodeMirror {
-    flex: 1;
-    flex-basis: 0;
+  //.cm-editor {
+  //  flex: 1;
+  //  flex-basis: 0;
+  //  height: 100%;
+  //}
+  .cm-scroller {
+    overflow: auto;
   }
 }
 
@@ -624,6 +632,7 @@ $active-table-row: #e7f1ff;
   tbody tr {
     cursor: pointer;
   }
+
   tbody tr.active {
     background-color: $active-table-row;
   }
@@ -648,20 +657,10 @@ $active-table-row: #e7f1ff;
 
 .info-table {
   @extend .table, .table-striped, .table-bordered, .table-sm;
+
   tr td:first-child {
     font-weight: $font-weight-bold;
   }
-}
-
-.valid-indicator {
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  color: $success;
-
-  z-index: 50;
-  opacity: .7;
-  animation: fadeIn .5s ease-in;
 }
 
 .validation-loading-indicator {
@@ -704,6 +703,26 @@ $active-table-row: #e7f1ff;
   z-index: 50;
 }
 
+.code-view-container {
+  width: 100%;
+  height: 100%;
+  border: none;
+  font-family: monospace;
+  font-size: $font-size-sm;
+
+  .cm-editor {
+    border: 0;
+    flex: 1;
+    flex-basis: 0;
+    height: 100%;
+  }
+
+  .cm-scroller {
+    overflow: auto;
+  }
+}
+
+
 .drag-handle {
   cursor: ns-resize;
   display: flex;
@@ -711,8 +730,7 @@ $active-table-row: #e7f1ff;
 }
 
 .panel-container,
-.top-panel
-{
+.top-panel {
   @extend %expanding-column;
 }
 
@@ -723,6 +741,7 @@ $active-table-row: #e7f1ff;
 
   .status-panel-tabs {
     user-select: none;
+
     .nav-link {
       padding: $margin-xxs $margin-xs;
     }
@@ -853,12 +872,14 @@ $active-table-row: #e7f1ff;
       display: flex;
       flex-direction: row;
       align-items: center;
+
       .cancel-button {
         margin-left: auto;
         padding: .1rem .3rem;
       }
 
       margin-bottom: $margin-xs;
+
       &:last-child {
         margin-bottom: 0;
       }
@@ -868,6 +889,7 @@ $active-table-row: #e7f1ff;
         height: 1.6rem;
         background-color: darken($ehri-gray, 20%);
       }
+
       .progress-bar {
         padding: $margin-sm 0;
       }
@@ -880,52 +902,43 @@ $active-table-row: #e7f1ff;
   @extend %expanding-column;
   overflow: hidden;
 
-  .pretty-xml {
+  .prettify-data {
     position: absolute;
     right: $margin-xs;
     font-size: $font-size-xs;
     z-index: 100;
     color: $text-muted;
+
     &.active {
       color: $success;
     }
+
     &:focus {
       outline: 0;
       box-shadow: none;
     }
   }
+  .code-view-container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+  }
 }
 
-.preview-container .CodeMirror {
-  border: 0;
-  flex: 1;
-  flex-basis: 0;
-}
-
-.preview-container .CodeMirror .validation-errors {
-  width: 10px;
-}
-
-.preview-container .CodeMirror .validation-error:hover {
-  cursor: pointer;
-}
-
-.preview-container .CodeMirror .line-error {
-  background: rgba(255, 197, 199, 0.32) !important;
-  color: #8a1f11 !important;
-}
-
-.preview-container .CodeMirror-gutters {
+.preview-container .cm-gutters {
   background-color: $gray-100;
 }
 
 .data-manager-form-item {
   margin-bottom: $margin-xs;
   @include make-row();
+
   > .label {
     @include make-col-ready();
     @include make-col(2);
   }
+
   > .controls {
     @include make-col-ready();
     @include make-col(10);
@@ -935,9 +948,9 @@ $active-table-row: #e7f1ff;
 .data-manager-form-item.text-field {
   margin-bottom: $margin-xs;
   @include make-row();
+
   > .label,
-  > .controls
-  {
+  > .controls {
     @include make-col-ready();
     @include make-col(12);
   }
@@ -983,6 +996,7 @@ $active-table-row: #e7f1ff;
 
 .config-options-selector tr {
   cursor: pointer;
+
   &.active {
     background-color: $active-table-row;
   }
@@ -1019,8 +1033,7 @@ $active-table-row: #e7f1ff;
 }
 
 #snapshot-manager-diff,
-#snapshot-manager-redirects
-{
+#snapshot-manager-redirects {
   @extend %expanding-column;
   @extend %overflow-contents;
   font-size: $font-size-sm;
@@ -1060,8 +1073,7 @@ $active-table-row: #e7f1ff;
 }
 
 .coreference-loading-indicator,
-.snapshot-loading-indicator
-{
+.snapshot-loading-indicator {
   display: flex;
   flex: 1;
   align-items: center;
@@ -1124,6 +1136,7 @@ $active-table-row: #e7f1ff;
   tr {
     background-color: $white;
   }
+
   tr.noop {
     background-color: transparent;
   }

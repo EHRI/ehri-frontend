@@ -84,7 +84,6 @@ case class EntityTypeMetadataApi @Inject()(
 
   def runAudit(): Action[AuditTask] = WithUserAction.async(apiJson[AuditTask]) { implicit request =>
     entityTypeMetaService.listEntityTypeFields(request.body.entityType).map { fields =>
-      println("Running audit for entity type: " + request.body)
       val jobId = UUID.randomUUID().toString
       val job = AuditorJob(jobId = jobId, request.body)
       mat.system.actorOf(Props(AuditorManager(job, searchEngine, searchResolver, fields)), jobId)

@@ -109,7 +109,9 @@ case class ImportConfigs @Inject()(
       // set and b) have a fonds.
       // Don't allow sync on the repository scope, because it is too dangerous.
       val taskType = if (dataset.fonds.isDefined && request.body.files.isEmpty && dataset.sync)
-        IngestDataType.EadSync else IngestDataType.Ead
+        IngestDataType.EadSync
+      else if (dataset.contentType.contains("text/csv")) IngestDataType.Csv
+      else IngestDataType.Ead
 
       val ingestTasks = params.zipWithIndex.map { case (batchParams, i) =>
         val batchNum = if (params.size > 1) Some(i + 1) else None
