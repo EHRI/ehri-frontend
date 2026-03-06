@@ -486,6 +486,7 @@ $active-table-row: #e7f1ff;
 
 #transformation-editor-preview-select {
   padding: $margin-xxs 0;
+  border-top: 1px solid $gray-400;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -589,20 +590,16 @@ $active-table-row: #e7f1ff;
   grid-template-columns: 2fr 1fr;
 }
 
-.xslt-editor {
+//#transformation-editor-map-input .code-view-container {
+#transformation-editor-map-input {
   position: relative;
   @extend %expanding-column;
-  overflow: hidden;
 
-  textarea {
-    flex: 1;
-  }
-
-  .cm-editor {
-    flex: 1;
-    flex-basis: 0;
-    height: 100%;
-  }
+  //.cm-editor {
+  //  flex: 1;
+  //  flex-basis: 0;
+  //  height: 100%;
+  //}
   .cm-scroller {
     overflow: auto;
   }

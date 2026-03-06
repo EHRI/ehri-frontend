@@ -22,9 +22,7 @@ export default {
       type: Boolean,
       default: false,
     },
-    errors: {
-      type: Array,
-    }
+    errors: Array,
   },
   emits: ["update:modelValue"],
   data: function () {
