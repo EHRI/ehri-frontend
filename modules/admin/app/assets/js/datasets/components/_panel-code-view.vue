@@ -22,7 +22,7 @@ export default {
       type: Boolean,
       default: false,
     },
-    errors: Array,
+    errors: Array as [] | null,
   },
   emits: ["update:modelValue"],
   data: function () {
@@ -84,8 +84,8 @@ export default {
     },
     errors: function (incoming) {
       this.editor?.dispatch({
-        effects: setValidationErrors.of(this.errors)
-      })
+        effects: setValidationErrors.of(incoming)
+      });
     }
   },
   mounted: function (): void {
@@ -110,6 +110,10 @@ export default {
       state,
       parent: this.$el,
     });
+    console.log("Setting initial errors: ", this.errors)
+    this.editor.dispatch({
+      effects: setValidationErrors.of(this.errors)
+    })
   },
   beforeUnmount: function () {
     this.editor?.destroy();

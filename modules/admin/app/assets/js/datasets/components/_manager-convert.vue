@@ -306,7 +306,7 @@ export default {
 
         <modal-param-editor
             v-if="editingParameters !== null"
-            v-bind:obj="this.state[this.editingParameters][1]"
+            v-bind:jsonObject="this.state[this.editingParameters][1]"
             v-on:close="cancelEditParamters"
             v-on:saved="saveParameters"/>
 

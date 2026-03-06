@@ -3,7 +3,6 @@
 import {nextTick} from 'vue';
 
 import ModalWindow from './_modal-window';
-import EditorXslt from './_editor-xslt';
 import PanelCodeView from './_panel-code-view';
 import EditorXquery from './_editor-xquery';
 import EditorJson from './_editor-json';
@@ -24,7 +23,6 @@ import {DatasetManagerApi} from "../api";
 export default {
   components: {
     ModalWindow,
-    EditorXslt,
     EditorXquery,
     EditorJson,
     FilePicker,
@@ -320,7 +318,7 @@ export default {
             </div>
             <div id="transformation-editor-map-input">
               <editor-xquery v-if="data.bodyType === 'xquery'" v-model="data.body"/>
-              <panel-code-view v-else v-model="data.body" v-bind:content-type="'text/xml'" />
+              <panel-code-view v-else v-model="data.body" v-bind:content-type="'text/xml'" v-bind:errors="null" />
             </div>
             <div v-if="data.hasParams" id="transformation-editor-map-parameters">
               <editor-json v-model.lazy="parameters" v-bind:resize="panelSize"/>

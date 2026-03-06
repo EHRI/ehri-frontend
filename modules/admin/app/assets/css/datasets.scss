@@ -468,17 +468,11 @@ $active-table-row: #e7f1ff;
   @extend %expanding-column;
   overflow-y: auto;
   background-color: $gray-100;
-
-  textarea {
-    flex: 1;
-  }
 }
 
 #transformation-editor-map-parameters {
-  .cm-editor {
-    height: 100px;
-    box-shadow: none;
-  }
+  height: 100px;
+  position: relative;
 }
 
 #transformation-editor-preview-section {
