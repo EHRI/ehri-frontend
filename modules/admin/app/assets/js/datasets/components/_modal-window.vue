@@ -14,6 +14,7 @@ export default {
       minHeight: 300,
     }
   },
+  emits: ["move", "resize", "close"],
   methods: {
     move: function (evt: MouseEvent) {
       evt.preventDefault();

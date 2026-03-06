@@ -6,6 +6,7 @@ import {basicSetup, EditorView} from "codemirror";
 import {xml} from "@codemirror/lang-xml";
 import {json} from "@codemirror/lang-json";
 import {setValidationErrors, validationExtension} from "../codemirror-error-ext";
+import {FileValidationError} from "../types";
 
 export default {
   props: {
@@ -22,7 +23,10 @@ export default {
       type: Boolean,
       default: false,
     },
-    errors: Array as [] | null,
+    errors: {
+      type: Array as FileValidationError[] | null,
+      default: null
+    }
   },
   emits: ["update:modelValue"],
   data: function () {
@@ -82,10 +86,13 @@ export default {
         }
       }
     },
-    errors: function (incoming) {
-      this.editor?.dispatch({
-        effects: setValidationErrors.of(incoming)
-      });
+    errors: {
+      handler: function (incoming) {
+        this.editor?.dispatch({
+          effects: setValidationErrors.of(incoming)
+        });
+      },
+      deep: true
     }
   },
   mounted: function (): void {
@@ -110,10 +117,10 @@ export default {
       state,
       parent: this.$el,
     });
-    console.log("Setting initial errors: ", this.errors)
+    console.log("Initializing view with errors", this.errors)
     this.editor.dispatch({
       effects: setValidationErrors.of(this.errors)
-    })
+    });
   },
   beforeUnmount: function () {
     this.editor?.destroy();

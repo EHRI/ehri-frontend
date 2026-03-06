@@ -54,6 +54,7 @@ const errorState = StateField.define<{
     };
   },
   update(value, tr) {
+    console.log("Updating error state", value);
     let { errors, activeLine } = value;
     if (tr.docChanged) {
       activeLine = null;
