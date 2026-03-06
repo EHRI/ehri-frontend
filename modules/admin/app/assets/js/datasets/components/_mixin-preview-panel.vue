@@ -193,8 +193,9 @@ export default {
   <div class="preview-container">
     <panel-tabular-view v-if="isTabular()" v-bind:data="previewData" v-bind:content-type="contentType"></panel-tabular-view>
     <panel-code-view v-else
-                     v-bind:data="previewData??''"
+                     v-model="previewData"
                      v-bind:content-type="contentType"
+                     v-bind:read-only="true"
                      v-bind:errors="errors"
                      v-bind:file-key="previewing ? previewing.key : null"
                     />

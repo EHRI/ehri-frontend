@@ -96,7 +96,9 @@ const errorState = StateField.define<{
       domEventHandlers: {
         click(view, block) {
           const line = view.state.doc.lineAt(block.from);
-          view.dispatch({ effects: toggleErrorWidget.of(line.number) });
+          view.dispatch({
+            effects: toggleErrorWidget.of(line.number)
+          });
           return true;
         }
       }
@@ -114,20 +116,21 @@ const errorState = StateField.define<{
 
       const decos = [];
       for (let e of errors) {
-        if (e.line <= 0 || e.line > state.doc.lines) continue;
+        if (e.line <= 0 || e.line > state.doc.lines) {
+          continue;
+        }
         const line = state.doc.line(e.line);
-
         decos.push(Decoration.line({ class: "line-error" }).range(line.from));
-
         if (activeLine === e.line) {
           decos.push(Decoration.widget({
             widget: new ErrorWidget(e.error),
-            block: true
+            block: false
           }).range(line.from));
         }
       }
       // Sort is required for RangeSet.of/Decoration.set
-      return Decoration.set(decos.sort((a, b) => a.from - b.from));
+      let sorted = decos.sort((a, b) => a.from - b.from);
+      return Decoration.set(sorted);
     })
   ]
 });

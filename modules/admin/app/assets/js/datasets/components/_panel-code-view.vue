@@ -9,7 +9,7 @@ import {setValidationErrors, validationExtension} from "../codemirror-error-ext"
 
 export default {
   props: {
-    data: {
+    modelValue: {
       type: String,
       default: '',
     },
@@ -18,10 +18,15 @@ export default {
       type: String,
       default: 'text/xml',
     },
+    readOnly: {
+      type: Boolean,
+      default: false,
+    },
     errors: {
       type: Array,
     }
   },
+  emits: ["update:modelValue"],
   data: function () {
     return {
       editor: null as EditorView | null,
@@ -29,6 +34,11 @@ export default {
     }
   },
   methods: {
+    refresh: function () {
+      this.editor?.requestMeasure();
+    }
+  },
+  computed: {
     codeMode: function () {
       if (this.contentType && this.contentType.includes("json")) {
         return json();
@@ -36,9 +46,6 @@ export default {
         return xml();
       }
     },
-    refresh: function () {
-      this.editor?.requestMeasure();
-    }
   },
   watch: {
     // When the key changes that means we've changed file, so
@@ -55,30 +62,25 @@ export default {
     contentType: function (newValue, oldValue) {
       if (this.compartment && (newValue !== oldValue)) {
         this.editor?.dispatch({
-          effects: this.compartment.reconfigure([this.codeMode()])
+          effects: this.compartment.reconfigure([this.codeMode])
         })
       }
     },
-    data: function (incoming, oldValue) {
+    modelValue: function (incoming: string, oldValue: string) {
       if (this.editor) {
-        const current = this.editor?.state.doc.toString()
+        const current = this.editor.state.doc.toString();
         if (current !== incoming) {
-          const scrollTop = this.editor.scrollDOM.scrollTop
+          const scrollTop = this.editor.scrollDOM.scrollTop;
           this.editor.dispatch({
-            changes: {from: 0, to: this.editor.state.doc.length, insert: incoming}
-          })
+            changes: {
+              from: 0,
+              to: this.editor.state.doc.length,
+              insert: incoming
+            }
+          });
           requestAnimationFrame(() => {
-            this.editor.scrollDOM.scrollTop = scrollTop
-          })
-        }
-
-        // FIXME: why is this only needed some times, e.g for convert
-        // previews but not file previews?
-        if (incoming !== oldValue) {
-          if (!this.prettifying) {
-            this.prettified = false;
-          }
-          this.refresh();
+            this.editor.scrollDOM.scrollTop = scrollTop;
+          });
         }
       }
     },
@@ -91,13 +93,18 @@ export default {
   mounted: function (): void {
     this.compartment = new Compartment();
     let state = EditorState.create({
-      doc: this.data,
+      doc: this.modelValue,
       extensions: [
         basicSetup,
-        this.compartment.of(this.codeMode()),
-        EditorState.readOnly.of(true),
-        EditorView.editable.of(false),
+        this.compartment.of(this.codeMode),
+        EditorState.readOnly.of(this.readOnly),
         ...validationExtension,
+        EditorView.updateListener.of(update => {
+          if (!this.readOnly && update.docChanged) {
+            const nextValue = update.state.doc.toString();
+            this.$emit('update:modelValue', nextValue);
+          }
+        }),
       ]
     });
 
