@@ -3,12 +3,13 @@
 import MixinUtil from './_mixin-util';
 import MixinError from './_mixin-error';
 import {DashboardApi} from "../dashboard-api";
+import {DashboardConfigType} from "../types";
 
 export default {
   components: {},
   mixins: [MixinUtil, MixinError],
   props: {
-    config: Object,
+    config: Object as DashboardConfigType,
     api: DashboardApi,
   },
   data: function () {

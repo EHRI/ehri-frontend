@@ -2,6 +2,10 @@
  * These types mirror those consumed and produced by the server.
  */
 
+export type DashboardConfigType = {
+  title: string
+}
+
 export type ConfigType = {
   repoId: string,
   versioned: boolean,
@@ -138,6 +142,11 @@ export interface FileToUpload {
   type: string,
   size: number,
   meta: Record<string, string>
+}
+
+export interface FileUploadProgress {
+  progress: number
+  spec: FileToUpload
 }
 
 export interface FileInfo {

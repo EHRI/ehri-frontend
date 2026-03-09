@@ -9,7 +9,7 @@ import ManagerSnapshots from "./_manager-snapshots.vue";
 
 import MixinUtil from './_mixin-util';
 import MixinError from './_mixin-error';
-import {ImportDataset, ImportDatasetSrc} from '../types';
+import {ConfigType, ImportDataset, ImportDatasetSrc} from '../types';
 import {DatasetManagerApi} from "../api";
 
 import _merge from 'lodash/merge';
@@ -18,11 +18,11 @@ export default {
   components: {ManagerSnapshots, ModalDatasetConfig, ManagerHarvest, ManagerUpload, ManagerIngest, ManagerConvert},
   mixins: [MixinUtil, MixinError],
   props: {
-    config: Object,
+    config: Object as ConfigType,
     api: DatasetManagerApi,
     initTab: String,
     dataset: Object as ImportDataset,
-    datasets: Array,
+    datasets: Array as string[],
     stats: Object,
   },
   data: function () {
