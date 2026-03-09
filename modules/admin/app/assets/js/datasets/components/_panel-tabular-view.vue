@@ -5,11 +5,13 @@ import {decodeCsv, decodeTsv, encodeCsv, encodeTsv} from '../common';
 export default {
   props: {
     data: {
-      type: String,
-      default: '',
+      type: String as string | null,
+      required: true,
+      default: () => '',
     },
     contentType: {
-      type: String,
+      type: String as string | null,
+      required: true,
       default: 'text/csv',
     },
     expectedColumns: {

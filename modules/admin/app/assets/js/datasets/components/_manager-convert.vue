@@ -50,6 +50,7 @@ export default {
     PanelLogWindow,
     DragHandle
   },
+  emits: ['refresh-stage'],
   mixins: [MixinTwoPanel, MixinValidator, MixinError, MixinUtil, MixinTasklog],
   props: {
     dataset: Object as ImportDataset,

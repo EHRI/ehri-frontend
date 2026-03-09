@@ -5,6 +5,8 @@ import com.fasterxml.jackson.core.JsonParseException
 import play.api.http.HeaderNames
 import play.api.libs.json._
 
+
+
 case class MicrosoftOAuth2Provider(config: play.api.Configuration) extends OAuth2Provider {
   val name = "microsoft"
 

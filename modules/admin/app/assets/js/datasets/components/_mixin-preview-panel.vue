@@ -1,6 +1,5 @@
 <script lang="ts">
 
-import {nextTick} from "vue";
 import MixinError from './_mixin-error';
 
 import _find from 'lodash/find';
@@ -15,6 +14,7 @@ import PanelCodeView from "./_panel-code-view";
 export default {
   components: {PanelTabularView, PanelCodeView},
   mixins: [MixinError],
+  emits: ["loading", "loaded", "validation-results"],
   props: {
     api: DatasetManagerApi,
     datasetId: String,
@@ -35,7 +35,7 @@ export default {
     return {
       loading: false,
       validating: false,
-      previewData: null,
+      previewData: null as string | null,
       previewTruncated: false,
       percentDone: 0,
       wrap: false,
@@ -52,13 +52,13 @@ export default {
   methods: {
     _isArray,
     isCode: function() {
-      // For historical reasons a null contentType means 'XML'
-      return !this.contentType || (this.contentType.includes("json") || this.contentType.includes("xml"));
+      return !this.isTabular();
     },
     isTabular: function() {
       return this.contentType && (this.contentType.includes("csv") || this.contentType.includes("tsv"));
     },
     canValidate: function() {
+      // For historical reasons a null contentType means 'XML'
       return !this.contentType || this.contentType.includes("xml");
     },
     validate: function (): void {
@@ -85,7 +85,6 @@ export default {
               .catch(error => this.showError("Error attempting validation", error))
               .finally(() => this.validating = false);
         } else {
-          console.log("Can't validate...")
           this.errors = null;
         }
       }
@@ -99,9 +98,7 @@ export default {
         return;
       }
 
-      console.log("Pretty printing")
       let prettyPrintUrl = this.api.reformatUrl(this.datasetId, this.fileStage, [this.previewing.key])
-      console.log("Pretty printing", prettyPrintUrl)
       this.worker.postMessage({
         type: 'preview',
         url: prettyPrintUrl,
@@ -134,20 +131,7 @@ export default {
         this.loading = false;
         this.showingError = true;
       } else if (msg.data.init) {
-        // TODO: addess if this is needed
-        // if (this.editor) {
-          this.validate();
-        //   this.compartment.reconfigure(this.codeMode());
-        //
-        //   // On the first load of a given file scroll back
-        //   // to the beginning...
-        //   if (this.firstLoad) {
-        //     this.editor.dispatch({
-        //       effects: EditorView.scrollIntoView(0)
-        //     })
-        //     this.firstLoad = false;
-        //   }
-        // }
+        this.validate();
         // Stop loading indicator when first data arrives
         this.loading = false;
         this.showingError = false;
@@ -177,14 +161,10 @@ export default {
     this.worker.onmessage = this.receiveMessage;
   },
   mounted: function () {
-    // this.initViewer();
     this.load();
   },
   beforeUnmount: function () {
-    // this.deinitViewer();
-    if (this.worker) {
-      this.worker.terminate();
-    }
+    this.worker?.terminate();
   },
 }
 </script>
