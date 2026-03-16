@@ -34,11 +34,10 @@ class CoreferenceTablesSpec extends IntegrationTestRunner with ResourceUtils {
     }
 
     "extract tables" in new DBTestApp("coreference-fixtures.sql") {
-      // FIXME: current Neo4j fixtures don't exercise this test!
       val r = FakeRequest(routes.extractTable("r1"))
         .withUser(privilegedUser)
         .call()
-      contentAsJson(r) must_== Json.obj("imported" -> 0)
+      contentAsJson(r) must_== Json.obj("imported" -> 2)
     }
 
     "ingest tables" in new DBTestApp("coreference-fixtures.sql") {
