@@ -69,6 +69,9 @@ val coreDependencies = backendDependencies ++ Seq(
   "org.playframework.anorm" %% "anorm" % "2.7.0",
   "org.playframework.anorm" %% "anorm-postgres" % "2.7.0",
 
+  // Time-based UUIDs
+  "com.github.f4b6a3" % "uuid-creator" % "6.1.1",
+
   // Commons IO
   "commons-io" % "commons-io" % "2.5",
 

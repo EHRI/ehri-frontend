@@ -61,5 +61,6 @@ class AppModule extends AbstractModule with PekkoGuiceSupport {
     bind(classOf[ItemLifecycle]).to(classOf[GeocodingItemLifecycle])
     bind(classOf[GeocodingService]).toProvider(classOf[AwsGeocodingServiceProvider])
     bindActor[EventForwarder]("event-forwarder")
+    bindActor[ApplicationEventServiceMediator]("event-store-mediator")
   }
 }
