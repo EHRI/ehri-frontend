@@ -71,6 +71,7 @@
     "jsdom": "^16.4.0",
     "jsdom-global": "^3.0.2",
     "style-loader": "^2.0.0",
+    "svgo": "^4.0.1",
     "ts-jest": "29.2.3",
     "ts-loader": "^9.2.6",
     "ts-node": "^10.4.0",

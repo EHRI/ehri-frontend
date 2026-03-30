@@ -6,6 +6,6 @@
         {"src": "/assets/img/android-chrome-512x512.png", "sizes": "512x512", "type":"image/png"}
     ],
     "theme_color": "#FFFFFF",
-    "background_color": "#2E2F4C",
+    "background_color": "#472C56",
     "display": "standalone"
 }

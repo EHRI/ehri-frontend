@@ -24,7 +24,7 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
     // Bit dodgy here, upload the project logo as our profile image
     val tmpFile = java.io.File.createTempFile("anImage", ".png")
     tmpFile.deleteOnExit()
-    FileUtils.copyFile(new File("modules/portal/public/img/logo.png"), tmpFile)
+    FileUtils.copyFile(new File("modules/portal/public/img/ehri-logo.png"), tmpFile)
     tmpFile
   }
 
