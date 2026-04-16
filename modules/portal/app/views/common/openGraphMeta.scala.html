@@ -1,0 +1,29 @@
+@(ogMeta: Map[String, String] = Map.empty)(implicit req: RequestHeader, messages: Messages, conf: AppConfig)
+
+@import org.apache.commons.lang3.StringUtils
+
+@ogMetaValue(key: String, default: Option[String] = None) = @{
+    val pageValue = ogMeta.get(key).filterNot(_.trim.isEmpty)
+    val confValue = conf.configuration.getOptional[String]("ehri.portal.og." + key)
+    pageValue.orElse(confValue).orElse(default)
+}
+
+@ogMetaTag(key: String, default: Option[String] = None) = {
+    @ogMetaValue(key, default).map { value =>
+        <meta property="og:@key" content="@StringUtils.normalizeSpace(StringUtils.abbreviate(value, 600))">
+    }
+}
+<meta property="og:site_name" content="@Messages("siteName")">
+@ogMetaTag("title", Some(Messages("welcome.title")))
+@ogMetaTag("description", Some(Messages("welcome.blurb")))
+@ogMetaTag("url", Some(controllers.portal.routes.Portal.index().absoluteURL(conf.https)))
+@conf.configuration.getOptional[String]("ehri.portal.og.image").map { ogImage =>
+    <meta property="og:image" content="@controllers.portal.routes.PortalAssets.at(ogImage).absoluteURL(conf.https)">
+}
+@conf.configuration.getOptional[Int]("ehri.portal.og.imageWidth").map { ogImageWidth =>
+    <meta property="og:image:width" content="@ogImageWidth">
+}
+@conf.configuration.getOptional[Int]("ehri.portal.og.imageHeight").map { ogImageHeight =>
+    <meta property="og:image:height" content="@ogImageHeight">
+}
+<meta property="og:type" content="website">
