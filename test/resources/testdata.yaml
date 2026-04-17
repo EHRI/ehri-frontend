@@ -9,16 +9,19 @@
   type: Country
   data:
     identifier: gb
+    __pid: gb-1234
 
 - id: nl
   type: Country
   data:
     identifier: nl
+    __pid: nl-1234
 
 - id: be
   type: Country
   data:
     identifier: be
+    __pid: be-1234
 
 # NIOD. NIOD belongs to admin, so everyone who belongs
 # to the NIOD group also belongs to admin by extension.
@@ -128,6 +131,7 @@
   type: Repository
   data:
     identifier: r1
+    __pid: r1-1234
     name: Repository 1
   relationships:
     hasCountry: nl
@@ -163,6 +167,7 @@
   type: Repository
   data:
     identifier: r2
+    __pid: r2-1234
     name: King's College London
   relationships:
     hasCountry: gb
@@ -188,6 +193,7 @@
   type: Repository
   data:
     identifier: r3
+    __pid: r3-1234
     name: DANS
   relationships:
     hasCountry: nl
@@ -211,6 +217,7 @@
   type: Repository
   data:
     identifier: r4
+    __pid: r4-1234
     name: CEGES SOMA
   relationships:
     hasCountry: be
@@ -239,6 +246,9 @@
   type: DocumentaryUnit
   data:
     identifier: c1
+    __pid: c1-12345678
+    otherIdentifiers:
+      - c1-alt
   relationships:
     describes:
       - id: cd1
@@ -293,6 +303,7 @@
   type: DocumentaryUnit
   data:
     identifier: c2
+    __pid: c2-12345678
   relationships:
     describes:
       - id: cd2
@@ -320,6 +331,7 @@
   type: DocumentaryUnit
   data:
     identifier: c3
+    __pid: c3-12345678
   relationships:
     describes:
       - id: cd3
@@ -355,6 +367,7 @@
   type: DocumentaryUnit
   data:
     identifier: c4
+    __pid: c4-12345678
   relationships:
     describes:
       - id: cd4
@@ -396,6 +409,7 @@
   type: DocumentaryUnit
   data:
     identifier: m19
+    __pid: m19-12345678
   relationships:
     describes:
       - id: nl-r1-m19.eng
@@ -404,6 +418,15 @@
           name: Documentary Unit m19
           languageCode: eng
           scopeAndContent: Some description text for m19
+        relationships:
+          relatesTo:
+            - id: ur5
+              type: AccessPoint
+              data:
+                name: Subject Access 2
+                type: subject
+                description: test description
+                category: associative
     heldBy: r1
     hasPermissionScope: r1
 
@@ -413,6 +436,7 @@
   type: AuthoritativeSet
   data:
     identifier: auths
+    __pid: auths-12345678
     name: Authorities
 
 --- # Authorities
@@ -420,6 +444,7 @@
   type: HistoricalAgent
   data:
     identifier: a1
+    __pid: a1-1234
   relationships:
     describes:
       - id: ad1
@@ -451,6 +476,7 @@
   type: HistoricalAgent
   data:
     identifier: a2
+    __pid: a2-1234
   relationships:
     describes:
       - id: ad2
@@ -617,6 +643,17 @@
       - r4
     hasLinkSource: c4
 
+- id: link5
+  type: Link
+  data:
+    type: copy
+    description: A link indicating that cvocc2 is related to c4
+  relationships:
+    hasLinkTarget:
+      - c4
+      - cvocc2
+    hasLinkBody: ur5
+
 --- # Permission grants
 
 # Allow user Reto to create doc units within r1 scope
@@ -675,12 +712,14 @@
   type: CvocVocabulary
   data:
     identifier: cvoc1
+    __pid: cvoc1-12345678
     name: Vocabulary 1
 
 - id: cvoc2
   type: CvocVocabulary
   data:
     identifier: cvoc2
+    __pid: cvoc2-12345678
     name: Vocabulary 2
 
 --- # Concepts
@@ -688,6 +727,7 @@
   type: CvocConcept
   data:
     identifier: cvocc1
+    __pid: cvocc1-1234
   relationships:
     describes:
       - id: cvocc1-desc
@@ -704,6 +744,7 @@
   type: CvocConcept
   data:
     identifier: cvocc2
+    __pid: cvocc2-1234
   relationships:
     describes:
       - id: cvocc2-desc
@@ -725,6 +766,7 @@
   type: VirtualUnit
   data:
     identifier: vc1
+    __pid: vc1-12345678
   relationships:
     hasAuthor: linda
     describes:
@@ -740,6 +782,7 @@
   type: VirtualUnit
   data:
     identifier: vu1
+    __pid: vu1-12345678
   relationships:
     isPartOf: vc1
     includesUnit: c1
@@ -748,6 +791,7 @@
   type: VirtualUnit
   data:
     identifier: vu2
+    __pid: vu2-12345678
   relationships:
     isPartOf: vu1
     includesUnit: c4
@@ -756,3 +800,4 @@
   type: VirtualUnit
   data:
     identifier: vu3
+    __pid: vu3-12345678

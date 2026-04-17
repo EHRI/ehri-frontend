@@ -17,7 +17,7 @@ services:
 
   # The actual Neo4j data backend
   neo4j:
-    image: docker.io/ehri/ehri-rest:0.15.4
+    image: ehri/ehri-rest:pids
     ports:
       - ${NEO4J_TEST_PORT:-7575}:7474
       - ${BOLT_TEST_PORT:-7686}:7687
@@ -25,6 +25,7 @@ services:
       NEO4J_AUTH: neo4j/changeme
       # RUNS DB initialisation on startup
       EHRI_INIT: "true"
+    pull_policy: never
 
   solr:
     image: docker.io/ehri/ehri-search-tools

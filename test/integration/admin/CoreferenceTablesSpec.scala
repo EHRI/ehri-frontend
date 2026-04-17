@@ -37,7 +37,7 @@ class CoreferenceTablesSpec extends IntegrationTestRunner with ResourceUtils {
       val r = FakeRequest(routes.extractTable("r1"))
         .withUser(privilegedUser)
         .call()
-      contentAsJson(r) must_== Json.obj("imported" -> 2)
+      contentAsJson(r) must_== Json.obj("imported" -> 3)
     }
 
     "ingest tables" in new DBTestApp("coreference-fixtures.sql") {

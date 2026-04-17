@@ -56,8 +56,8 @@ export default {
 <template>
   <modal-window v-on:close="$emit('close')" v-on:move="resize" v-bind:resizable="true">
     <template v-slot:title>Run cleanup</template>
-    <p>This action will delete <strong>{{ cleanup.deletions.length.toLocaleString() }}</strong> item(s)
-        and create <strong>{{ cleanup.redirects.length.toLocaleString() }}</strong> redirects!</p>
+    <p>This action will create <strong>{{ cleanup.redirects.length.toLocaleString() }}</strong> redirect(s)
+      and delete <strong>{{ cleanup.deletions.length.toLocaleString() }}</strong> item(s)!</p>
     <fieldset class="options-form">
       <div class="form-group">
         <label class="form-label" for="opt-cleanup-msg">
