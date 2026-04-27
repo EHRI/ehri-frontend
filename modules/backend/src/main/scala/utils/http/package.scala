@@ -9,7 +9,7 @@ package object http {
   import java.net.URLEncoder
 
   def joinPath(path: String, qs: Map[String, Seq[String]]): String =
-    List(path, joinQueryString(qs)).filter(_.trim.nonEmpty).mkString("?")
+    List(path.takeWhile(_ != '?'), joinQueryString(qs)).filter(_.trim.nonEmpty).mkString("?")
 
   /**
     * Turn a seq of parameters into an URL parameter string, not including
