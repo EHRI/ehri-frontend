@@ -7,7 +7,7 @@ import play.api.i18n.Messages
 
 import scala.concurrent.Future
 
-case class ResourceSyncError(code: String, value: String = "") extends RuntimeException(code) {
+case class ResourceSyncError(code: String, value: String = "") extends RuntimeException(code) with HarvesterError {
   def errorMessage(implicit messages: Messages): String = Messages(s"resourceSync.error.$code", value)
 }
 
