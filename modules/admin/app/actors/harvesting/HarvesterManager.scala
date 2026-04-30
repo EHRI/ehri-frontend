@@ -2,12 +2,12 @@ package actors.harvesting
 
 import actors.LongRunningJob.Cancel
 import actors.harvesting.Harvester.HarvestJob
+import models.UserProfile
 import org.apache.pekko.actor.Status.Failure
 import org.apache.pekko.actor.SupervisorStrategy.Stop
 import org.apache.pekko.actor.{Actor, ActorContext, ActorLogging, ActorRef, OneForOneStrategy, SupervisorStrategy, Terminated}
-import models.UserProfile
 import play.api.i18n.Messages
-import services.harvesting.{HarvestEventHandle, HarvestEventService, OaiPmhError}
+import services.harvesting.{HarvestEventHandle, HarvestEventService, HarvesterError, OaiPmhError}
 import utils.WebsocketConstants
 
 import java.time.format.DateTimeFormatter
@@ -137,10 +137,10 @@ case class HarvesterManager(job: HarvestJob, init: ActorContext => ActorRef, eve
       self ! Finalise(Messages("harvesting.nothingToDo", WebsocketConstants.DONE_MESSAGE))
 
     // Error case where we get some other problem...
-    case e: OaiPmhError =>
+    case e: HarvesterError =>
       runAndThen(handle, _.error(e)) (
-          Finalise(
-            s"${WebsocketConstants.ERR_MESSAGE}: ${e.errorMessage}"))
+        Finalise(
+          s"${WebsocketConstants.ERR_MESSAGE}: ${e.errorMessage}"))
         .pipeTo(self)
 
     // The runner has thrown an unexpected error. Log the event

@@ -135,6 +135,20 @@ class HarvesterManagerSpec extends IntegrationTestRunner {
       await(events.get("r1")) must_== List.empty[HarvestEvent]
     }
 
+    "handle errors with ResourceSync" in new ITestAppWithPekko {
+      val events = MockHarvestEventService()
+      val init = (context: ActorContext) => context.actorOf(Props(ResourceSyncHarvester(rsClient, storage)))
+      // Hack in the Mock harvester should provide an error here...
+      val job = rsJob.copy(data = rsJob.data.copy(config = rsJob.data.config.copy(filter = Some("error"))))
+      val harvester = system.actorOf(Props(HarvesterManager(job, init, events)))
+
+      harvester ! self // initial subscriber should start harvesting
+      expectMsg(s"Starting harvest with job id: $jobId")
+      expectMsg(s"Syncing 3 files")
+      expectMsg(20.seconds,
+        s"${WebsocketConstants.ERR_MESSAGE}: ${Messages("resourceSync.error.unexpectedStatus", "429")}")
+    }
+
     "harvest selectively with `from` date" in new ITestAppWithPekko {
         val events = MockHarvestEventService()
         val start: Instant = Instant.now()
