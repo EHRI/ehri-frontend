@@ -1,4 +1,5 @@
 User-agent: *
+Content-signal: search=yes, ai-train=no, ai-input=yes
 Disallow: /people/
 Disallow: /profile/
 Disallow: /admin/
@@ -10,8 +11,5 @@ Disallow: /locale
 Disallow: /feedback/
 Disallow: /activity
 Disallow: /api/datasets
-Disallow: /guides
-Disallow: */export
-
-User-agent: GPTBot
-Disallow: /
+Disallow: /*/export
+Crawl-delay: 5
