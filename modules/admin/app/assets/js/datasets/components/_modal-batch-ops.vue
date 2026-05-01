@@ -238,6 +238,29 @@ export default {
         this.throwOnError = false;
       }
     },
+    copySyncSettings: async function() {
+      // Copy sync settings from one dataset to all the others, excluding
+      // e.g. the URL (which is likely to change between datasets)...
+      if (window.confirm(`Copy sync settings from ${this.copyFrom}?`)) {
+        let config: HarvestConfig = await this.api.getHarvestConfig(this.copyFrom);
+        let others: ImportDataset[] = this.datasets.filter(s => s.id !== this.copyFrom);
+        this.inProgress = true;
+        for (let set of others) {
+          if (this.cancelled) {
+            if (this.throwOnError) {
+              throw new CancelledTask();
+            }
+            break;
+          }
+          let other: HarvestConfig = await this.api.getHarvestConfig(set.id);
+          other.delay = config.delay;
+          await this.api.saveHarvestConfig(set.id, other);
+          this.println("Copied sync delay to", set.name);
+        }
+        this.cleanup();
+      }
+
+    },
     copyConvertSettings: async function () {
       // Copy convert settings from one dataset to all the others...
       if (window.confirm(`Copy convert settings from ${this.copyFrom}?`)) {
@@ -291,7 +314,9 @@ export default {
       }
     },
     copySettings: function () {
-      if (this.copyType === 'import') {
+      if (this.copyType === 'sync') {
+        this.copySyncSettings();
+      } else if (this.copyType === 'import') {
         this.copyImportSettings();
       } else if (this.copyType === 'convert') {
         this.copyConvertSettings();
@@ -356,6 +381,7 @@ export default {
         </label>
         <select v-model="copyType" class="form-control" id="copy-type">
           <option v-bind:value="null" disabled>(required)</option>
+          <option v-bind:value="'sync'">Sync delay</option>
           <option v-bind:value="'convert'">Convert settings</option>
           <option v-bind:value="'import'">Import settings</option>
         </select>

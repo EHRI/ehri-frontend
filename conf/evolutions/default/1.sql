@@ -139,9 +139,11 @@ CREATE TABLE oaipmh_config (
     set_spec          VARCHAR(255),
     from_time         TIMESTAMP,
     until_time        TIMESTAMP,
+    delay             INTEGER  NULL,
     created           TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     comments          TEXT,
     PRIMARY KEY (repo_id, import_dataset_id),
+    CONSTRAINT oaipmh_config_delay_check CHECK ( delay >= 0 ),
     CONSTRAINT oaipmh_config_repo_id_import_dataset_id
         FOREIGN KEY (repo_id, import_dataset_id)
             REFERENCES import_dataset (repo_id, id)
@@ -153,9 +155,11 @@ CREATE TABLE resourcesync_config (
     import_dataset_id VARCHAR(50) NOT NULL,
     endpoint_url      VARCHAR(512) NOT NULL,
     filter_spec       VARCHAR(512),
+    delay             INTEGER  NULL,
     created           TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     comments          TEXT,
     PRIMARY KEY (repo_id, import_dataset_id),
+    CONSTRAINT resourcesync_config_delay_check CHECK ( delay >= 0 ),
     CONSTRAINT resourcesync_config_repo_id_import_dataset_id
         FOREIGN KEY (repo_id, import_dataset_id)
             REFERENCES import_dataset (repo_id, id)
@@ -168,9 +172,11 @@ CREATE TABLE import_url_set_config (
     url_map           JSONB NOT NULL,
     method            VARCHAR(10) NOT NULL DEFAULT 'GET',
     headers           JSONB,
+    delay             INTEGER  NULL,
     created           TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     comments          TEXT,
     PRIMARY KEY (repo_id, import_dataset_id),
+    CONSTRAINT import_url_set_config_delay_check CHECK ( delay >= 0 ),
     CONSTRAINT import_url_set_config_repo_id_import_dataset_id
         FOREIGN KEY (repo_id, import_dataset_id)
             REFERENCES import_dataset (repo_id, id)

@@ -21,9 +21,10 @@ case class SqlOaiPmhConfigService @Inject()(db: Database, actorSystem: ActorSyst
       SqlParser.str("metadata_prefix") ~
       SqlParser.get[Option[String]]("set_spec") ~
       SqlParser.get[Option[Instant]]("from_time") ~
-      SqlParser.get[Option[Instant]]("until_time")
+      SqlParser.get[Option[Instant]]("until_time") ~
+      SqlParser.get[Option[Int]]("delay")
   }.map {
-    case url ~ prefix ~ spec ~ from ~ until => OaiPmhConfig(url, prefix, spec, from, until)
+    case url ~ prefix ~ spec ~ from ~ until ~ delay => OaiPmhConfig(url, prefix, spec, from, until, delay)
   }
 
   override def get(id: String, ds: String): Future[Option[OaiPmhConfig]] = Future {
@@ -42,7 +43,7 @@ case class SqlOaiPmhConfigService @Inject()(db: Database, actorSystem: ActorSyst
   override def save(id: String, ds: String, data: OaiPmhConfig): Future[OaiPmhConfig] = Future {
     db.withTransaction { implicit conn =>
       SQL"""INSERT INTO oaipmh_config
-        (repo_id, import_dataset_id, endpoint_url, metadata_prefix, set_spec, from_time, until_time)
+        (repo_id, import_dataset_id, endpoint_url, metadata_prefix, set_spec, from_time, until_time, delay)
         VALUES (
           $id,
           $ds,
@@ -50,14 +51,16 @@ case class SqlOaiPmhConfigService @Inject()(db: Database, actorSystem: ActorSyst
           ${data.format},
           ${data.set},
           ${data.from},
-          ${data.until}
+          ${data.until},
+          ${data.delay}
       ) ON CONFLICT (repo_id, import_dataset_id) DO UPDATE
         SET
           endpoint_url = ${data.url},
           metadata_prefix = ${data.format},
           set_spec = ${data.set},
           from_time = ${data.from},
-          until_time = ${data.until}
+          until_time = ${data.until},
+          delay = ${data.delay}
         RETURNING *
       """.executeInsert(parser.single)
     }

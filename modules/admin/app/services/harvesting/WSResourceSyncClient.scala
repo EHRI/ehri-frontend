@@ -93,6 +93,8 @@ case class WSResourceSyncClient @Inject()(ws: WSClient)(implicit mat: Materializ
     Source.future(wsReq(config, link.loc).get().map { r =>
       if (r.status == 404) {
         Source.failed(ResourceSyncError("notFound", link.loc))
+      } else if (r.status == 429) {
+        Source.failed(ResourceSyncError("tooManyRequests", r.status.toString))
       } else if (r.status != 200) {
         Source.failed(ResourceSyncError("unexpectedStatus", r.status.toString))
       } else r.bodyAsSource

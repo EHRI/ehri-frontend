@@ -2,15 +2,17 @@ package actors.harvesting
 
 import actors.LongRunningJob.Cancel
 import actors.harvesting.Harvester.HarvestJob
+import models.{FileLink, ResourceSyncConfig, UserProfile}
 import org.apache.pekko.actor.Status.Failure
 import org.apache.pekko.actor.{Actor, ActorLogging, ActorRef}
 import org.apache.pekko.http.scaladsl.model.Uri
-import models.{FileLink, ResourceSyncConfig, UserProfile}
+import org.apache.pekko.pattern.after
 import services.harvesting.ResourceSyncClient
 import services.storage.FileStorage
 
-import java.time.{Duration, Instant}
+import java.time.Instant
 import scala.concurrent.Future.{successful => immediate}
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
 
@@ -41,7 +43,7 @@ object ResourceSyncHarvester {
 
 
 case class ResourceSyncHarvester (client: ResourceSyncClient, storage: FileStorage)(
-    implicit userOpt: Option[UserProfile], ec: ExecutionContext) extends Actor with ActorLogging {
+    implicit userOpt: Option[UserProfile], ec: ExecutionContext) extends Harvester with Actor with ActorLogging {
   import Harvester._
   import ResourceSyncHarvester._
   import org.apache.pekko.pattern.pipe
@@ -68,9 +70,11 @@ case class ResourceSyncHarvester (client: ResourceSyncClient, storage: FileStora
       log.debug(s"Calling become with new total: $count")
       context.become(running(job, msgTo, count, fresh, start))
 
-      copyItem(job, item).map { case (name, isFresh) =>
+      copyItem(job, item).flatMap { case (name, isFresh) =>
         msgTo ! DoneFile(name)
-        Fetch(rest, count + 1, if (isFresh) fresh + 1 else fresh)
+        val res = Fetch(rest, count + 1, if (isFresh) fresh + 1 else fresh)
+        val delay = if (isFresh) None else job.data.config.delay
+        delayIf(delay, res)
       }.pipeTo(self)
 
     // Finished harvesting this resource list
@@ -105,23 +109,26 @@ case class ResourceSyncHarvester (client: ResourceSyncClient, storage: FileStora
     log.debug(s"Item: $meta")
     // Get the storage metadata for checking the file hash...
     storage.info(path).flatMap {
-      // If it exists and matches we've got nowt to do..
+      // If it exists and matches we've got nowt to do...
       case Some((_, userMeta)) if userMeta.contains("hash") && userMeta.get("hash") == item.hash =>
         immediate(("~ " + name, false))
 
       // Either the hash doesn't match or the file's not there yet
       // so upload it now...
-      case _ =>
+      case opt =>
+        log.debug(s"Creating or updating item: $opt")
+        opt.foreach { case (_, meta) =>
+          log.debug(s"Existing hash: ${meta.get("hash")}")
+          log.debug(s"FileLink hash: ${item.hash}")
+        }
+
         val bytes = client.get(job.data.config, item)
         storage.putBytes(
           path,
           bytes,
           item.contentType,
           meta = meta
-        ).map { _ => ("+ " + name, true) }
+        ).map { _ => (s"+ $name", true) }
     }
   }
-
-  private def time(from: Instant): Long =
-    Duration.between(from, Instant.now()).toMillis / 1000
 }

@@ -2,16 +2,16 @@ package actors.harvesting
 
 import actors.LongRunningJob.Cancel
 import actors.harvesting.Harvester.HarvestJob
+import models.{BasicAuthConfig, UrlNameMap, UrlSetConfig, UserProfile}
 import org.apache.pekko.actor.Status.Failure
 import org.apache.pekko.actor.{Actor, ActorLogging, ActorRef}
 import org.apache.pekko.stream.scaladsl.Source
 import org.apache.pekko.util.ByteString
-import models.{BasicAuthConfig, UrlNameMap, UrlSetConfig, UserProfile}
 import play.api.http.HeaderNames
 import play.api.libs.ws.{WSAuthScheme, WSClient}
 import services.storage.FileStorage
 
-import java.time.{Duration, Instant}
+import java.time.Instant
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -42,7 +42,7 @@ object UrlSetHarvester {
 }
 
 case class UrlSetHarvester (client: WSClient, storage: FileStorage)(
-    implicit userOpt: Option[UserProfile], ec: ExecutionContext) extends Actor with ActorLogging {
+    implicit userOpt: Option[UserProfile], ec: ExecutionContext) extends Harvester with Actor with ActorLogging {
   import Harvester._
   import UrlSetHarvester._
   import org.apache.pekko.pattern.pipe
@@ -65,9 +65,11 @@ case class UrlSetHarvester (client: WSClient, storage: FileStorage)(
       log.debug(s"Calling become with new total: $count")
       context.become(running(job, msgTo, count, fresh, start))
 
-      copyItem(job, item).map { case (name, isFresh) =>
+      copyItem(job, item).flatMap { case (name, isFresh) =>
         msgTo ! DoneFile(name)
-        Fetch(rest, count + 1, if (isFresh) fresh + 1 else fresh)
+        val res = Fetch(rest, count + 1, if (isFresh) fresh + 1 else fresh)
+        val delay = if (isFresh) None else job.data.config.delay
+        delayIf(delay, res)
       }.pipeTo(self)
 
     // Finished harvesting this resource list
@@ -133,7 +135,4 @@ case class UrlSetHarvester (client: WSClient, storage: FileStorage)(
       }
     }
   }
-
-  private def time(from: Instant): Long =
-    Duration.between(from, Instant.now()).toMillis / 1000
 }

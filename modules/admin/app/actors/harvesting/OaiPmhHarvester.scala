@@ -2,13 +2,13 @@ package actors.harvesting
 
 import actors.LongRunningJob.Cancel
 import actors.harvesting.Harvester.HarvestJob
+import models.{OaiPmhConfig, UserProfile}
 import org.apache.pekko.actor.Status.Failure
 import org.apache.pekko.actor.{Actor, ActorLogging, ActorRef}
-import models.{OaiPmhConfig, UserProfile}
 import services.harvesting.{OaiPmhClient, OaiPmhError}
 import services.storage.FileStorage
 
-import java.time.{Duration, Instant}
+import java.time.Instant
 import scala.concurrent.ExecutionContext
 
 
@@ -52,7 +52,7 @@ object OaiPmhHarvester {
 }
 
 case class OaiPmhHarvester (client: OaiPmhClient, storage: FileStorage)(
-    implicit userOpt: Option[UserProfile], ec: ExecutionContext) extends Actor with ActorLogging {
+    implicit userOpt: Option[UserProfile], ec: ExecutionContext) extends Harvester with Actor with ActorLogging {
   import Harvester._
   import OaiPmhHarvester._
   import org.apache.pekko.pattern.pipe
@@ -104,9 +104,10 @@ case class OaiPmhHarvester (client: OaiPmhClient, storage: FileStorage)(
           "oaipmh-job-id" -> job.jobId
         )
       )
-      .map { _ =>
+      .flatMap { _ =>
         msgTo ! DoneFile(id)
-        Fetch(rest, next, count + 1)
+        val res = Fetch(rest, next, count + 1)
+        delayIf(job.data.config.delay, res)
       }
       .pipeTo(self)
 
@@ -133,9 +134,6 @@ case class OaiPmhHarvester (client: OaiPmhClient, storage: FileStorage)(
     case m =>
       log.error(s"Unexpected message: $m: ${m.getClass}")
   }
-
-  private def time(from: Instant): Long =
-    Duration.between(from, Instant.now()).toMillis / 1000
 
   private def fileName(prefix: String, id: String): String = prefix + id + ".xml"
 
