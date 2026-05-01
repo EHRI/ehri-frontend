@@ -2,15 +2,17 @@
 
 import ModalWindow from './_modal-window';
 import ModalAlert from './_modal-alert';
+import FormFetchDelay from "./_form-fetch-delay.vue";
 import FormHttpBasicAuth from './_form-http-basic-auth';
 import {DatasetManagerApi} from '../api';
+import {ResourceSyncConfig} from "../types";
 
 export default {
-  components: {FormHttpBasicAuth, ModalAlert, ModalWindow},
+  components: {FormFetchDelay, FormHttpBasicAuth, ModalAlert, ModalWindow},
   props: {
     waiting: Boolean,
     datasetId: String,
-    opts: Object,
+    opts: Object as ResourceSyncConfig,
     api: DatasetManagerApi,
     config: Object,
   },
@@ -18,6 +20,7 @@ export default {
     return {
       url: this.opts ? this.opts.url : null,
       filter: this.opts ? this.opts.filter : null,
+      delay: this.opts ? this.opts.delay : null,
       auth: this.opts ? this.opts.auth : null,
       tested: null,
       testing: false,
@@ -35,13 +38,13 @@ export default {
   methods: {
     save: function () {
       this.$emit("saving");
-      this.api.saveHarvestConfig(this.datasetId, {url: this.url, filter: this.filter, auth: null})
+      this.api.saveHarvestConfig(this.datasetId, {url: this.url, filter: this.filter, delay: this.delay, auth: null})
           .then(data => this.$emit("saved-config", {...data, auth: this.auth}))
           .catch(error => this.$emit("error", "Error saving RS config", error));
     },
     testEndpoint: function () {
       this.testing = true;
-      this.api.testHarvestConfig(this.datasetId, {url: this.url, filter: this.filter, auth: this.auth})
+      this.api.testHarvestConfig(this.datasetId, {url: this.url, filter: this.filter, delay: this.delay, auth: this.auth})
           .then(() => {
             this.tested = true;
             this.error = null;
@@ -57,7 +60,7 @@ export default {
     },
     cleanEndpoint: function () {
       this.cleaning = true;
-      this.api.cleanHarvestConfig(this.datasetId, {url: this.url, filter: this.filter})
+      this.api.cleanHarvestConfig(this.datasetId, {url: this.url, filter: this.filter, delay: this.delay})
           .then(orphans => this.orphanCheck = orphans)
           .catch(e => this.error = e.message)
           .finally(() => this.cleaning = false);
@@ -76,6 +79,7 @@ export default {
     opts: function (newValue) {
       this.url = newValue ? newValue.url : null;
       this.filter = newValue ? newValue.filter : null;
+      this.delay = newValue ? newValue.delay : null;
     }
   },
 }
@@ -119,6 +123,7 @@ export default {
         <input class="form-control" id="opt-filter" type="text" v-model.trim="filter" placeholder="(optional)"/>
       </div>
 
+      <form-fetch-delay v-model="delay"/>
       <form-http-basic-auth v-model="auth"/>
 
       <div id="endpoint-errors">

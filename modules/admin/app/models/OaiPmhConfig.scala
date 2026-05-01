@@ -9,6 +9,7 @@ case class OaiPmhConfig(
   set: Option[String] = None,
   from: Option[Instant] = None,
   until: Option[Instant] = None,
+  delay: Option[Int] = None,
   auth: Option[BasicAuthConfig] = None
 ) extends HarvestConfig {
   override val src: ImportDataset.Src.Value = ImportDataset.Src.OaiPmh
@@ -20,6 +21,7 @@ object OaiPmhConfig {
   final val SET = "set"
   final val FROM = "from"
   final val UNTIL = "until"
+  final val DELAY = "delay"
   final val AUTH = "auth"
 
   import play.api.libs.functional.syntax._
@@ -31,6 +33,7 @@ object OaiPmhConfig {
       (__ \ SET).readNullable[String] and
       (__ \ FROM).readNullable[Instant] and
       (__ \ UNTIL).readNullable[Instant] and
+      (__ \ DELAY).readNullable[Int] and
       (__ \ AUTH).readNullable[BasicAuthConfig]
     ) (OaiPmhConfig.apply _)
 

@@ -16,9 +16,10 @@ case class SqlResourceSyncConfigService @Inject()(db: Database, actorSystem: Act
 
   private implicit val parser: RowParser[ResourceSyncConfig] = {
     SqlParser.str("endpoint_url") ~
-    SqlParser.get[Option[String]]("filter_spec")
+    SqlParser.get[Option[String]]("filter_spec") ~
+    SqlParser.get[Option[Int]]("delay")
   }.map {
-    case url ~ spec => ResourceSyncConfig(url, spec)
+    case url ~ spec ~ delay => ResourceSyncConfig(url, spec, delay)
   }
 
   override def get(id: String, ds: String): Future[Option[ResourceSyncConfig]] = Future {
@@ -37,16 +38,18 @@ case class SqlResourceSyncConfigService @Inject()(db: Database, actorSystem: Act
   override def save(id: String, ds: String, data: ResourceSyncConfig): Future[ResourceSyncConfig] = Future {
     db.withTransaction { implicit conn =>
       SQL"""INSERT INTO resourcesync_config
-        (repo_id, import_dataset_id, endpoint_url, filter_spec)
+        (repo_id, import_dataset_id, endpoint_url, filter_spec, delay)
         VALUES (
           $id,
           $ds,
           ${data.url},
-          ${data.filter}
+          ${data.filter},
+          ${data.delay}
       ) ON CONFLICT (repo_id, import_dataset_id) DO UPDATE
         SET
           endpoint_url = ${data.url},
-          filter_spec = ${data.filter}
+          filter_spec = ${data.filter},
+          delay = ${data.delay}
         RETURNING *
       """.executeInsert(parser.single)
     }

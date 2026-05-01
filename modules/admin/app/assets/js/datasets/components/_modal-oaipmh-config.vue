@@ -1,11 +1,12 @@
 <script lang="ts">
 
 import ModalWindow from './_modal-window';
+import FormFetchDelay from "./_form-fetch-delay.vue";
 import FormHttpBasicAuth from './_form-http-basic-auth';
 import {DatasetManagerApi} from '../api';
 
 export default {
-  components: {FormHttpBasicAuth, ModalWindow},
+  components: {FormFetchDelay, FormHttpBasicAuth, ModalWindow},
   props: {
     waiting: Boolean,
     datasetId: String,
@@ -20,6 +21,7 @@ export default {
       set: this.opts ? this.opts.set : null,
       from: this.opts ? this.opts.from : null,
       until: this.opts ? this.opts.until : null,
+      delay: this.opts ? this.opts.delay : null,
       auth: this.opts ? this.opts.auth : null,
       tested: null,
       testing: false,
@@ -44,6 +46,7 @@ export default {
         set: this.set && this.set !== "" ? this.set : null,
         from: this.from && this.from !== "" ? this.from : null,
         until: this.until && this.until !== "" ? this.until : null,
+        delay: this.delay,
       }
     }
   },
@@ -79,6 +82,7 @@ export default {
       this.set = newValue ? newValue.set : null;
       this.from = newValue ? newValue.from : null;
       this.until = newValue ? newValue.until : null;
+      this.delay = newValue ? newValue.delay : null;
       this.auth = newValue ? newValue.auth : null;
     },
   },
@@ -125,6 +129,7 @@ export default {
                pattern="\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z"/>
       </div>
 
+      <form-fetch-delay v-model="delay"/>
       <form-http-basic-auth v-model="auth"/>
 
       <div class="form-group">

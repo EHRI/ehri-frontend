@@ -5,7 +5,8 @@ import java.util.regex.{Pattern, PatternSyntaxException}
 case class ResourceSyncConfig(
   url: String,
   filter: Option[String] = None,
-  auth: Option[BasicAuthConfig] = None
+  delay: Option[Int] = None,
+  auth: Option[BasicAuthConfig] = None,
 ) extends HarvestConfig {
   override val src: ImportDataset.Src.Value = ImportDataset.Src.Rs
 }
@@ -14,6 +15,7 @@ object ResourceSyncConfig {
   final val URL = "url"
   final val FILTER = "filter"
   final val AUTH = "auth"
+  final val DELAY = "delay"
 
   private val isValidRegex: (String => Boolean) = s => try {
     Pattern.compile(s);
@@ -27,6 +29,7 @@ object ResourceSyncConfig {
   implicit val _reads: Reads[ResourceSyncConfig] = (
     (__ \ URL).read(Reads.filter(JsonValidationError("errors.invalidUrl"))(forms.isValidUrl)) and
     (__ \ FILTER).readNullable[String](Reads.filter(JsonValidationError("errors.badRegexPattern"))(isValidRegex)) and
+    (__ \ DELAY).readNullable[Int] and
     (__ \ AUTH).readNullable[BasicAuthConfig]
   )(ResourceSyncConfig.apply _)
 

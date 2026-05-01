@@ -5,12 +5,13 @@ import ModalAlert from './_modal-alert';
 import {DatasetManagerApi} from '../api';
 import EditorUrlset from "./_editor-urlset.vue";
 import FormHttpBasicAuth from "./_form-http-basic-auth";
+import FormFetchDelay from "./_form-fetch-delay";
 import FormHttpMethod from "./_form-http-method";
 import FormHttpHeaders from "./_form-http-headers";
 import {decodeTsv, encodeTsv} from "../common";
 
 export default {
-  components: {EditorUrlset, ModalAlert, ModalWindow, FormHttpBasicAuth, FormHttpHeaders, FormHttpMethod},
+  components: {EditorUrlset, ModalAlert, ModalWindow, FormFetchDelay, FormHttpBasicAuth, FormHttpHeaders, FormHttpMethod},
   props: {
     waiting: Boolean,
     datasetId: String,
@@ -22,6 +23,7 @@ export default {
     return {
       urlMap: this.opts ? this.opts.urlMap : null,
       filter: this.opts ? this.opts.filter : null,
+      delay: this.opts ? this.opts.delay : null,
       method: this.opts ? this.opts.method : null,
       auth: this.opts ? this.opts.auth : null,
       headers: this.opts ? this.opts.headers : null,
@@ -63,6 +65,7 @@ export default {
       try {
         let data = await this.api.saveHarvestConfig(this.datasetId, {
           urlMap: this.urlMap,
+          delay: this.delay,
           method: this.method,
           auth: null,
           headers: this.headers
@@ -82,6 +85,7 @@ export default {
       try {
         await this.api.testHarvestConfig(this.datasetId, {
             urlMap: this.urlMap,
+            delay: this.delay,
             method: this.method,
             auth: this.auth,
             headers: this.headers
@@ -102,6 +106,7 @@ export default {
       try {
         this.orphanCheck = await this.api.cleanHarvestConfig(this.datasetId, {
             urlMap: this.urlMap,
+            delay: this.delay,
             method: this.method,
             auth: null
         })
@@ -156,6 +161,8 @@ export default {
   watch: {
     opts: function (newValue) {
       this.urlMap = newValue ? newValue.urlMap : null;
+      this.delay = newValue ? newValue.delay : null;
+      this.method = newValue ? newValue.method : null;
     },
   },
 }
@@ -198,6 +205,7 @@ export default {
       <editor-urlset v-model.lazy="urlMapText"/>
     </div>
     <div v-else class="options-form">
+      <form-fetch-delay v-model="delay"/>
       <form-http-method v-model="method"/>
       <form-http-basic-auth v-model="auth"/>
       <form-http-headers v-model="headers"/>

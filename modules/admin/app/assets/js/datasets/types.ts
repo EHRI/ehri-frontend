@@ -27,19 +27,22 @@ export interface OaiPmhConfig {
   url: string,
   format: string,
   set?: string,
+  delay?: number,
   auth?: BasicAuthConfig,
 }
 
 export interface ResourceSyncConfig {
   url: string,
   filter?: string,
+  delay?: number,
   auth?: BasicAuthConfig,
 }
 
 export interface UrlSetConfig {
   urlMap: string[][],
-  auth?: BasicAuthConfig,
   headers: [string, string][],
+  delay?: number,
+  auth?: BasicAuthConfig,
 }
 
 export type HarvestConfig = OaiPmhConfig | ResourceSyncConfig | UrlSetConfig;
