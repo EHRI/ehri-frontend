@@ -68,7 +68,7 @@ case class UrlSetHarvester (client: WSClient, storage: FileStorage)(
       copyItem(job, item).flatMap { case (name, isFresh) =>
         msgTo ! DoneFile(name)
         val res = Fetch(rest, count + 1, if (isFresh) fresh + 1 else fresh)
-        val delay = if (isFresh) None else job.data.config.delay
+        val delay = if (isFresh) job.data.config.delay else None
         delayIf(delay, res)
       }.pipeTo(self)
 
