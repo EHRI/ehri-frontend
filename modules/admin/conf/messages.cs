@@ -897,7 +897,7 @@ oaipmh.error.invalidXml=Endpoint URL responded with invalid XML content
 
 
 resourceSync.error.notFound=Resource not found: {0}
-resourceSync.error.unexpectedStatus=Unexpected HTTP status code: {0}
+resourceSync.error.unexpectedStatus=Unexpected HTTP status code: {1}
 resourceSync.error.badFormat=Resource cannot be parsed as XML: {0}
 
 # Authority i18n messages
