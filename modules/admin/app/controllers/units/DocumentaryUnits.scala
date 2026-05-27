@@ -423,4 +423,8 @@ case class DocumentaryUnits @Inject()(
           scope.id, dataType, Some(id)), sync = true))
     }.getOrElse(InternalServerError(views.html.errors.fatalError()))
   }
+
+  def diff(id: String, versionId: Option[String] = None): Action[AnyContent] = ItemDiffAction(id, versionId).apply { implicit request =>
+    Ok(views.html.admin.common.diff(request.item, request.json, request.current, request.versions, (id, vid) => docRoutes.diff(id, vid)))
+  }
 }

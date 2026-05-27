@@ -22,3 +22,4 @@ GET     /:id/scope/:userType/:userId            @controllers.countries.Countries
 POST    /:id/scope/:userType/:userId            @controllers.countries.Countries.setScopedPermissionsPost(id: String, userType: models.EntityType.Value, userId: String)
 GET     /:id/geocode                            @controllers.countries.Countries.geocode(id: String)
 GET     /:id/geocode/monitor                    @controllers.countries.Countries.geocodeMonitor(id: String, jobId: String)
+GET     /:id/diff                               @controllers.countries.Countries.diff(id: String, versionId: Option[String] ?= None)
