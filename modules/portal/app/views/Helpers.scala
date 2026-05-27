@@ -8,8 +8,16 @@ import org.jsoup.safety.Whitelist
 import play.api.i18n.Messages
 import play.api.mvc.{Call, RequestHeader}
 
+import java.time.format.{DateTimeFormatter, FormatStyle}
+
 
 object Helpers {
+
+  def localisedDateTime(d: java.time.temporal.TemporalAccessor)(implicit messages: Messages): String = {
+    DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
+      .withLocale(messages.lang.toLocale)
+      .format(d)
+  }
 
   // Pretty relative date/time handling
   import org.ocpsoft.prettytime.PrettyTime

@@ -2,6 +2,7 @@ package controllers.generic
 
 import controllers.base.CoreActionBuilders
 import models._
+import play.api.libs.json.JsValue
 import play.api.mvc._
 import services.data.ItemNotFound
 import utils.{Page, PageParams, RangePage, RangeParams}
@@ -56,7 +57,18 @@ trait Read[MT] extends CoreActionBuilders {
     userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
+    with WithOptionalUser
+
+  case class ItemDiffRequest[A](
+    item: MT,
+    json: JsValue,
+    current: Option[Version],
+    versions: Page[Version],
+    userOpt: Option[UserProfile],
+    request: Request[A]
+  ) extends WrappedRequest[A](request)
   with WithOptionalUser
+
 
   private def WithPermissionFilter(perm: PermissionType.Value, contentType: ContentTypes.Value) = new CoreActionFilter[ItemPermissionRequest] {
     override protected def filter[A](request: ItemPermissionRequest[A]): Future[Option[Result]] = {
@@ -141,7 +153,7 @@ trait Read[MT] extends CoreActionBuilders {
       }
     }
 
-  protected def ItemVersionsAction(itemId: String, paging: PageParams)(implicit ct: ContentType[MT]): ActionBuilder[ItemVersionsRequest, AnyContent] =
+  protected def ItemVersionsAction(itemId: String, paging: PageParams = PageParams.empty.withoutLimit)(implicit ct: ContentType[MT]): ActionBuilder[ItemVersionsRequest, AnyContent] =
     ItemPermissionAction(itemId) andThen new CoreActionTransformer[ItemPermissionRequest, ItemVersionsRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemVersionsRequest[A]] = {
         implicit val req: ItemPermissionRequest[A] = request
@@ -149,6 +161,20 @@ trait Read[MT] extends CoreActionBuilders {
         for {
           versions <- versionsF
         } yield ItemVersionsRequest(request.item, versions, paging, request.userOpt, request)
+      }
+    }
+
+  protected def ItemDiffAction(itemId: String, versionId: Option[String])(implicit ct: ContentType[MT]): ActionBuilder[ItemDiffRequest, AnyContent] =
+    ItemVersionsAction(itemId) andThen new CoreActionTransformer[ItemVersionsRequest, ItemDiffRequest] {
+      override protected def transform[A](request: ItemVersionsRequest[A]): Future[ItemDiffRequest[A]] = {
+        implicit val req: ItemVersionsRequest[A] = request
+            userDataApi.query(s"classes/${ct.contentType}/$itemId",
+                params = Map("_dep" -> Seq("true"), "_noMeta" -> Seq("true"))).map { r =>
+              val version: Option[Version] = request.page
+                .find(v => versionId.contains(v.id))
+                .orElse(request.page.headOption)
+              ItemDiffRequest(request.item, r.json, version, request.page, request.userOpt, request)
+            }
       }
     }
 }

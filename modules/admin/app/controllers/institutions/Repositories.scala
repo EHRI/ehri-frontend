@@ -347,4 +347,8 @@ case class Repositories @Inject()(
         }
     }
   }
+
+  def diff(id: String, versionId: Option[String] = None): Action[AnyContent] = ItemDiffAction(id, versionId).apply { implicit request =>
+    Ok(views.html.admin.common.diff(request.item, request.json, request.current, request.versions, (id, vid) => repositoryRoutes.diff(id, vid)))
+  }
 }

@@ -26,3 +26,4 @@ GET     /:id/accessPointsJs                         @controllers.authorities.His
 POST    /:id/deleteAccess/:did/:accessPoint         @controllers.authorities.HistoricalAgents.deleteAccessPoint(id: String, did: String, accessPoint: String)
 POST    /:id/deleteLink/:link                       @controllers.authorities.HistoricalAgents.deleteLink(id: String, link: String)
 POST    /:id/deleteLink/:did/:accessPoint/:link     @controllers.authorities.HistoricalAgents.deleteLinkAndAccessPoint(id: String, did: String, accessPoint: String, link: String)
+GET     /:id/diff                                   @controllers.authorities.HistoricalAgents.diff(id: String, versionId: Option[String] ?= None)
