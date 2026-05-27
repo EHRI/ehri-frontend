@@ -1,0 +1,86 @@
+@(item: Accessible, json: play.api.libs.json.JsValue, version: Option[Version], versions: Seq[Version], next: (String, Option[String]) => Call)(implicit req: RequestHeader, userOpt: Option[UserProfile], messages: Messages, appConfig: AppConfig, prefs: SessionPrefs, flash: Flash)
+
+@import play.api.libs.json.Json
+
+
+@extraJs = {
+    <script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/jsondiffpatch.umd.js")"></script>
+}
+@extraStyles = {
+    <link rel="stylesheet" href="@controllers.admin.routes.AdminAssets.versioned("css/lib/jsondiffpatch.umd.html.css")">
+    <style>
+            #diff-scroll {
+                overflow: scroll;
+                display: flex;
+            }
+
+            #diff {
+                border: 1px solid #ccc;
+                overflow: scroll;
+                flex-grow: 1;
+            }
+    </style>
+}
+
+@title = @{
+    s"${Messages("item.versions")} | ${item.toStringLang}"
+}
+
+@views.html.admin.layout.rightSidebar(title, scripts = extraJs, styles = extraStyles, breadcrumbs = views.html.admin.common.breadcrumbs(Seq(item))) {
+    @if(versions.nonEmpty) {
+        <div id="diff-scroll">
+            <div id="diff"></div>
+        </div>
+    } else {
+        <div class="empty-attribute">
+            @Messages("item.versions.empty.description")
+        </div>
+    }
+    @if(versions.nonEmpty) {
+        <script>
+                function stripMeta({id, type, data, relationships}) {
+                    let newRels = {};
+                    for ([key, values] of Object.entries(relationships)) {
+                        values.sort((a, b) => a.id.localeCompare(b.id));
+                        newRels[key] = values.map(v => stripMeta(v));
+                    }
+                    return {id, type, data, relationships: newRels};
+                }
+
+                let bundle = stripMeta(@Html(Json.prettyPrint(json)));
+                let other =
+                @Html(version.flatMap(_.data.itemData).getOrElse("null"))
+                if (other !== null) {
+                    let old = stripMeta(other);
+                    const delta = jsondiffpatch.diff(old, bundle);
+                    document.getElementById("diff").innerHTML =
+                            jsondiffpatch.formatters.html.format(delta, old);
+                }
+        </script>
+    }
+} {
+    @common.typeLabel(item.isA) {
+    }
+    @userOpt.map { user =>
+        @views.html.common.sidebarSectionWithFooter(Messages("item.versions")) {
+            @views.html.admin.common.sidebarActionGroup {
+                @versions.map { other =>
+                    @views.html.admin.common.sidebarAction() {
+                        <a class="@{if(version.map(_.id).contains(other.id)) "active"}" href="@next(item.id, Some(other.id))">
+                            <i class="fa fa-clock-o"></i>
+                            @other.event.map(_.data.timestamp).map(t => views.Helpers.localisedDateTime(t))
+                        </a>
+                        @other.event.flatMap(_.actioner).map { actioner =>
+                            <div class="small">@actioner.toStringLang</div>
+                        }
+                    }
+                }
+            }
+        } {
+            @if(versions.isEmpty) {
+                @Messages("item.versions.empty")
+            }
+        }
+    }
+}
+

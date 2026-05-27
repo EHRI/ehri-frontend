@@ -269,5 +269,9 @@ case class Countries @Inject()(
         Messages("geocode.monitor", request.item.toStringLang),
         controllers.admin.routes.Tasks.taskMonitorWS(jobId)))
     }
+
+  def diff(id: String, versionId: Option[String] = None): Action[AnyContent] = ItemDiffAction(id, versionId).apply { implicit request =>
+    Ok(views.html.admin.common.diff(request.item, request.json, request.current, request.versions, (id, vid) => countryRoutes.diff(id, vid)))
+  }
 }
 
