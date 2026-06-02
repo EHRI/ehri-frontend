@@ -44,7 +44,7 @@ case class SystemEventF(
   eventType: Option[EventType.Value] = None
 ) extends ModelData {
   lazy val datetime: String = DateTimeFormatter.ISO_DATE_TIME.format(timestamp)
-  lazy val date: String = DateTimeFormatter.ISO_DATE.format(timestamp)
+  lazy val date: String = DateTimeFormatter.ISO_LOCAL_DATE.format(timestamp)
 
 }
 
