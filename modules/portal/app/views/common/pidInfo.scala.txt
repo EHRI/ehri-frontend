@@ -1,6 +1,6 @@
-@(item: DocumentaryUnit, support: Boolean = false)(implicit req: RequestHeader, messages: Messages, appConf: AppConfig)
+@(item: Accessible, support: Boolean = false)(implicit req: RequestHeader, messages: Messages, appConf: AppConfig)
 erc:
-who: @item.holder.map(_.toStringLang)
+who: European Holocaust Research Infrastructure
 what: @item.toStringLang
 when: @item.latestEvent.map(_.data.date)
 where: @views.Helpers.linkTo(item).absoluteURL(appConf.https)
