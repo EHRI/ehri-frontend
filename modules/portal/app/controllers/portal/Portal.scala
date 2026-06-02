@@ -121,7 +121,8 @@ case class Portal @Inject()(
         val extended = request.uri.endsWith("??")
         m match {
           case d: DocumentaryUnit => Ok(views.txt.documentaryUnit.pidInfo(d, extended))
-          case _ => Ok("")
+          case a: Accessible => Ok(views.txt.common.pidInfo(a, extended))
+          case _ => Ok("erc:")
         }
       } else Redirect(views.Helpers.linkTo(m.isA, m.id))
     }

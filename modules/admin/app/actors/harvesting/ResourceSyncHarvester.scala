@@ -6,13 +6,11 @@ import models.{FileLink, ResourceSyncConfig, UserProfile}
 import org.apache.pekko.actor.Status.Failure
 import org.apache.pekko.actor.{Actor, ActorLogging, ActorRef}
 import org.apache.pekko.http.scaladsl.model.Uri
-import org.apache.pekko.pattern.after
 import services.harvesting.ResourceSyncClient
 import services.storage.FileStorage
 
 import java.time.Instant
 import scala.concurrent.Future.{successful => immediate}
-import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
 
