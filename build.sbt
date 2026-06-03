@@ -322,6 +322,7 @@ lazy val portal = Project(appName + "-portal", file("modules/portal"))
           "js/lib/typeahead.bundle.js",
           "js/lib/handlebars.js",
           "js/lib/js.cookie.js",
+          "js/lib/clipboard.js",
           "js/feedback.js",
           "js/common.js"
         )
