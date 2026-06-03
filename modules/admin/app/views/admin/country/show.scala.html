@@ -26,6 +26,7 @@
     @common.typeLabel(item.isA) {
         @views.html.admin.common.publicButton(item)
     }
+    @views.html.common.pid(item)
     @views.html.common.childItemSidebar(item, EntityType.Repository)
     @views.html.admin.common.visibility(item, controllers.countries.routes.Countries.visibility(item.id), ContentTypes.Country)
     @views.html.admin.common.latestAction(item, controllers.countries.routes.Countries.history(item.id))
