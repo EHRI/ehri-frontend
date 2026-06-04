@@ -2,11 +2,11 @@ package controllers.api.v1
 
 import controllers.AppComponents
 import controllers.portal.base.PortalController
-import javax.inject.{Inject, Singleton}
 import models.api.v1.JsonApiV1._
-import play.api.i18n.Messages
 import play.api.libs.json._
 import play.api.mvc._
+
+import javax.inject.{Inject, Singleton}
 
 
 @Singleton
@@ -18,21 +18,6 @@ case class ApiV1Home @Inject()(
   private val apiRoutes = controllers.api.v1.routes.ApiV1
 
   private val AcceptsJsonApi = Accepting(JSONAPI_MIMETYPE)
-
-  private def error(status: Int, message: Option[String] = None)(implicit requestHeader: RequestHeader): Result =
-    Status(status)(errorJson(status, message))
-
-  private def errorJson(status: Int, message: Option[String] = None)(implicit requestHeader: RequestHeader): JsObject = {
-    Json.obj(
-      "errors" -> Json.arr(
-        JsonApiError(
-          status = status.toString,
-          title = Messages(s"api.error.$status"),
-          detail = message
-        )
-      )
-    )
-  }
 
   def index(): Action[AnyContent] = OptionalUserAction { implicit request =>
     render {

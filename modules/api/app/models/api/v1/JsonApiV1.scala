@@ -9,6 +9,11 @@ object JsonApiV1 {
 
   final val JSONAPI_MIMETYPE = "application/vnd.api+json"
 
+  def merge(obj: JsObject*): JsObject = obj.fold(Json.obj())((a, b) => a.deepMerge(b))
+
+  def pidMeta[T <: PersistentIdentifiable](t: T): JsObject =
+    t.pid.fold(Json.obj())(p => Json.obj("pid" -> p))
+
   def holderMeta[T <: Holder[_] with Accessible](t: T): JsObject = Json.obj(
     "subitems" -> t.childCount
   )

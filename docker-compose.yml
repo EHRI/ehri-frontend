@@ -28,7 +28,7 @@ services:
     - "./DB/neo4j/data:/data"
 
   solr:
-    image: docker.io/ehri/ehri-search-tools
+    image: docker.io/ehri/ehri-search-tools:1.1.17
     ports:
       - ${SOLR_PORT:-8983}:8983
     volumes:
