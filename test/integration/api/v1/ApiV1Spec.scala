@@ -1,5 +1,6 @@
 package integration.api.v1
 
+import controllers.api.v1.ApiV1
 import helpers.IntegrationTestRunner
 import models.EntityType
 import models.api.v1.JsonApiV1
@@ -72,7 +73,21 @@ class ApiV1Spec extends IntegrationTestRunner {
       status(fetch) must_== OK
       validateJson(contentAsJson(fetch))
       contentAsJson(fetch) \ "data" \ "attributes" \ "descriptions" \ 0 \
-          "scopeAndContent" must_== JsDefined(JsString("Some description text for c4"))
+        "scopeAndContent" must_== JsDefined(JsString("Some description text for c4"))
+    }
+
+    "allow fetching items by PID" in new ITestApp {
+      val fetch = FakeRequest(apiRoutes.fetch("c4-12345678", pid = true)).call()
+      status(fetch) must_== OK
+      validateJson(contentAsJson(fetch))
+      contentAsJson(fetch) \ "data" \ "meta" \ "pid" must_== JsDefined(JsString("c4-12345678"))
+    }
+
+    "allow fetching items by prefixed PID" in new ITestApp {
+      val fetch = FakeRequest(apiRoutes.fetch("ark:12345/p0c4-12345678", pid = true)).call()
+      status(fetch) must_== OK
+      validateJson(contentAsJson(fetch))
+      contentAsJson(fetch) \ "data" \ "meta" \ "pid" must_== JsDefined(JsString("c4-12345678"))
     }
 
     "send CORS headers" in new ITestApp {
@@ -141,6 +156,12 @@ class ApiV1Spec extends IntegrationTestRunner {
       status(search) must_== OK
       validateJson(contentAsJson(search))
       contentAsJson(search) \ "meta" \ "facets" \ 0 \ "param" must_== JsDefined(JsString("lang"))
+    }
+
+    "remove the ARK prefix correctly" in {
+      "ark:12345/x1" must beMatching(ApiV1.arkPattern)
+      "ark:/12345/x1" must beMatching(ApiV1.arkPattern)
+      "ark:12345/x1abc" must not(beMatching(ApiV1.arkPattern))
     }
   }
 }
