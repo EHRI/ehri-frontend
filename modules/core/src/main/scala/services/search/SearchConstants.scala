@@ -96,6 +96,11 @@ object SearchConstants {
   final val DB_ID = "gid"
 
   /**
+    * The item's persistent id field name.
+    */
+  final val PID = "pid"
+
+  /**
    * The type-of-item key
    */
   final val TYPE = "type"

@@ -28,7 +28,7 @@ services:
     pull_policy: never
 
   solr:
-    image: docker.io/ehri/ehri-search-tools
+    image: ehri/ehri-search-tools:1.1.17
     ports:
       - ${SOLR_TEST_PORT:-8982}:8983
 

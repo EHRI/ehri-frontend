@@ -11,6 +11,7 @@ class SearchHitSpec extends PlaySpecification {
     itemId = "lu-006007-lu-11-iv-3-286",
     `type`= EntityType.DocumentaryUnit,
     gid = 87287L,
+    pid = Some("12345678"),
     fields = Map(
       "repositoryName" -> JsString("Archives de la Ville de Luxembourg"),
       "archivistNote_t" -> JsString("Copied from online search engine"),

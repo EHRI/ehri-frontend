@@ -16,13 +16,14 @@ case class SearchHit(
   itemId: String,
   `type`: EntityType.Value,
   gid: Long,
+  pid: Option[String],
   fields: Map[String,JsValue] = Map.empty,
   highlights: Map[String,Seq[String]] = Map.empty,
   phrases: Seq[String] = Seq.empty
 ) extends views.Highlighter {
 
   private def stripTags(value: String): String =
-    value.replaceAll("""<(?!\/?(?=>|\s.*>))\/?.*?>""", "")
+    value.replaceAll("""<(?!/?(?=>|\s.*>))/?.*?>""", "")
 
   private val skipFields = Set(
     ID, ITEM_ID, DB_ID, PARENT_ID, TYPE, LANGUAGE_CODE

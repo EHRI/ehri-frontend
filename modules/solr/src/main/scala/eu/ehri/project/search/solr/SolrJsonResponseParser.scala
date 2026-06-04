@@ -8,7 +8,6 @@ import javax.inject.Inject
 import models.json._
 
 
-
 /**
   * Extracts useful data from a Solr JSON response.
   */
@@ -61,8 +60,9 @@ case class SolrJsonResponseParser @Inject()(config: play.api.Configuration) exte
     (__ \ ID).read[String] and
     (__ \ ITEM_ID).read[String] and
     (__ \ TYPE).read[EntityType.Value] and
-    (__ \ DB_ID).read[Long]
-  )((id, itemId, et, gid) => SearchHit(id, itemId, et, gid))
+    (__ \ DB_ID).read[Long] and
+    (__ \ PID).readNullable[String]
+  )((id, itemId, et, gid, pid) => SearchHit(id, itemId, et, gid, pid))
 
   private case class Suggestion(word: String, freq: Int)
 
@@ -93,7 +93,7 @@ case class SolrJsonResponseParser @Inject()(config: play.api.Configuration) exte
     override def extractFieldFacet(fc: FieldFacetClass, applied: Seq[String]): FieldFacetClass = {
       raw.rawFacets.getOrElse("facet_fields", Map.empty).get(fc.key)
         .map(_.validate(fieldFacetValueReader)).collect {
-        case JsSuccess(fields, path) =>
+        case JsSuccess(fields, _) =>
           val facets = fields.map { case (text, count) =>
             FieldFacet(text, None, count, applied.contains(text))
           }
@@ -128,7 +128,7 @@ case class SolrJsonResponseParser @Inject()(config: play.api.Configuration) exte
   override def parse(responseBody: String, allFacets: Seq[FacetClass[Facet]] = Nil, appliedFacets: Seq[AppliedFacet] = Nil): QueryResult = {
 
     val raw: SolrData = Json.parse(responseBody).validate[SolrData].fold(
-      err => {
+      _ => {
         throw Json.parse(responseBody).asOpt[SolrServerError]
           .getOrElse(new PlayException(s"Unexpected Solr response: ", responseBody))
       },
@@ -139,8 +139,8 @@ case class SolrJsonResponseParser @Inject()(config: play.api.Configuration) exte
     )
 
     // If collation is enabled, fetch that because it gives us a new
-    // search query with the mispelled terms replaced. Otherwise,
-    // fetch the first mispelled term suggestion.
+    // search query with the misspelled terms replaced. Otherwise,
+    // fetch the first misspelled term suggestion.
     def parseSpellcheckSuggestion: Option[(String, String)] = collatedSpellcheckSuggestions.orElse(for {
       (word, suggests) <- rawSpellcheckSuggestions
       best <- suggests.sortBy(_.freq).reverse.headOption
@@ -154,8 +154,8 @@ case class SolrJsonResponseParser @Inject()(config: play.api.Configuration) exte
       q <- raw.query.headOption
     } yield (
         // Hack! strip any local param sections in the collated query...
-        q.replaceAll("^\\{![^\\}]+\\}\\s*", ""),
-        collationList(1).replaceAll("^\\{![^\\}]+\\}\\s*", "")
+        q.replaceAll("^\\{![^}]+}\\s*", ""),
+        collationList(1).replaceAll("^\\{![^}]+}\\s*", "")
     )
 
     def rawSpellcheckSuggestions: Option[(String, Seq[Suggestion])] = for {
