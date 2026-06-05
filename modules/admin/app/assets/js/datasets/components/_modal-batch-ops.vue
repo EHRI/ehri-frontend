@@ -132,10 +132,11 @@ export default {
             let {url, jobId} = await this.api.harvest(set.id, config);
             await this.monitor(url, jobId);
             if (!this.cancelled && this.cleanupOrphans) {
-              let orphans = this.checkOrphansForSet(set, config);
+              let orphans = await this.checkOrphansForSet(set, config);
               if (orphans.length > 0) {
-                await this.api.deleteFiles(set.id, this.config.input, orphans);
-                await this.api.deleteFiles(set.id, this.config.output, orphans);
+                let {deleted: input} = await this.api.deleteFiles(set.id, this.config.input, orphans);
+                let {deleted: output} = await this.api.deleteFiles(set.id, this.config.output, orphans);
+                console.log(`Deleted ${input} input and ${output} output file(s)`);
               }
             }
           } catch (e) {
