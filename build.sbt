@@ -20,7 +20,7 @@ ThisBuild / organization := "eu.ehri-project"
 val projectScalaVersion = "2.13.18"
 val appName = "docview"
 
-val backendVersion = "0.16.0"
+val backendVersion = "0.16.0-SNAPSHOT"
 val dataConverterVersion = "1.1.17"
 val pekkoConnectorsVersion = "1.0.2"
 
@@ -142,6 +142,7 @@ val additionalResolvers = Resolver.sonatypeOssRepos("releases") ++ Seq(
 
   // EHRI repositories
   "EHRI Releases" at "https://dev.ehri-project.eu/reposilite/libs-release-local",
+  "EHRI Snapshots" at "https://dev.ehri-project.eu/reposilite/libs-snapshot-local",
 )
 
 val validateMessages = TaskKey[Unit]("validate-messages", "Validate messages")
