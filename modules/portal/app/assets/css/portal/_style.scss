@@ -2252,12 +2252,12 @@ section:last-child {
   color: $green;
 }
 
-.permalink {
+a.permalink {
   display: block;
   font-size: $font-size-sm;
-  letter-spacing: -1px;
-  white-space: nowrap;
   font-family: monospace;
+  color: var(--info);
+  font-weight: bold;
 
   .copy-button {
     font-size: 1rem;
@@ -2268,7 +2268,12 @@ section:last-child {
     text-decoration: none;
   }
 
+  &:hover .permalink-label {
+    text-decoration: underline;
+  }
+
   &:hover .copy-button {
     visibility: unset;
+    color: darken($info, 10%);
   }
 }

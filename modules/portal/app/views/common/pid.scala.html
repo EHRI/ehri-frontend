@@ -5,7 +5,7 @@
         @defining(appConfig.configuration.getOptional[String]("ehri.portal.arks.urlPrefix")) { prefixOpt =>
             @defining(prefixOpt.fold(controllers.portal.routes.Portal.lookupPid(pid).absoluteURL(appConfig.https))(prefix => s"$prefix$pid")) { url =>
                 <a class="permalink" rel="nofollow" href="@url">
-                    <span id="permalink-@(item.pid)">@url</span>
+                    <span class="permalink-label" id="permalink-@(item.pid)">@url.replaceFirst("https?://", "")</span>
                     <span onclick="return false" data-clipboard-target="#permalink-@(item.pid)" class="fa fa-regular fa-fw fa-copy copy-button"></span>
                 </a>
             }
