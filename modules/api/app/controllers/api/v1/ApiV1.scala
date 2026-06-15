@@ -517,6 +517,8 @@ case class ApiV1 @Inject()(
         case Some(newPath) =>
           val newApiPath = newPath.replace(unitPrefix, routes.ApiV1Home.index().url)
           error(MOVED_PERMANENTLY, Some(newApiPath)).withHeaders(HeaderNames.LOCATION -> newApiPath)
+        case None if e.since.isDefined =>
+          error(GONE, Some(Messages(s"api.error.$GONE.detail", e.since.get)))
         case None =>  error(NOT_FOUND, e.message)
       }
     case e: PermissionDenied => immediate(error(FORBIDDEN))
