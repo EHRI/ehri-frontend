@@ -86,6 +86,13 @@ case class ApiV1 @Inject()(
   // basically, no limit at the moment
   private val rateLimitTimeoutDuration: FiniteDuration = 1.second
 
+  // ARK links, depending on config
+  private def arkLink(pidOpt: Option[String])(implicit req: RequestHeader): Option[String] = pidOpt.map { pid =>
+    config.getOptional[String]("ehri.portal.arks.urlPrefix").fold(
+      ifEmpty = controllers.portal.routes.Portal.lookupPid(pid).absoluteURL(conf.https)
+    )(prefix => s"$prefix$pid")
+  }
+
   // Available facets, defined in `ApiFacet`
   private def apiSearchFacets(facets: Seq[String] = Seq.empty): FacetBuilder = { implicit request =>
     facets.map(ApiFacet.fromString).collect {
@@ -221,7 +228,7 @@ case class ApiV1 @Inject()(
               self = apiRoutes.fetch(doc.id).absoluteURL(conf.https),
               search = apiRoutes.searchIn(doc.id).absoluteURL(conf.https),
               holder = doc.holder.map(r => apiRoutes.fetch(r.id).absoluteURL(conf.https)),
-              parent = doc.parent.map(r => apiRoutes.fetch(r.id).absoluteURL(conf.https))
+              parent = doc.parent.map(r => apiRoutes.fetch(r.id).absoluteURL(conf.https)),
             )
           )
         ),
@@ -247,7 +254,7 @@ case class ApiV1 @Inject()(
             DocumentaryUnitLinks(
               self = apiRoutes.fetch(vu.id).absoluteURL(conf.https),
               search = apiRoutes.searchIn(vu.id).absoluteURL(conf.https),
-              parent = vu.parent.map(r => apiRoutes.fetch(r.id).absoluteURL(conf.https))
+              parent = vu.parent.map(r => apiRoutes.fetch(r.id).absoluteURL(conf.https)),
             )
           )
         ),
@@ -273,7 +280,7 @@ case class ApiV1 @Inject()(
             RepositoryLinks(
               self = apiRoutes.fetch(repo.id).absoluteURL(conf.https),
               search = apiRoutes.searchIn(repo.id).absoluteURL(conf.https),
-              country = repo.country.map(c => apiRoutes.fetch(c.id).absoluteURL(conf.https))
+              country = repo.country.map(c => apiRoutes.fetch(c.id).absoluteURL(conf.https)),
             )
           )
         ),
@@ -289,7 +296,7 @@ case class ApiV1 @Inject()(
           Json.toJson(
             HistoricalAgentLinks(
               self = apiRoutes.fetch(agent.id).absoluteURL(conf.https),
-              related = apiRoutes.related(agent.id).absoluteURL(conf.https)
+              related = apiRoutes.related(agent.id).absoluteURL(conf.https),
             )
           )
         ),
@@ -305,7 +312,7 @@ case class ApiV1 @Inject()(
           Json.toJson(
             CountryLinks(
               self = apiRoutes.fetch(country.id).absoluteURL(conf.https),
-              search = apiRoutes.searchIn(country.id).absoluteURL(conf.https)
+              search = apiRoutes.searchIn(country.id).absoluteURL(conf.https),
             )
           )
         ),
@@ -323,7 +330,7 @@ case class ApiV1 @Inject()(
               self = apiRoutes.fetch(concept.id).absoluteURL(conf.https),
               search = apiRoutes.searchIn(concept.id).absoluteURL(conf.https),
               related = apiRoutes.related(concept.id).absoluteURL(conf.https),
-              parent = concept.parent.map(p => apiRoutes.fetch(p.id).absoluteURL(conf.https))
+              parent = concept.parent.map(p => apiRoutes.fetch(p.id).absoluteURL(conf.https)),
             )
           )
         ),
