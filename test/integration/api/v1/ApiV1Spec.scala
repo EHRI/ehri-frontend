@@ -64,7 +64,7 @@ class ApiV1Spec extends IntegrationTestRunner {
 
     "forbid fetching protected items" in new ITestApp {
       val fetch = FakeRequest(apiRoutes.fetch("c1")).call()
-      status(fetch) must_== FORBIDDEN
+      status(fetch) must_== NOT_FOUND
       validateJson(contentAsJson(fetch))
     }
 
