@@ -15,8 +15,9 @@ import utils.FieldFilter
 
 
 class ApiV1Spec extends IntegrationTestRunner {
-
+  import mockdata.{privilegedUser}
   private val apiRoutes = controllers.api.v1.routes.ApiV1
+  private val docRoutes = controllers.units.routes.DocumentaryUnits
 
   private def validateJson(json: JsValue): Unit = {
     val is = getClass.getResourceAsStream("/jsonapi-schema.json")
@@ -62,12 +63,6 @@ class ApiV1Spec extends IntegrationTestRunner {
       status(idx) must_== NOT_ACCEPTABLE
     }
 
-    "forbid fetching protected items" in new ITestApp {
-      val fetch = FakeRequest(apiRoutes.fetch("c1")).call()
-      status(fetch) must_== NOT_FOUND
-      validateJson(contentAsJson(fetch))
-    }
-
     "allow fetching items" in new ITestApp {
       val fetch = FakeRequest(apiRoutes.fetch("c4")).call()
       status(fetch) must_== OK
@@ -88,6 +83,28 @@ class ApiV1Spec extends IntegrationTestRunner {
       status(fetch) must_== OK
       validateJson(contentAsJson(fetch))
       contentAsJson(fetch) \ "data" \ "meta" \ "pid" must_== JsDefined(JsString("c4-12345678"))
+    }
+
+    "forbid fetching protected items" in new ITestApp {
+      val fetch = FakeRequest(apiRoutes.fetch("c1")).call()
+      status(fetch) must_== NOT_FOUND
+      validateJson(contentAsJson(fetch))
+    }
+
+    "return GONE for removed items" in new ITestApp {
+      val delete = FakeRequest(docRoutes.deletePost("c4"))
+        .withUser(privilegedUser)
+        .call()
+      status(delete) must_== SEE_OTHER
+
+      val gone = FakeRequest(apiRoutes.fetch("c4")).call()
+      status(gone) must_== GONE
+      validateJson(contentAsJson(gone))
+      contentAsJson(gone) \ "errors" \ 0 \ "title" must_== JsDefined(JsString("Gone"))
+
+      val gonePid = FakeRequest(apiRoutes.fetch("c4-12345678", pid = true)).call()
+      status(gonePid) must_== GONE
+      validateJson(contentAsJson(gone))
     }
 
     "send CORS headers" in new ITestApp {
