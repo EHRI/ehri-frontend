@@ -78,11 +78,13 @@ class ApiV1Spec extends IntegrationTestRunner {
       contentAsJson(fetch) \ "data" \ "meta" \ "pid" must_== JsDefined(JsString("c4-12345678"))
     }
 
-    "allow fetching items by prefixed PID" in new ITestApp {
+    "allow fetching items by prefixed PID" in new ITestApp(
+      specificConfig = Map("ehri.portal.arks.prefix" -> "ark:12345/x1")) {
       val fetch = FakeRequest(apiRoutes.fetch("ark:12345/p0c4-12345678", pid = true)).call()
       status(fetch) must_== OK
       validateJson(contentAsJson(fetch))
       contentAsJson(fetch) \ "data" \ "meta" \ "pid" must_== JsDefined(JsString("c4-12345678"))
+      contentAsJson(fetch) \ "data" \ "meta" \ "ark" must_== JsDefined(JsString("ark:12345/x1c4-12345678"))
     }
 
     "forbid fetching protected items" in new ITestApp {
