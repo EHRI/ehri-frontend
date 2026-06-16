@@ -166,8 +166,9 @@ export default {
     priorConversions: function (dt) {
       return _takeWhile(this.enabled, s => s.id !== dt.id);
     },
-    removeTransformation: function (i: number) {
-      this.state.splice(i, 1);
+    removeTransformation: function (data: {oldIndex: number}) {
+      console.log("Remove: ", data)
+      this.state.splice(data.oldIndex, 1);
     },
     disableTransformation: function (i: number) {
       let [id, p, m] = this.state[i];
@@ -178,6 +179,19 @@ export default {
       let id = this.transformations[data.oldIndex].id
       this.state.splice(data.newIndex, 0, [id, {}, false]);
     },
+    sortTransformations: function(data: {
+      newIndex: number,
+      oldIndex: number,
+      pullMode?: string|boolean|undefined
+    }) {
+      if (!data.pullMode) {
+        console.log("Sort", data.newIndex, data.oldIndex, data.pullMode)
+        // If pullMode is defined that means we're adding from
+        // the other list and should ignore this sort.
+        let [item] = this.state.splice(data.oldIndex, 1);
+        this.state.splice(data.newIndex, 0, item);
+      }
+    },
     editParameters: function (i: number) {
       this.editingParameters = i;
     },
@@ -187,7 +201,7 @@ export default {
       this.editingParameters = null;
       this.saveConfig();
     },
-    cancelEditParamters: function () {
+    cancelEditParameters: function () {
       this.editingParameters = null;
     },
     initialise: async function () {
@@ -308,7 +322,7 @@ export default {
         <modal-param-editor
             v-if="editingParameters !== null"
             v-bind:jsonObject="this.state[this.editingParameters][1]"
-            v-on:close="cancelEditParamters"
+            v-on:close="cancelEditParameters"
             v-on:saved="saveParameters"/>
 
         <div id="convert-mappings">
@@ -364,6 +378,8 @@ export default {
                   v-bind:group="{name: 'transformations', put: true, pull: true}"
                   v-bind:sort="true"
                   v-on:add="addTransformation"
+                  v-on:sort="sortTransformations"
+                  v-on:remove="removeTransformation"
                   v-model="enabled"
                   item-key="id">
                 <template v-slot:item="{element, index}">
@@ -374,7 +390,7 @@ export default {
                       v-bind:key="index"
                       v-bind:active="true"
                       v-on:edit="editActiveTransformation(index)"
-                      v-on:delete="removeTransformation(index)"
+                      v-on:delete="removeTransformation({oldIndex: index})"
                       v-on:disable="disableTransformation(index)"
                       v-on:edit-params="editParameters(index)"
                   />
