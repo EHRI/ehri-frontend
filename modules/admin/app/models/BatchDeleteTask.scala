@@ -2,8 +2,10 @@ package models
 
 import play.api.data.Form
 import play.api.data.Forms._
+import utils.EnumUtils
 
 case class BatchDeleteTask(
+  et: EntityType.Value,
   scope: Option[String] = None,
   version: Boolean = true,
   commit: Boolean = false,
@@ -12,7 +14,7 @@ case class BatchDeleteTask(
 )
 
 object BatchDeleteTask {
-
+  val TYPE = "type"
   val VERSION = "version"
   val COMMIT = "commit"
   val SCOPE = "scope"
@@ -21,7 +23,8 @@ object BatchDeleteTask {
 
   val form: Form[BatchDeleteTask] = Form(
     mapping(
-      SCOPE -> optional(nonEmptyText),
+      TYPE -> EnumUtils.enumMapping(EntityType),
+      SCOPE -> optional(text),
       VERSION -> boolean,
       COMMIT -> boolean,
       LOG_MSG -> nonEmptyText,

@@ -18,7 +18,7 @@ import play.api.libs.streams.Accumulator
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import services.cypher.CypherService
-import services.data.EventForwarder.{Create, Delete}
+import services.data.EventForwarder.{Create, Delete, Update}
 import services.data.InputDataError
 import services.ingest.{EadValidator, RemappingPrefixes, XmlValidationError}
 import services.search.SearchIndexMediator
@@ -290,7 +290,9 @@ case class Tools @Inject()(
         task.parentType, task.subType, task.property, task.find,
         task.replace, commit, task.log).flatMap { found =>
         if (commit) {
-          indexer.indexIds(found.map(_._1): _*).map { _ =>
+          val parentIds = found.map(_._1)
+          eventForwarder ! Update(parentIds.map(entityType(task.parentType) -> _))
+          indexer.indexIds(parentIds: _*).map { _ =>
             Redirect(controllers.tools.routes.Tools.findReplace())
               .flashing("success" -> Messages("admin.utils.findReplace.done", found.size))
           }
@@ -303,7 +305,8 @@ case class Tools @Inject()(
   }
 
   def batchDelete: Action[AnyContent] = AdminAction.apply { implicit request =>
-    Ok(views.html.admin.tools.batchDelete(BatchDeleteTask.form.fill(BatchDeleteTask()),
+    Ok(views.html.admin.tools.batchDelete(BatchDeleteTask
+        .form.fill(BatchDeleteTask(EntityType.DocumentaryUnit)),
       controllers.tools.routes.Tools.batchDeletePost()))
   }
 
@@ -315,10 +318,17 @@ case class Tools @Inject()(
       data => userDataApi.batchDelete(
         data.ids, data.scope, data.log, version = data.version, commit = data.commit
       ).flatMap { deleted =>
-        val indexOp = if (data.commit) searchIndexer.handle.clearIds(data.ids: _*) else immediate(())
-        indexOp.map { _ =>
-          Redirect(controllers.tools.routes.Tools.batchDelete())
-            .flashing("success" -> Messages("admin.utils.batchDelete.done", deleted))
+        if (data.commit) {
+          eventForwarder ! Delete(data.ids.map(data.et -> _))
+          searchIndexer.handle.clearIds(data.ids: _*).map { _ =>
+            Redirect(controllers.tools.routes.Tools.batchDelete())
+              .flashing("success" -> Messages("admin.utils.batchDelete.done", deleted))
+          }
+        } else {
+          immediate(
+            Redirect(controllers.tools.routes.Tools.batchDelete())
+              .flashing("success" -> Messages("admin.utils.batchDelete.dryRun", deleted))
+          )
         }
       } recover {
         case e: InputDataError =>

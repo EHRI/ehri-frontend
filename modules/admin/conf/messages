@@ -332,7 +332,9 @@ admin.utils.batchDelete=Batch Delete Items
 admin.utils.batchDelete.description=Delete multiple items in one go.
 admin.utils.batchDelete.warning=Be very careful with this since it is NOT reversable.
 admin.utils.batchDelete.submit=Delete Items
-admin.utils.batchDelete.scope=Item scope
+admin.utils.batchDelete.type=Common item type
+admin.utils.batchDelete.type.description=The common item entity type
+admin.utils.batchDelete.scope=Common item scope
 admin.utils.batchDelete.scope.description=If items share a common scope you specify it here. Otherwise omit
 admin.utils.batchDelete.version=Create pre-delete version
 admin.utils.batchDelete.version.description=Create a version of each item before deleting it
@@ -343,6 +345,7 @@ admin.utils.batchDelete.logMessage.description=Describe why you are making this 
 admin.utils.batchDelete.ids=IDs (one item ID per line)
 admin.utils.batchDelete.ids.description=Specify IDs of items to be deleted with one item per line
 admin.utils.batchDelete.done=Items deleted: {0}
+admin.utils.batchDelete.dryRun=Items deleted [DRY RUN]: {0}
 
 #
 # Redirects

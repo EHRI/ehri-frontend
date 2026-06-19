@@ -1,3 +1,4 @@
+@import models.BatchDeleteTask.TYPE
 @(f: Form[BatchDeleteTask], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @import BatchDeleteTask.{VERSION, SCOPE, COMMIT, LOG_MSG, IDS}
@@ -13,6 +14,8 @@
         @formHelpers.csrfToken()
         @views.html.formHelpers.globalErrors(f)
         @defining("admin.utils.batchDelete") { implicit fieldPrefix =>
+            @formHelpers.choiceInput(f(""), TYPE,
+                EntityType.values.toList.map(et => et.toString -> et.toString), attrs._blank -> true)
             @formHelpers.lineInput(f(""), SCOPE)
             @formHelpers.checkbox(f(""), VERSION)
             @formHelpers.lineInput(f(""), LOG_MSG)

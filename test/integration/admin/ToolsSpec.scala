@@ -155,6 +155,7 @@ class ToolsSpec extends IntegrationTestRunner with FakeMultipartUpload {
       import models.BatchDeleteTask._
 
       val data: Map[String,Seq[String]] = Map(
+        TYPE -> Seq(EntityType.HistoricalAgent.toString),
         IDS -> Seq("a1\na2"),
         SCOPE -> Seq("auths"),
         COMMIT -> Seq("true"),
