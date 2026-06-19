@@ -1,4 +1,4 @@
-@(form: Form[(String, Seq[(String, String, Boolean)])], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(form: Form[(ContentTypes.Value, Seq[(String, String, Boolean)])], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
@@ -12,7 +12,7 @@
         }
     } else {
         @helper.form(action = action, attrs._id -> "regenerate-ids") {
-            @views.html.admin.common.pathRemapForm(Messages("admin.utils.regenerateIds.submit"), form) {
+            @views.html.admin.common.contentTypeForm(Messages("admin.utils.regenerateIds.submit"), form) {
                 <p>@Messages("admin.utils.regenerateIds.description")</p>
                 <table class="table table-bordered table-striped table-condensed">
                     <thead>

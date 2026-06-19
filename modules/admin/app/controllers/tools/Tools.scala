@@ -2,8 +2,9 @@ package controllers.tools
 
 import controllers.base.AdminController
 import controllers.{AppComponents, Execution}
-import models.{BatchDeleteTask, ContentTypes}
+import models.{BatchDeleteTask, ContentTypes, EntityType}
 import org.apache.pekko.NotUsed
+import org.apache.pekko.actor.ActorRef
 import org.apache.pekko.stream.Materializer
 import org.apache.pekko.stream.connectors.csv.scaladsl.CsvParsing
 import org.apache.pekko.stream.scaladsl.{FileIO, Flow, Sink, Source}
@@ -17,13 +18,14 @@ import play.api.libs.streams.Accumulator
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import services.cypher.CypherService
+import services.data.EventForwarder.{Create, Delete}
 import services.data.InputDataError
-import services.ingest.{EadValidator, XmlValidationError}
+import services.ingest.{EadValidator, RemappingPrefixes, XmlValidationError}
 import services.search.SearchIndexMediator
 import utils.EnumUtils
 
 import java.nio.charset.StandardCharsets
-import javax.inject.{Inject, Singleton}
+import javax.inject.{Inject, Named, Singleton}
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 
@@ -37,17 +39,18 @@ case class Tools @Inject()(
   searchIndexer: SearchIndexMediator,
   ws: WSClient,
   cypher: CypherService,
-  eadValidator: EadValidator
+  eadValidator: EadValidator,
+  @Named("event-forwarder") eventForwarder: ActorRef,
+  urlPrefixes: RemappingPrefixes
 )(implicit mat: Materializer) extends AdminController {
 
   import models.FindReplaceTask
 
-  private val pathPrefixField = nonEmptyText.verifying("isPath",
-    s => s.split(',').forall(_.startsWith("/") && s.endsWith("/")))
-
-  private val urlMapForm = Form(
-    single("path-prefix" -> pathPrefixField)
+  private val contentTypeForm = Form(
+    "type" -> EnumUtils.enumMapping(ContentTypes)
   )
+
+  private def entityType(ct: ContentTypes.Value) = EntityType.withName(ct.toString)
 
   private val fileForm = Form(single("file" -> text))
 
@@ -102,18 +105,18 @@ case class Tools @Inject()(
 
 
   def addMovedItems(): Action[AnyContent] = AdminAction { implicit request =>
-    Ok(views.html.admin.tools.movedItemsForm(urlMapForm,
+    Ok(views.html.admin.tools.movedItemsForm(contentTypeForm,
       controllers.tools.routes.Tools.addMovedItemsPost()))
   }
 
   def addMovedItemsPost(): Action[MultipartFormData[TemporaryFile]] =
     AdminAction.async(parsers.multipartFormData) { implicit request =>
-      val boundForm: Form[String] = urlMapForm.bindFromRequest()
+      val boundForm: Form[ContentTypes.Value] = contentTypeForm.bindFromRequest()
       boundForm.fold(
         errForm => immediate(BadRequest(views.html.admin.tools.movedItemsForm(errForm,
           controllers.tools.routes.Tools.addMovedItemsPost()))),
-        prefix => request.body.file("csv").map { file =>
-          updateFromCsv(FileIO.fromPath(file.ref.path), prefix)
+        ct => request.body.file("csv").map { file =>
+          updateFromCsv(ct, FileIO.fromPath(file.ref.path))
             .map(newUrls => Ok(views.html.admin.tools.movedItemsAdded(newUrls)))
         }.getOrElse {
           immediate(Ok(views.html.admin.tools.movedItemsForm(
@@ -124,22 +127,22 @@ case class Tools @Inject()(
     }
 
   def renameItems(): Action[AnyContent] = AdminAction { implicit request =>
-    Ok(views.html.admin.tools.renameItemsForm(urlMapForm,
+    Ok(views.html.admin.tools.renameItemsForm(contentTypeForm,
       controllers.tools.routes.Tools.renameItemsPost()))
   }
 
   def renameItemsPost(): Action[MultipartFormData[TemporaryFile]] =
     AdminAction.async(parsers.multipartFormData) { implicit request =>
-      val boundForm: Form[String] = urlMapForm.bindFromRequest()
+      val boundForm: Form[ContentTypes.Value] = contentTypeForm.bindFromRequest()
       boundForm.fold(
         errForm => immediate(BadRequest(views.html.admin.tools
           .renameItemsForm(errForm, controllers.tools.routes.Tools.renameItemsPost()))),
-        prefix => request.body.file("csv").filter(_.filename.nonEmpty).map { file =>
+        ct => request.body.file("csv").filter(_.filename.nonEmpty).map { file =>
           parseCsv(FileIO.fromPath(file.ref.path))
             .collect { case from :: to :: _ => from -> to }
             .runWith(Sink.seq).flatMap { todo =>
             userDataApi.rename(todo).flatMap { items =>
-              updateFromCsv(items, prefix)
+              updateFromCsv(ct, items)
                 .map(newUrls => Ok(views.html.admin.tools.movedItemsAdded(newUrls)))
             } recover {
               case e: InputDataError =>
@@ -157,22 +160,22 @@ case class Tools @Inject()(
     }
 
   def reparentItems(): Action[AnyContent] = AdminAction { implicit request =>
-    Ok(views.html.admin.tools.reparentItemsForm(urlMapForm,
+    Ok(views.html.admin.tools.reparentItemsForm(contentTypeForm,
       controllers.tools.routes.Tools.reparentItemsPost()))
   }
 
   def reparentItemsPost(): Action[MultipartFormData[TemporaryFile]] =
     AdminAction.async(parsers.multipartFormData) { implicit request =>
-      val boundForm: Form[String] = urlMapForm.bindFromRequest()
+      val boundForm: Form[ContentTypes.Value] = contentTypeForm.bindFromRequest()
       boundForm.fold(
         errForm => immediate(BadRequest(views.html.admin.tools
           .reparentItemsForm(errForm, controllers.tools.routes.Tools.reparentItemsPost()))),
-        prefix => request.body.file("csv").filter(_.filename.nonEmpty).map { file =>
+        ct => request.body.file("csv").filter(_.filename.nonEmpty).map { file =>
           parseCsv(FileIO.fromPath(file.ref.path))
             .collect { case id :: parent :: _ => id -> parent }
             .runWith(Sink.seq).flatMap { todo =>
             userDataApi.reparent(todo, commit = true).flatMap { items =>
-              updateFromCsv(items, prefix)
+              updateFromCsv(ct, items)
                 .map(newUrls => Ok(views.html.admin.tools.movedItemsAdded(newUrls)))
             } recover {
               case e: InputDataError =>
@@ -189,39 +192,34 @@ case class Tools @Inject()(
       )
     }
 
-  private val regenerateForm: Form[(Option[ContentTypes.Value], Option[String], Boolean)] = Form(
+  private val regenerateWithOptionalScopeForm: Form[(ContentTypes.Value, Option[String], Boolean)] = Form(
     tuple(
-      "type" -> optional(EnumUtils.enumMapping(ContentTypes)),
-      "scope" -> optional(nonEmptyText).transform(_.flatMap {
+      "type" -> EnumUtils.enumMapping(ContentTypes),
+      "scope" -> optional(text).transform(_.map(_.trim).flatMap {
         case "" => Option.empty
         case s => Some(s)
       }, identity[Option[String]]),
       "tolerant" -> boolean
-    ).verifying("Choose one option OR the other", t => !(t._1.isDefined && t._2.isDefined))
+    )
   )
 
   def regenerateIds(): Action[AnyContent] = AdminAction.apply { implicit request =>
-    val form = regenerateForm.bindFromRequest()
+    val form = regenerateWithOptionalScopeForm.bindFromRequest()
     form.fold(
       err => BadRequest(views.html.admin.tools.regenerate(err, controllers.tools.routes.Tools.regenerateIds())), {
-        case (Some(et), None, t) =>
+        case (et, None, t) =>
           Redirect(controllers.tools.routes.Tools.regenerateIdsForType(et, t))
-        case (None, Some(id), t) =>
-          Redirect(controllers.tools.routes.Tools.regenerateIdsForScope(id, t))
-        case d@(Some(_), Some(_), t) =>
-          Ok(views.html.admin.tools.regenerate(
-            regenerateForm.fill(d)
-              .withGlobalError(Messages("admin.utils.regenerateIds.chooseOne")),
-            controllers.tools.routes.Tools.regenerateIds()))
-        case _ => Ok(views.html.admin.tools.regenerate(regenerateForm,
+        case (et, Some(id), t) =>
+          Redirect(controllers.tools.routes.Tools.regenerateIdsForScope(et, id, t))
+        case _ => Ok(views.html.admin.tools.regenerate(regenerateWithOptionalScopeForm,
           controllers.tools.routes.Tools.regenerateIds()))
       }
     )
   }
 
-  private val regenerateIdsForm: Form[(String, Seq[(String, String, Boolean)])] = Form(
+  private val regenerateIdsForm: Form[(ContentTypes.Value, Seq[(String, String, Boolean)])] = Form(
     tuple(
-      "path-prefix" -> pathPrefixField,
+      "type" -> EnumUtils.enumMapping(ContentTypes),
       "items" -> seq(tuple("from" -> nonEmptyText, "to" -> nonEmptyText, "active" -> boolean))
     )
   )
@@ -230,12 +228,12 @@ case class Tools @Inject()(
     if (isAjax) {
       userDataApi.regenerateIdsForType(ct, tolerant).map { items =>
         Ok(views.html.admin.tools.regenerateIdsForm(regenerateIdsForm
-          .fill(value = ("", items.map { case (f, t) => (f, t, true) })),
+          .fill(value = (ct, items.map { case (f, t) => (f, t, true) })),
           controllers.tools.routes.Tools.regenerateIdsPost(tolerant)))
       } recover {
         case e: InputDataError =>
-          Ok(views.html.admin.tools.regenerateForm(regenerateForm
-            .fill((Some(ct), None, tolerant))
+          Ok(views.html.admin.tools.regenerateForm(regenerateWithOptionalScopeForm
+            .fill((ct, None, tolerant))
             .withGlobalError(e.details),
             controllers.tools.routes.Tools.regenerateIds()))
       }
@@ -243,29 +241,29 @@ case class Tools @Inject()(
       controllers.tools.routes.Tools.regenerateIdsForType(ct, tolerant))))
   }
 
-  def regenerateIdsForScope(id: String, tolerant: Boolean): Action[AnyContent] = AdminAction.async { implicit request =>
+  def regenerateIdsForScope(ct: ContentTypes.Value, id: String, tolerant: Boolean): Action[AnyContent] = AdminAction.async { implicit request =>
     if (isAjax) {
       userDataApi.regenerateIdsForScope(id, tolerant).map { items =>
         Ok(views.html.admin.tools.regenerateIdsForm(regenerateIdsForm
-          .fill(value = ("", items.map { case (f, t) => (f, t, true) })),
+          .fill(value = (ct, items.map { case (f, t) => (f, t, true) })),
           controllers.tools.routes.Tools.regenerateIdsPost(tolerant)))
       }
     } else immediate(Ok(views.html.admin.tools.regenerateIds(regenerateIdsForm,
-      controllers.tools.routes.Tools.regenerateIdsForScope(id))))
+      controllers.tools.routes.Tools.regenerateIdsForScope(ct, id))))
   }
 
   private val parser = parsers.anyContent(maxLength = Some(5 * 1024 * 1024L))
 
   def regenerateIdsPost(tolerant: Boolean): Action[AnyContent] = AdminAction.async(parser) { implicit request =>
-    val boundForm: Form[(String, Seq[(String, String, Boolean)])] = regenerateIdsForm.bindFromRequest()
+    val boundForm: Form[(ContentTypes.Value, Seq[(String, String, Boolean)])] = regenerateIdsForm.bindFromRequest()
     boundForm.fold(
       errForm => immediate(BadRequest(views.html.admin.tools.regenerateIds(errForm,
         controllers.tools.routes.Tools.regenerateIdsPost(tolerant)))), {
-        case (prefix, items) =>
+        case (ct, items) =>
           val activeIds = items.collect { case (f, _, true) => f }
           logger.info(s"Renaming: $activeIds")
           userDataApi.regenerateIds(activeIds, tolerant, commit = true).flatMap { items =>
-            updateFromCsv(items, prefix)
+            updateFromCsv(ct, items)
               .map(newUrls => Ok(views.html.admin.tools.movedItemsAdded(newUrls)))
           }
       }
@@ -354,42 +352,47 @@ case class Tools @Inject()(
     )
   }
 
-  private def remapUrlsFromPrefixes(items: Seq[(String, String)], prefixes: String): Seq[(String, String)] = {
+  private def remapUrlsFromPrefixes(items: Seq[(String, String)], prefixes: Seq[String]): Seq[(String, String)] = {
     def enc(s: String) = java.net.URLEncoder.encode(s, StandardCharsets.UTF_8.name())
 
     items.flatMap { case (from, to) =>
-      prefixes.split(',').map(p => s"$p${enc(from)}" -> s"$p${enc(to)}")
+      prefixes.map(p => s"$p${enc(from)}" -> s"$p${enc(to)}")
     }
   }
 
-  private def updateMovedItems(items: Seq[(String, String)], newUrls: Seq[(String, String)]): Future[Int] = {
+  private def updateMovedItems(ct: ContentTypes.Value, items: Seq[(String, String)], newUrls: Seq[(String, String)]): Future[Int] = {
+    val deleted = items.map(_._1)
+    val created = items.map(_._2)
+    val et = entityType(ct)
     for {
       // Delete the old IDs from the search engine...
-      _ <- indexer.clearIds(items.map(_._1): _*)
+      _ <- indexer.clearIds(deleted: _*)
+      _ = eventForwarder ! Delete(deleted.map(et -> _))
       // Index the new ones....
-      _ <- indexer.indexIds(items.map(_._2): _*)
+      _ <- indexer.indexIds(created: _*)
+      _ = eventForwarder ! Create(created.map(et -> _))
       // Add the 301s to the DB...
       redirectCount <- appComponents.pageRelocator.addMoved(newUrls)
     } yield redirectCount
   }
 
-  private def updateFromCsv(items: Seq[(String, String)], newUrls: Seq[(String, String)]): Future[Seq[(String, String)]] = {
-    updateMovedItems(items, newUrls).map { count =>
+  private def updateFromCsv(ct: ContentTypes.Value, items: Seq[(String, String)], newUrls: Seq[(String, String)]): Future[Seq[(String, String)]] = {
+    updateMovedItems(ct, items, newUrls).map { count =>
       logger.info(s"Added $count redirects")
       newUrls
     }
   }
 
-  private def updateFromCsv(src: Source[ByteString, _], prefixes: String): Future[Seq[(String, String)]] = {
+  private def updateFromCsv(ct: ContentTypes.Value, src: Source[ByteString, _]): Future[Seq[(String, String)]] = {
     parseCsv(src)
       .collect { case f :: t :: _ => f -> t }
       .runWith(Sink.seq).flatMap { items =>
-      updateFromCsv(items, remapUrlsFromPrefixes(items, prefixes))
+      updateFromCsv(ct, items, remapUrlsFromPrefixes(items, urlPrefixes.prefixes(entityType(ct))))
     }
   }
 
-  private def updateFromCsv(items: Seq[(String, String)], prefixes: String): Future[Seq[(String, String)]] =
-    updateFromCsv(items, remapUrlsFromPrefixes(items, prefixes))
+  private def updateFromCsv(ct: ContentTypes.Value, items: Seq[(String, String)]): Future[Seq[(String, String)]] =
+    updateFromCsv(ct, items, remapUrlsFromPrefixes(items, urlPrefixes.prefixes(entityType(ct))))
 
 
   private def parseCsv[M](src: Source[ByteString, M], sep: Char = ','): Source[List[String], M] = {

@@ -1,0 +1,17 @@
+@(submitName: String, form: Form[_])(html: Html)(implicit fieldConstructor: views.html.helper.FieldConstructor, request: RequestHeader, conf: AppConfig, messages: Messages, markdownRenderer: MarkdownRenderer)
+
+@formHelpers.csrfToken()
+@views.html.formHelpers.globalErrors(form)
+
+@formHelpers.choiceInput(form(""), "type",
+    ContentTypes.values.toList.map(et => et.toString -> et.toString),
+    attrs._blank -> true,
+    attrs._label -> Messages("admin.utils.renameItems.contentType"),
+    attrs._required -> true
+)
+
+@html
+
+<div class="form-group">
+    <input id="id_submit" type="submit" class="btn btn-danger" value="@submitName">
+</div>

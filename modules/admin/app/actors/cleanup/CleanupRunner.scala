@@ -71,7 +71,7 @@ case class CleanupRunner(
     // Launch the redirect task
     case r@Relinked(cleanup, newStatus) =>
       msgTo ! r
-      importService.remapMovedUnits(cleanup.redirects)
+      importService.remapMovedUnits(EntityType.DocumentaryUnit, cleanup.redirects)
         .map { _ => // NB: the API gives us a number that is the total number
           // of redirected URLs, but we want the number of redirected items,
           // so it's a bit of a fake here...

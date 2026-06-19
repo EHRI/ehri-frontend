@@ -269,8 +269,7 @@ admin.utils.renameItems=Rename Item Local Identifiers
 admin.utils.renameItems.description=Change item local identifiers, regenerate global IDs, and \
   create permanent redirects from old ID to new ID.
 admin.utils.renameItems.submit=Rename Items
-admin.utils.renameItems.pathPrefix=Specify the path prefix before the item's id \
-  (comma-separated if there are multiple).
+admin.utils.renameItems.contentType=The item type
 admin.utils.renameItems.csv=Select the ID to new local identifier CSV file...
 
 #
@@ -288,6 +287,7 @@ admin.utils.reparentItems.csv=Select the ID to new parent ID CSV file...
 admin.utils.regenerateIds=Regenerate Item IDs
 admin.utils.regenerateIds.description=Items that require ID regeneration.
 admin.utils.regenerateIds.scope=Item scope
+admin.utils.regenerateIds.scope.description=The common parent of target items
 admin.utils.regenerateIds.type=Item type
 admin.utils.regenerateIds.submit=Regenerate IDs
 admin.utils.regenerateIds.scan=Scan Items

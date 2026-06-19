@@ -12,7 +12,7 @@ POST        /reparent-items                      @controllers.tools.Tools.repare
 GET         /regenerate                         @controllers.tools.Tools.regenerateIds()
 POST        /regenerate                         @controllers.tools.Tools.regenerateIdsPost(tolerant: Boolean ?= false)
 GET         /regenerate-type/:ct                 @controllers.tools.Tools.regenerateIdsForType(ct: models.ContentTypes.Value, tolerant: Boolean ?= false)
-GET         /regenerate-scope/:id                @controllers.tools.Tools.regenerateIdsForScope(id: String, tolerant: Boolean ?= false)
+GET         /regenerate-scope/:id                @controllers.tools.Tools.regenerateIdsForScope(ct: models.ContentTypes.Value, id: String, tolerant: Boolean ?= false)
 
 # Find and replace
 GET         /find-replace                        @controllers.tools.Tools.findReplace()

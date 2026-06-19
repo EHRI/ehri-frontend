@@ -123,7 +123,7 @@ case class ImportLogs @Inject()(
       _ = logger.info(s"Relink: ${cleanup.redirects.size}, deletions: ${cleanup.deletions.size}")
       relinkCount  <- userDataApi.relinkTargets(cleanup.redirects, tolerant = true, commit = true).map(_.map(_._3).sum)
       _ = logger.info(s"Done relinks: $relinkCount")
-      redirectCount <- importService.remapMovedUnits(cleanup.redirects)
+      redirectCount <- importService.remapMovedUnits(EntityType.DocumentaryUnit, cleanup.redirects)
       _ = logger.info(s"Done redirects: $redirectCount")
       delCount <- deleteBatches(cleanup.deletions)
       _ = eventForwarder ! EventForwarder.Delete(cleanup.deletions.map(EntityType.DocumentaryUnit -> _))

@@ -1,4 +1,4 @@
-@(form: Form[(Option[ContentTypes.Value], Option[String], Boolean)], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(form: Form[(ContentTypes.Value, Option[String], Boolean)], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @implicitField = @{views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f)}
 
@@ -7,10 +7,10 @@
         <fieldset>
             @formHelpers.globalErrors(form)
             @formHelpers.csrfToken()
-            <div class="form-group"><strong>Choose either:</strong></div>
+            <div class="form-group"><strong>Content type of target items:</strong></div>
             @formHelpers.choiceInput(form(""), "type",
                 ContentTypes.values.toList.map(et => et.toString -> et.toString), attrs._blank -> true)
-            <div class="form-group"><strong>OR</strong></div>
+            <div class="form-group"><strong>Optional parent item scope ID</strong></div>
             @formHelpers.lineInput(form(""), "scope")
 
             @formHelpers.checkbox(form(""), "tolerant")
