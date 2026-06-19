@@ -81,7 +81,8 @@ case class DataImporter(
       if (data.params.commit) {
         msgTo ! Message("Creating redirects...")
         ingestApi
-          .remapMovedUnits(sync.moved.toSeq)
+          // FIXME: derive entity type from data???
+          .remapMovedUnits(EntityType.DocumentaryUnit, sync.moved.toSeq)
           .flatMap(done => {
             ingestApi.clearIndex(sync.deleted ++ sync.moved.keys.toSeq, forwarder).map { _ =>
               msgTo ! Message(s"Remapped $done item(s)")

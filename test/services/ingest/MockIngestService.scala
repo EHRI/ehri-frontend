@@ -1,6 +1,6 @@
 package services.ingest
 
-import models.{ContentTypes, IngestResult}
+import models.{ContentTypes, EntityType, IngestResult}
 import org.apache.pekko.actor.ActorRef
 import services.data.DataUser
 import services.ingest.IngestService.IngestData
@@ -15,7 +15,7 @@ case class MockIngestService(res: IngestResult) extends IngestService {
   override def importData(data: IngestData) =
     Future.successful(res)
 
-  override def remapMovedUnits(movedIds: Seq[(String, String)]) =
+  override def remapMovedUnits(et: EntityType.Value, movedIds: Seq[(String, String)]) =
     Future.successful(0)
 
   override def reindex(scopeType: ContentTypes.Value, id: String, chan: ActorRef) =

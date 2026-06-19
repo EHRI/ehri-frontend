@@ -41,7 +41,8 @@ case class WSIngestService @Inject()(
   pageRelocator: MovedPageLookup,
   cache: AsyncCacheApi,
   @Named("dam") fileStorage: FileStorage,
-  @Named("event-forwarder") eventForwarder: ActorRef
+  @Named("event-forwarder") eventForwarder: ActorRef,
+  urlPrefixes: RemappingPrefixes
 )(implicit mat: Materializer) extends IngestService {
 
   import IngestParams._
@@ -53,7 +54,7 @@ case class WSIngestService @Inject()(
   private val logger = Logger(getClass)
   private val serviceConfig = ServiceConfig("ehridata", config)
 
-  // Get an indexer handle with our our channel and filtered output
+  // Get an indexer handle with our channel and filtered output
   private def indexer(chan: ActorRef): SearchIndexMediatorHandle =
     searchIndexer.handle.withChannel(chan, filter = _ % 1000 == 0)
 
@@ -86,21 +87,14 @@ case class WSIngestService @Inject()(
   }
 
   // Create 301 redirects for items that have moved URLs
-  override def remapMovedUnits(movedIds: Seq[(String, String)]): Future[Int] = {
+  override def remapMovedUnits(et: EntityType.Value, movedIds: Seq[(String, String)]): Future[Int] = {
     def remapUrlsFromPrefixes(items: Seq[(String, String)], prefixes: Seq[String]): Seq[(String, String)] = {
       def enc(s: String): String = java.net.URLEncoder.encode(s, StandardCharsets.UTF_8.name())
       items.flatMap { case (from, to) =>
         prefixes.map(p => s"$p${enc(from)}" -> s"$p${enc(to)}")
       }
     }
-    // Bit of a hack. Use the reverse routes to get relative URLs
-    // with a fake ID, then remove the ID.
-    val prefixes = Seq(
-      controllers.portal.routes.DocumentaryUnits.browse("TEST").url,
-      controllers.units.routes.DocumentaryUnits.get("TEST").url
-    ).map(_.replace("TEST", ""))
-
-    pageRelocator.addMoved(remapUrlsFromPrefixes(movedIds, prefixes))
+    pageRelocator.addMoved(remapUrlsFromPrefixes(movedIds, urlPrefixes.prefixes(et)))
   }
 
   // Re-index the scope in which the ingest was run

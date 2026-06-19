@@ -1,6 +1,6 @@
 package services.ingest
 
-import models.{ContentTypes, IngestParams, IngestResult}
+import models.{ContentTypes, EntityType, IngestParams, IngestResult}
 import org.apache.pekko.actor.ActorRef
 import play.api.mvc.QueryStringBindable
 import services.data.DataUser
@@ -55,11 +55,11 @@ trait IngestService {
 
   /**
     * Relocate items which have moved after a data sync.
-    *
+    * @param et the Entity Type
     * @param movedIds the old ID to new ID mapping
     * @return the number of moved items
     */
-  def remapMovedUnits(movedIds: Seq[(String, String)]): Future[Int]
+  def remapMovedUnits(et: EntityType.Value, movedIds: Seq[(String, String)]): Future[Int]
 
   /**
     * Reindex the scope in which the ingest was run.

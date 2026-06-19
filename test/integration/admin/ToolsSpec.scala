@@ -3,7 +3,7 @@ package integration.admin
 import eu.ehri.project.definitions.Entities
 import helpers._
 import mockdata._
-import models.ContentTypes
+import models.{ContentTypes, EntityType}
 import org.apache.commons.io.FileUtils
 import play.api.mvc.Flash
 import play.api.test.FakeRequest
@@ -24,7 +24,7 @@ class ToolsSpec extends IntegrationTestRunner with FakeMultipartUpload {
       FileUtils.writeStringToFile(f, "ιταλία,c1\nfoo,c4", "UTF-8")
 
       val result = FakeRequest(toolRoutes.addMovedItemsPost())
-        .withFileUpload("csv", f, "text/csv", Map("path-prefix" -> Seq("/units/,/admin/units/")))
+        .withFileUpload("csv", f, "text/csv", Map("type" -> Seq(EntityType.DocumentaryUnit.toString)))
         .withUser(privilegedUser)
         .withCsrf
         .call()
@@ -58,7 +58,7 @@ class ToolsSpec extends IntegrationTestRunner with FakeMultipartUpload {
         .withUser(privilegedUser)
         .withCsrf
         .callWith(Map(
-          "path-prefix" -> Seq("/units/"),
+          "type" -> Seq(EntityType.DocumentaryUnit.toString),
           "items[0].from" -> Seq("c1"), "items[0].to" -> Seq("nl-r1-c1"), "items[0].active" -> Seq("true"),
           "items[1].from" -> Seq("c2"), "items[1].to" -> Seq("nl-r1-c1-c2"), "items[1].active" -> Seq("true"),
           "items[2].from" -> Seq("c3"), "items[2].to" -> Seq("nl-r1-c1-c2-c3"), "items[2].active" -> Seq("true"),
@@ -76,7 +76,7 @@ class ToolsSpec extends IntegrationTestRunner with FakeMultipartUpload {
       FileUtils.writeStringToFile(f, "c1,new-c1\nc4,new-c4", "UTF-8")
 
       val result = FakeRequest(toolRoutes.renameItemsPost())
-        .withFileUpload("csv", f, "text/csv", Map("path-prefix" -> Seq("/units/,/admin/units/")))
+        .withFileUpload("csv", f, "text/csv", Map("type" -> Seq(EntityType.DocumentaryUnit.toString)))
         .withUser(privilegedUser)
         .withCsrf
         .call()
@@ -103,7 +103,7 @@ class ToolsSpec extends IntegrationTestRunner with FakeMultipartUpload {
       FileUtils.writeStringToFile(f, "c4,c1", "UTF-8")
 
       val result = FakeRequest(toolRoutes.reparentItemsPost())
-        .withFileUpload("csv", f, "text/csv", Map("path-prefix" -> Seq("/units/,/admin/units/")))
+        .withFileUpload("csv", f, "text/csv", Map("type" -> Seq(EntityType.DocumentaryUnit.toString)))
         .withUser(privilegedUser)
         .withCsrf
         .call()
