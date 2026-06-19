@@ -5,6 +5,7 @@
 @views.html.admin.layout.rightSidebarWithType(Messages("historicalAgent.update"), item.isA, breadcrumbs = views.html.admin.common.breadcrumbs(List(item)), scripts = formHelpers.formJs(f)) {
     @helper.form(action = action) {
         @formHelpers.csrfToken()
+        @formHelpers.hiddenInput(f(Entity.IDENTIFIER))
         @form(f, fieldHints)
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("historicalAgent.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))
