@@ -2,6 +2,13 @@ xquery version "3.1" encoding "UTF-8";
 
 declare namespace xquery="http://basex.org/modules/xquery";
 declare namespace csv="http://basex.org/modules/csv";
+declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
+
+(: Set the indentation on :)
+declare option output:indent "yes";
+
+(: BaseX-specific option for indent size (default is 2) :)
+declare option output:indents "4";
 
 (: make children for the given target path in the configuration :)
 (: $target-path: the target path for which to make children as in the configuration :)
