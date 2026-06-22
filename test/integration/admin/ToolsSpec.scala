@@ -43,6 +43,7 @@ class ToolsSpec extends IntegrationTestRunner with FakeMultipartUpload {
     }
 
     "perform ID regeneration" in new ITestApp {
+      val before = indexEventBuffer.size
       val result = FakeRequest(toolRoutes.regenerateIdsForType(ContentTypes.DocumentaryUnit))
           .withHeaders("X-REQUESTED-WITH" -> "xmlhttprequest")
         .withUser(privilegedUser)
@@ -68,9 +69,12 @@ class ToolsSpec extends IntegrationTestRunner with FakeMultipartUpload {
       status(rename) must_== OK
       contentAsString(rename) must contain(
         controllers.portal.routes.DocumentaryUnits.browse("nl-r1-c1-c2-c3").url)
+      // For each affected item we want a pair of delete and create events:
+      indexEventBuffer.size must_== before + 8
     }
 
     "allow batch renaming items" in new ITestApp {
+      val before = indexEventBuffer.size
       val f = File.createTempFile("/upload", ".csv")
       f.deleteOnExit()
       FileUtils.writeStringToFile(f, "c1,new-c1\nc4,new-c4", "UTF-8")
@@ -92,12 +96,14 @@ class ToolsSpec extends IntegrationTestRunner with FakeMultipartUpload {
         from must_== "/admin/units/c4"
         to must_== "/admin/units/nl-r1-new_c4"
       }
+      indexEventBuffer.size must_== before + 4
       // Clear the mutable buffer to prevent redirects
       // interfering in other tests
       movedPages.clear()
     }
 
     "allow batch reparenting items" in new ITestApp {
+      val before = indexEventBuffer.size
       val f = File.createTempFile("/upload", ".csv")
       f.deleteOnExit()
       FileUtils.writeStringToFile(f, "c4,c1", "UTF-8")
@@ -115,6 +121,9 @@ class ToolsSpec extends IntegrationTestRunner with FakeMultipartUpload {
         from must_== "/units/c4"
         to must_== "/units/nl-r1-c1-c4"
       }
+      // we should have one more delete event and one more create event
+      indexEventBuffer.size must_== before + 2
+
       // Clear the mutable buffer to prevent redirects
       // interfering in other tests
       movedPages.clear()
@@ -122,7 +131,7 @@ class ToolsSpec extends IntegrationTestRunner with FakeMultipartUpload {
 
     "handle find/replace correctly" in new ITestApp {
       import models.FindReplaceTask._
-
+      val before = indexEventBuffer.size
       val data: Map[String,Seq[String]] = Map(
         PARENT_TYPE -> Seq(Entities.REPOSITORY),
         SUB_TYPE -> Seq(Entities.REPOSITORY_DESCRIPTION),
@@ -148,10 +157,14 @@ class ToolsSpec extends IntegrationTestRunner with FakeMultipartUpload {
       status(replace) must_== SEE_OTHER
       flash(replace) must_== Flash(
         Map("success" -> message("admin.utils.findReplace.done", 1)(messagesApi)))
+
+      // There should be a single extra index event in the buffer
+      indexEventBuffer.size must_== before + 1
     }
 
 
     "handle batch delete correctly" in new ITestApp {
+      val before = indexEventBuffer.size
       import models.BatchDeleteTask._
 
       val data: Map[String,Seq[String]] = Map(
@@ -171,6 +184,7 @@ class ToolsSpec extends IntegrationTestRunner with FakeMultipartUpload {
       status(del) must_== SEE_OTHER
       flash(del) must_== Flash(
         Map("success" -> message("admin.utils.batchDelete.done", 2)(messagesApi)))
+      indexEventBuffer.size must_== before + 2
     }
 
     "allow creating arbitrary redirects" in new ITestApp {

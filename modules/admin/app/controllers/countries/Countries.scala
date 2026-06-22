@@ -245,7 +245,7 @@ case class Countries @Inject()(
           )
         )
 
-        userDataApi.batchUpdate(data, Some(id), version = true, commit = true,
+        userDataApi.batchUpdate(EntityType.Repository, data, Some(id), version = true, commit = true,
               logMsg = "Update geographical info").map { done =>
             val msg = s"Finished Geocoding: $id: ${done.updated} updated, ${done.unchanged} unchanged"
             chan ! msg

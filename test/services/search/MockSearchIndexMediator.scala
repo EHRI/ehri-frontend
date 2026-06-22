@@ -14,43 +14,43 @@ case class MockSearchIndexMediatorHandle(eventBuffer: collection.mutable.ListBuf
 
   private val logger = Logger(classOf[MockSearchIndexMediatorHandle])
 
-  def indexIds(ids: String*): Future[Unit] = {
+  def indexIds(ids: String*): Future[Unit] = synchronized {
     ids.foreach(id => eventBuffer += id)
     logger.debug(s"Indexing: $ids")
     Future.successful(())
   }
 
-  def indexTypes(entityTypes: Seq[EntityType.Value]): Future[Unit] = {
+  def indexTypes(entityTypes: Seq[EntityType.Value]): Future[Unit] = synchronized {
     eventBuffer += entityTypes.toString
     logger.debug(s"Indexing: $entityTypes")
     Future.successful(())
   }
 
-  def indexChildren(entityType: EntityType.Value, id: String): Future[Unit] = {
+  def indexChildren(entityType: EntityType.Value, id: String): Future[Unit] = synchronized {
     eventBuffer += id
     logger.debug(s"Indexing children: $entityType -> $id")
     Future.successful(())
   }
 
-  def clearAll(): Future[Unit] = {
+  def clearAll(): Future[Unit] = synchronized {
     eventBuffer += "clear-all"
     logger.debug("Clearing entire index...")
     Future.successful(())
   }
 
-  def clearTypes(entityTypes: Seq[EntityType.Value]): Future[Unit] = {
+  def clearTypes(entityTypes: Seq[EntityType.Value]): Future[Unit] = synchronized {
     eventBuffer += "clear-types:" + entityTypes.toString
     logger.debug(s"Clearing entity types: $entityTypes")
     Future.successful(())
   }
 
-  def clearIds(ids: String*): Future[Unit] = {
+  def clearIds(ids: String*): Future[Unit] = synchronized {
     ids.foreach(id => eventBuffer += id)
     logger.debug(s"Clearing id: $ids")
     Future.successful(())
   }
 
-  def clearKeyValue(key: String, value: String): Future[Unit] = {
+  def clearKeyValue(key: String, value: String): Future[Unit] = synchronized {
     eventBuffer += "clear-key-value " + s"$key=$value"
     logger.debug(s"Clearing key-value: $key=$value")
     Future.successful(())

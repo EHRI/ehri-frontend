@@ -2,17 +2,16 @@ package controllers.datasets
 
 import actors.cleanup.CleanupRunner.CleanupJob
 import actors.cleanup.{CleanupRunner, CleanupRunnerManager}
-import org.apache.pekko.actor.{ActorContext, ActorRef, Props}
-import org.apache.pekko.stream.Materializer
-import org.apache.pekko.stream.scaladsl.Source
 import controllers.AppComponents
 import controllers.base.{AdminController, ApiBodyParsers}
 import controllers.generic._
 import models._
+import org.apache.pekko.actor.{ActorContext, Props}
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.scaladsl.Source
 import play.api.libs.json.{Format, JsString, Json, Reads}
 import play.api.mvc._
 import services.cypher.CypherService
-import services.data.EventForwarder
 import services.ingest.{ImportLogService, IngestService}
 import services.storage.FileStorage
 
@@ -41,7 +40,6 @@ object CleanupSummary {
 case class ImportLogs @Inject()(
   controllerComponents: ControllerComponents,
   @Named("dam") storage: FileStorage,
-  @Named("event-forwarder") eventForwarder: ActorRef,
   appComponents: AppComponents,
   importLogService: ImportLogService,
   cypherServer: CypherService,
@@ -111,7 +109,7 @@ case class ImportLogs @Inject()(
     val maxDeletions = config.get[Int]("ehri.admin.bulkOperations.maxDeletions")
     def deleteBatches(ids: Seq[String]): Future[Int] = {
       val (batch, rest) = ids.splitAt(maxDeletions)
-      userDataApi.batchDelete(batch, Some(id), logMsg = request.body.msg,
+      userDataApi.batchDelete(EntityType.DocumentaryUnit, batch, Some(id), logMsg = request.body.msg,
           version = true, tolerant = true, commit = true).flatMap { count =>
         if (rest.isEmpty) Future.successful(count)
         else deleteBatches(rest).map(_ + count)
@@ -126,7 +124,6 @@ case class ImportLogs @Inject()(
       redirectCount <- importService.remapMovedUnits(EntityType.DocumentaryUnit, cleanup.redirects)
       _ = logger.info(s"Done redirects: $redirectCount")
       delCount <- deleteBatches(cleanup.deletions)
-      _ = eventForwarder ! EventForwarder.Delete(cleanup.deletions.map(EntityType.DocumentaryUnit -> _))
       _ = logger.info(s"Done deletions: $delCount")
       _ <- importLogService.saveCleanup(id, snapshotId, cleanup)
     } yield {
@@ -143,7 +140,7 @@ case class ImportLogs @Inject()(
     logger.info(s"Starting async cleanup for repository $id, snapshot $snapshotId")
     val jobId = UUID.randomUUID().toString
     val job = CleanupJob(id, snapshotId, jobId, request.body.msg)
-    val init = (context: ActorContext) => context.actorOf(Props(CleanupRunner(userDataApi, importLogService, importService, eventForwarder)))
+    val init = (context: ActorContext) => context.actorOf(Props(CleanupRunner(userDataApi, importLogService, importService)))
     mat.system.actorOf(Props(CleanupRunnerManager(job, init)), jobId)
 
     Ok(Json.obj(

@@ -128,7 +128,6 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
     val entityType = Resource[MT].entityType
     val url = enc(typeBaseUrl, entityType, id)
     val callF = userCall(url)
-      .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
       .withQueryString(unpack(params): _*)
       .withHeaders(msgHeader(logMsg): _*)
       .post(Json.toJson(item)(Writable[T]._format))
@@ -291,16 +290,16 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
   }
 
   override def promote[MT: Resource](id: String): Future[MT] =
-    userCall(enc(genericItemUrl, id, "promote")).post().flatMap(itemResponse(id, _))
+    userCall(enc(genericItemUrl, id, "promote")).post().flatMap(updateItemResponse(id, _))
 
   override def removePromotion[MT: Resource](id: String): Future[MT] =
-    userCall(enc(genericItemUrl, id, "promote")).delete().flatMap(itemResponse(id, _))
+    userCall(enc(genericItemUrl, id, "promote")).delete().flatMap(updateItemResponse(id, _))
 
   override def demote[MT: Resource](id: String): Future[MT] =
-    userCall(enc(genericItemUrl, id, "demote")).post().flatMap(itemResponse(id, _))
+    userCall(enc(genericItemUrl, id, "demote")).post().flatMap(updateItemResponse(id, _))
 
   override def removeDemotion[MT: Resource](id: String): Future[MT] =
-    userCall(enc(genericItemUrl, id, "demote")).delete().flatMap(itemResponse(id, _))
+    userCall(enc(genericItemUrl, id, "demote")).delete().flatMap(updateItemResponse(id, _))
 
   override def links[A: Readable](id: String): Future[Page[A]] = {
     val pageParams = PageParams.empty.withoutLimit
@@ -736,19 +735,22 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
       .map(_.map(r => r.copy(_3 = r._3.toInt)))
   }
 
-  override def rename(mapping: Seq[(String, String)]): Future[Seq[(String, String)]] = {
+  override def rename(et: EntityType.Value, mapping: Seq[(String, String)]): Future[Seq[(String, String)]] = {
+    val commit = true
     val url = enc(baseUrl, "tools", "rename")
     userCall(url)
-      .withQueryString("commit" -> true.toString)
+      .withQueryString("commit" -> commit.toString)
       .post(Json.toJson(mapping))
       .map(r => checkErrorAndParse[Seq[(String, String)]](r, Some(url)))
+      .flatMap(r => handleRename(et, commit, r))
   }
 
-  override def reparent(mapping: Seq[(String, String)], commit: Boolean = false): Future[Seq[(String, String)]] = {
+  override def reparent(et: EntityType.Value, mapping: Seq[(String, String)], commit: Boolean = false): Future[Seq[(String, String)]] = {
     val url = enc(baseUrl, "tools", "reparent")
     userCall(url).withQueryString("commit" -> commit.toString)
       .post(Json.toJson(mapping))
       .map(r => checkErrorAndParse[Seq[(String, String)]](r, Some(url)))
+      .flatMap(r => handleRename(et, commit, r))
   }
 
   override def regenerateIdsForType(ct: ContentTypes.Value, tolerant: Boolean = false, commit: Boolean = false): Future[Seq[(String, String)]] = {
@@ -757,40 +759,45 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
       .withTimeout(config.get[Duration]("ehri.admin.bulkOperations.timeout"))
       .post()
       .map(r => checkErrorAndParse[Seq[(String, String)]](r, Some(url)))
+      .flatMap(r => handleRename(EntityType.withName(ct.toString), commit, r))
   }
 
-  override def regenerateIdsForScope(scope: String, tolerant: Boolean = false, commit: Boolean = false): Future[Seq[(String, String)]] = {
+  override def regenerateIdsForScope(et: EntityType.Value, scope: String, tolerant: Boolean = false, commit: Boolean = false): Future[Seq[(String, String)]] = {
     val url = enc(baseUrl, "tools", "regenerate-ids-for-scope", scope)
     userCall(url).withQueryString("tolerant" -> tolerant.toString, "commit" -> commit.toString)
       .withTimeout(config.get[Duration]("ehri.admin.bulkOperations.timeout"))
       .post()
       .map(r => checkErrorAndParse[Seq[(String, String)]](r, Some(url)))
+      .flatMap(r => handleRename(et, commit, r))
   }
 
-  override def regenerateIds(ids: Seq[String], tolerant: Boolean = false, commit: Boolean = false): Future[Seq[(String, String)]] = {
+  override def regenerateIds(et: EntityType.Value, ids: Seq[String], tolerant: Boolean = false, commit: Boolean = false): Future[Seq[(String, String)]] = {
     val url = enc(baseUrl, "tools", "regenerate-ids")
     userCall(url)
       .withQueryString("tolerant" -> tolerant.toString, "commit" -> commit.toString)
       .post(Json.toJson(ids.map(id => Seq(id))))
       .map(r => checkErrorAndParse[Seq[(String, String)]](r, Some(url)))
+      .flatMap(r => handleRename(et, commit, r))
   }
 
   override def findReplace(ct: ContentTypes.Value, et: EntityType.Value, property: String, from: String, to: String, commit: Boolean, logMsg: Option[String]): Future[Seq[(String, String, String)]] = {
     val url = enc(baseUrl, "tools", "find-replace")
-    val out = userCall(url)
+    val outF = userCall(url)
       .withHeaders(msgHeader(logMsg): _*)
       .withQueryString("type" -> ct.toString, "subtype" -> et.toString,
         "property" -> property, "commit" -> commit.toString)
       .post(Map("from" -> Seq(from), "to" -> Seq(to)))
       .map(r => checkErrorAndParse[Seq[(String, String, String)]](r, Some(url)))
-    out.map { list =>
-      val toUpdate = list.map { case (id, _, _) => EntityType.withName(ct.toString) -> id }
-      eventHandler.handleUpdate(toUpdate: _*)
-      list
+    outF.flatMap { list =>
+      if (commit) {
+        val toUpdate = list.map { case (id, _, _) => EntityType.withName(ct.toString) -> id }
+        eventHandler.handleUpdate(toUpdate: _*)
+        invalidate(toUpdate.map(_._2)).map(_ => list)
+      } else immediate(list)
     }
   }
 
-  override def batchUpdate(data: Source[JsValue, _], scope: Option[String], logMsg: String, version: Boolean, commit: Boolean): Future[BatchResult] = {
+  override def batchUpdate(et: EntityType.Value, data: Source[JsValue, _], scope: Option[String], logMsg: String, version: Boolean, commit: Boolean): Future[BatchResult] = {
     val url = enc(baseUrl, "batch", "update")
     val src: Source[ByteString, _] = data
       .map(js => ByteString.fromArray(Json.toBytes(js)))
@@ -806,9 +813,10 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
       .withMethod(HttpVerbs.PUT)
       .execute()
       .map(r => checkErrorAndParse[BatchResult](r, Some(url)))
+      .flatMap(r => handleBatchEvents(et, commit, r))
   }
 
-  override def batchUpdate[T: Writable](data: Seq[T], scope: Option[String], logMsg: String, version: Boolean, commit: Boolean): Future[BatchResult] = {
+  override def batchUpdate[T: Writable](et: EntityType.Value, data: Seq[T], scope: Option[String], logMsg: String, version: Boolean, commit: Boolean): Future[BatchResult] = {
     implicit val _writes: Writes[T] = Writable[T]._format
     val url = enc(baseUrl, "batch", "update")
     userCall(url).withQueryString(
@@ -818,9 +826,10 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
       .withQueryString(scope.toSeq.map(s => "scope" -> s): _*)
       .put(Json.toJson(data))
       .map(r => checkErrorAndParse[BatchResult](r, Some(url)))
+      .flatMap(r => handleBatchEvents(et, commit, r))
   }
 
-  override def batchDelete(ids: Seq[String], scope: Option[String], logMsg: String, version: Boolean, tolerant: Boolean = false, commit: Boolean = false): Future[Int] = {
+  override def batchDelete(et: EntityType.Value, ids: Seq[String], scope: Option[String], logMsg: String, version: Boolean, tolerant: Boolean = false, commit: Boolean = false): Future[Int] = {
     val url = enc(baseUrl, "batch", "delete")
     val callF = userCall(url).withQueryString(
         "version" -> version.toString,
@@ -831,7 +840,11 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
       .withQueryString(scope.toSeq.map(s => "scope" -> s): _*)
       .post(Json.toJson(ids.map(id => Seq(id))))
       .map(r => checkErrorAndParse[Int](r, Some(url)))
-    for (count <- callF; _ <- invalidate(ids)) yield count
+    for {
+      count <- callF
+      _ <- invalidate(ids) if count > 0 && commit
+      _ = eventHandler.handleDelete(ids.map(et -> _): _*) if count > 0 && commit
+    } yield count
   }
 
   // Helpers
@@ -847,7 +860,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
       }.getOrElse(-1L)
     }
 
-  private def itemResponse[MT: Resource](id: String, response: WSResponse): Future[MT] = {
+  private def updateItemResponse[MT: Resource](id: String, response: WSResponse): Future[MT] = {
     val res = Resource[MT]
     val item: MT = checkErrorAndParse(response)(res._reads)
     eventHandler.handleUpdate(res.entityType -> id)
@@ -874,6 +887,26 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
       .map { bytes => Json.parse(bytes.utf8String).validate[A](reader._reads) }
       .collect { case JsSuccess(item, _) => item}
     )).flatMapConcat(identity)
+  }
+
+  private def handleBatchEvents(et: EntityType.Value, commit: Boolean, batchRes: BatchResult) = {
+    if (batchRes.hasDoneWork && commit) {
+      val createdIds = batchRes.updatedKeys.values.toSeq.flatten
+      val updatedIds = batchRes.createdKeys.values.toSeq.flatten
+      eventHandler.handleCreate(createdIds.map(et -> _): _*)
+      eventHandler.handleUpdate(updatedIds.map(et -> _): _*)
+      invalidate(createdIds ++ updatedIds).map(_ => batchRes)
+    } else immediate(batchRes)
+  }
+
+  private def handleRename(et: EntityType.Value, commit: Boolean, mapping: Seq[(String, String)]): Future[Seq[(String, String)]] = {
+    if (commit) {
+      val deleted = mapping.map(_._1)
+      val created = mapping.map(_._2)
+      eventHandler.handleDelete(deleted.map(et -> _): _*)
+      eventHandler.handleCreate(created.map(et -> _): _*)
+      invalidate(deleted ++ created).map(_ => mapping)
+    } else immediate(mapping)
   }
 }
 

@@ -4,7 +4,6 @@ import controllers.base.AdminController
 import controllers.{AppComponents, Execution}
 import models.{BatchDeleteTask, ContentTypes, EntityType}
 import org.apache.pekko.NotUsed
-import org.apache.pekko.actor.ActorRef
 import org.apache.pekko.stream.Materializer
 import org.apache.pekko.stream.connectors.csv.scaladsl.CsvParsing
 import org.apache.pekko.stream.scaladsl.{FileIO, Flow, Sink, Source}
@@ -18,14 +17,13 @@ import play.api.libs.streams.Accumulator
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import services.cypher.CypherService
-import services.data.EventForwarder.{Create, Delete, Update}
 import services.data.InputDataError
 import services.ingest.{EadValidator, RemappingPrefixes, XmlValidationError}
 import services.search.SearchIndexMediator
 import utils.EnumUtils
 
 import java.nio.charset.StandardCharsets
-import javax.inject.{Inject, Named, Singleton}
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 
@@ -40,7 +38,6 @@ case class Tools @Inject()(
   ws: WSClient,
   cypher: CypherService,
   eadValidator: EadValidator,
-  @Named("event-forwarder") eventForwarder: ActorRef,
   urlPrefixes: RemappingPrefixes
 )(implicit mat: Materializer) extends AdminController {
 
@@ -116,7 +113,7 @@ case class Tools @Inject()(
         errForm => immediate(BadRequest(views.html.admin.tools.movedItemsForm(errForm,
           controllers.tools.routes.Tools.addMovedItemsPost()))),
         ct => request.body.file("csv").map { file =>
-          updateFromCsv(ct, FileIO.fromPath(file.ref.path))
+          addUrlRedirectsFromCsv(ct, FileIO.fromPath(file.ref.path))
             .map(newUrls => Ok(views.html.admin.tools.movedItemsAdded(newUrls)))
         }.getOrElse {
           immediate(Ok(views.html.admin.tools.movedItemsForm(
@@ -140,17 +137,18 @@ case class Tools @Inject()(
         ct => request.body.file("csv").filter(_.filename.nonEmpty).map { file =>
           parseCsv(FileIO.fromPath(file.ref.path))
             .collect { case from :: to :: _ => from -> to }
-            .runWith(Sink.seq).flatMap { todo =>
-            userDataApi.rename(todo).flatMap { items =>
-              updateFromCsv(ct, items)
-                .map(newUrls => Ok(views.html.admin.tools.movedItemsAdded(newUrls)))
-            } recover {
-              case e: InputDataError =>
-                BadRequest(views.html.admin.tools.renameItemsForm(
-                  boundForm.withGlobalError(e.details),
-                  controllers.tools.routes.Tools.renameItemsPost()))
+            .runWith(Sink.seq)
+            .flatMap { todo =>
+              userDataApi.rename(entityType(ct), todo).flatMap { items =>
+                addUrlRedirectsForType(ct, items)
+                  .map(newUrls => Ok(views.html.admin.tools.movedItemsAdded(newUrls)))
+              } recover {
+                case e: InputDataError =>
+                  BadRequest(views.html.admin.tools.renameItemsForm(
+                    boundForm.withGlobalError(e.details),
+                    controllers.tools.routes.Tools.renameItemsPost()))
+              }
             }
-          }
         }.getOrElse {
           immediate(BadRequest(views.html.admin.tools.renameItemsForm(
             boundForm.withGlobalError("No CSV file found"),
@@ -174,16 +172,16 @@ case class Tools @Inject()(
           parseCsv(FileIO.fromPath(file.ref.path))
             .collect { case id :: parent :: _ => id -> parent }
             .runWith(Sink.seq).flatMap { todo =>
-            userDataApi.reparent(todo, commit = true).flatMap { items =>
-              updateFromCsv(ct, items)
-                .map(newUrls => Ok(views.html.admin.tools.movedItemsAdded(newUrls)))
-            } recover {
-              case e: InputDataError =>
-                BadRequest(views.html.admin.tools.reparentItemsForm(
-                  boundForm.withGlobalError(e.details),
-                  controllers.tools.routes.Tools.reparentItemsPost()))
+              userDataApi.reparent(entityType(ct), todo, commit = true).flatMap { items =>
+                addUrlRedirectsForType(ct, items)
+                  .map(newUrls => Ok(views.html.admin.tools.movedItemsAdded(newUrls)))
+              } recover {
+                case e: InputDataError =>
+                  BadRequest(views.html.admin.tools.reparentItemsForm(
+                    boundForm.withGlobalError(e.details),
+                    controllers.tools.routes.Tools.reparentItemsPost()))
+              }
             }
-          }
         }.getOrElse {
           immediate(BadRequest(views.html.admin.tools.reparentItemsForm(
             boundForm.withGlobalError("No CSV file found"),
@@ -243,7 +241,7 @@ case class Tools @Inject()(
 
   def regenerateIdsForScope(ct: ContentTypes.Value, id: String, tolerant: Boolean): Action[AnyContent] = AdminAction.async { implicit request =>
     if (isAjax) {
-      userDataApi.regenerateIdsForScope(id, tolerant).map { items =>
+      userDataApi.regenerateIdsForScope(entityType(ct), id, tolerant).map { items =>
         Ok(views.html.admin.tools.regenerateIdsForm(regenerateIdsForm
           .fill(value = (ct, items.map { case (f, t) => (f, t, true) })),
           controllers.tools.routes.Tools.regenerateIdsPost(tolerant)))
@@ -262,8 +260,8 @@ case class Tools @Inject()(
         case (ct, items) =>
           val activeIds = items.collect { case (f, _, true) => f }
           logger.info(s"Renaming: $activeIds")
-          userDataApi.regenerateIds(activeIds, tolerant, commit = true).flatMap { items =>
-            updateFromCsv(ct, items)
+          userDataApi.regenerateIds(entityType(ct), activeIds, tolerant, commit = true).flatMap { items =>
+            addUrlRedirectsForType(ct, items)
               .map(newUrls => Ok(views.html.admin.tools.movedItemsAdded(newUrls)))
           }
       }
@@ -288,25 +286,22 @@ case class Tools @Inject()(
       ),
       task => userDataApi.findReplace(
         task.parentType, task.subType, task.property, task.find,
-        task.replace, commit, task.log).flatMap { found =>
+        task.replace, commit, task.log).map { found =>
         if (commit) {
-          val parentIds = found.map(_._1)
-          eventForwarder ! Update(parentIds.map(entityType(task.parentType) -> _))
-          indexer.indexIds(parentIds: _*).map { _ =>
-            Redirect(controllers.tools.routes.Tools.findReplace())
-              .flashing("success" -> Messages("admin.utils.findReplace.done", found.size))
-          }
+          Redirect(controllers.tools.routes.Tools.findReplace())
+            .flashing("success" -> Messages("admin.utils.findReplace.done", found.size))
+        } else {
+          Ok(views.html.admin.tools.findReplace(boundForm, Some(found),
+            controllers.tools.routes.Tools.findReplacePost(),
+            controllers.tools.routes.Tools.findReplacePost(commit = true)))
         }
-        else immediate(Ok(views.html.admin.tools.findReplace(boundForm, Some(found),
-          controllers.tools.routes.Tools.findReplacePost(),
-          controllers.tools.routes.Tools.findReplacePost(commit = true))))
       }
     )
   }
 
   def batchDelete: Action[AnyContent] = AdminAction.apply { implicit request =>
     Ok(views.html.admin.tools.batchDelete(BatchDeleteTask
-        .form.fill(BatchDeleteTask(EntityType.DocumentaryUnit)),
+      .form.fill(BatchDeleteTask(EntityType.DocumentaryUnit)),
       controllers.tools.routes.Tools.batchDeletePost()))
   }
 
@@ -316,19 +311,14 @@ case class Tools @Inject()(
       err => immediate(BadRequest(views.html.admin.tools.batchDelete(err,
         controllers.tools.routes.Tools.batchDeletePost()))),
       data => userDataApi.batchDelete(
-        data.ids, data.scope, data.log, version = data.version, commit = data.commit
-      ).flatMap { deleted =>
+        data.et, data.ids, data.scope, data.log, version = data.version, commit = data.commit
+      ).map { deleted =>
         if (data.commit) {
-          eventForwarder ! Delete(data.ids.map(data.et -> _))
-          searchIndexer.handle.clearIds(data.ids: _*).map { _ =>
-            Redirect(controllers.tools.routes.Tools.batchDelete())
-              .flashing("success" -> Messages("admin.utils.batchDelete.done", deleted))
-          }
+          Redirect(controllers.tools.routes.Tools.batchDelete())
+            .flashing("success" -> Messages("admin.utils.batchDelete.done", deleted))
         } else {
-          immediate(
-            Redirect(controllers.tools.routes.Tools.batchDelete())
-              .flashing("success" -> Messages("admin.utils.batchDelete.dryRun", deleted))
-          )
+          Redirect(controllers.tools.routes.Tools.batchDelete())
+            .flashing("success" -> Messages("admin.utils.batchDelete.dryRun", deleted))
         }
       } recover {
         case e: InputDataError =>
@@ -370,39 +360,23 @@ case class Tools @Inject()(
     }
   }
 
-  private def updateMovedItems(ct: ContentTypes.Value, items: Seq[(String, String)], newUrls: Seq[(String, String)]): Future[Int] = {
-    val deleted = items.map(_._1)
-    val created = items.map(_._2)
-    val et = entityType(ct)
-    for {
-      // Delete the old IDs from the search engine...
-      _ <- indexer.clearIds(deleted: _*)
-      _ = eventForwarder ! Delete(deleted.map(et -> _))
-      // Index the new ones....
-      _ <- indexer.indexIds(created: _*)
-      _ = eventForwarder ! Create(created.map(et -> _))
-      // Add the 301s to the DB...
-      redirectCount <- appComponents.pageRelocator.addMoved(newUrls)
-    } yield redirectCount
-  }
-
-  private def updateFromCsv(ct: ContentTypes.Value, items: Seq[(String, String)], newUrls: Seq[(String, String)]): Future[Seq[(String, String)]] = {
-    updateMovedItems(ct, items, newUrls).map { count =>
+  private def addUrlRelocations(urlMap: Seq[(String, String)]): Future[Seq[(String, String)]] = {
+    appComponents.pageRelocator.addMoved(urlMap).map { count =>
       logger.info(s"Added $count redirects")
-      newUrls
+      urlMap
     }
   }
 
-  private def updateFromCsv(ct: ContentTypes.Value, src: Source[ByteString, _]): Future[Seq[(String, String)]] = {
+  private def addUrlRedirectsFromCsv(ct: ContentTypes.Value, src: Source[ByteString, _]): Future[Seq[(String, String)]] = {
     parseCsv(src)
       .collect { case f :: t :: _ => f -> t }
       .runWith(Sink.seq).flatMap { items =>
-      updateFromCsv(ct, items, remapUrlsFromPrefixes(items, urlPrefixes.prefixes(entityType(ct))))
-    }
+        addUrlRelocations(remapUrlsFromPrefixes(items, urlPrefixes.prefixes(entityType(ct))))
+      }
   }
 
-  private def updateFromCsv(ct: ContentTypes.Value, items: Seq[(String, String)]): Future[Seq[(String, String)]] =
-    updateFromCsv(ct, items, remapUrlsFromPrefixes(items, urlPrefixes.prefixes(entityType(ct))))
+  private def addUrlRedirectsForType(ct: ContentTypes.Value, items: Seq[(String, String)]): Future[Seq[(String, String)]] =
+    addUrlRelocations(remapUrlsFromPrefixes(items, urlPrefixes.prefixes(entityType(ct))))
 
 
   private def parseCsv[M](src: Source[ByteString, M], sep: Char = ','): Source[List[String], M] = {
