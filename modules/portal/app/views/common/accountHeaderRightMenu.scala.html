@@ -31,6 +31,10 @@
             <div class="dropdown-divider" role="presentation"></div>
             <a class="dropdown-item" role="menuitem" href="@controllers.portal.routes.Portal.about()">@Messages("about")</a>
             <a class="dropdown-item" role="menuitem" href="@controllers.portal.routes.Portal.contact()">@Messages("help.contact")</a>
+            <div class="dropdown-divider" role="presentation"></div>
+            <a class="dropdown-item" role="menuitem" href="@controllers.portal.routes.Portal.externalPage("how-to-for-nns")">
+                @Messages("help.howToForNNs")
+            </a>
         </div>
     </li>
     @userOpt.map { user =>
