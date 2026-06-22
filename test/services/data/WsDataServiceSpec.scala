@@ -299,12 +299,15 @@ class WsDataServiceSpec extends IntegrationTestRunner {
 
   "Batch operations" should {
     "delete items as a batch" in new ITestApp {
-      val count = await(testBackend.batchDelete(Seq("c1", "c4"),
+      val before = indexEventBuffer.size
+      val count = await(testBackend.batchDelete(EntityType.DocumentaryUnit, Seq("c1", "c4"),
         scope = Some("r1"), version = true, commit = true, logMsg = "test"))
       count must_== 2
+      indexEventBuffer.size must_== before + 2
     }
 
     "update items via a JSON stream" in new ITestApp {
+      val before = indexEventBuffer.size
       val src = Source(List(Json.obj(
         "id" -> "r1",
         "type" -> "Repository",
@@ -315,9 +318,10 @@ class WsDataServiceSpec extends IntegrationTestRunner {
         "data" -> Json.obj("longitude" -> 0.5, "latitude" -> 0.5)
       )))
 
-      val log = await(testBackend.batchUpdate(src, scope = None, version = true,
+      val log = await(testBackend.batchUpdate(EntityType.Repository, src, scope = None, version = true,
         commit = true, logMsg = "test"))
       log.updated must_== 2
+      indexEventBuffer.size must_== before + 2
     }
   }
 

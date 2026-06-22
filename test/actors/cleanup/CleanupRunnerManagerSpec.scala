@@ -2,14 +2,12 @@ package actors.cleanup
 
 import actors.LongRunningJob
 import actors.cleanup.CleanupRunner.CleanupJob
-import org.apache.pekko.actor.{ActorContext, ActorRef, Props}
-import com.google.inject.name.Names
 import controllers.datasets.CleanupConfirmation
 import helpers.IntegrationTestRunner
 import mockdata.adminUserProfile
 import models._
+import org.apache.pekko.actor.{ActorContext, Props}
 import play.api.i18n.{Lang, Messages, MessagesApi}
-import play.api.inject.{BindingKey, QualifierInstance}
 import play.api.{Application, Configuration}
 import services.data.DataUser
 import services.ingest.{ImportLogService, IngestService}
@@ -20,8 +18,6 @@ class CleanupRunnerManagerSpec extends IntegrationTestRunner {
   implicit private def config(implicit app: Application): Configuration = app.injector.instanceOf[Configuration]
   private def logService(implicit app: Application): ImportLogService = app.injector.instanceOf[ImportLogService]
   private def importService(implicit app: Application): IngestService = app.injector.instanceOf[IngestService]
-  private def eventForwarder(implicit app: Application): ActorRef = app.injector.instanceOf[ActorRef](
-    BindingKey(classOf[ActorRef], Some(QualifierInstance(Names.named("event-forwarder")))))
   implicit def messagesApi(implicit app: Application): MessagesApi = app.injector.instanceOf[MessagesApi]
   implicit def messages(implicit app: Application): Messages = messagesApi.preferred(Seq(Lang.defaultLang))
 
@@ -37,7 +33,7 @@ class CleanupRunnerManagerSpec extends IntegrationTestRunner {
       val cleanupConfirmation = CleanupConfirmation("Delete it")
       val cleanupJob: CleanupJob = CleanupJob("r1", 1, jobId, cleanupConfirmation.msg)
 
-      val init = (context: ActorContext) => context.actorOf(Props(CleanupRunner(dataApi, logService, importService, eventForwarder)))
+      val init = (context: ActorContext) => context.actorOf(Props(CleanupRunner(dataApi, logService, importService)))
       val manager = system.actorOf(Props(CleanupRunnerManager(cleanupJob, init)))
 
       manager ! self // initial subscriber should start harvesting
@@ -56,7 +52,7 @@ class CleanupRunnerManagerSpec extends IntegrationTestRunner {
       val cleanupConfirmation = CleanupConfirmation("Delete it")
       val cleanupJob: CleanupJob = CleanupJob("r1", 1, jobId, cleanupConfirmation.msg)
 
-      val init = (context: ActorContext) => context.actorOf(Props(CleanupRunner(dataApi, logService, importService, eventForwarder)))
+      val init = (context: ActorContext) => context.actorOf(Props(CleanupRunner(dataApi, logService, importService)))
       val manager = system.actorOf(Props(CleanupRunnerManager(cleanupJob, init)))
 
       manager ! self // initial subscriber should start harvesting

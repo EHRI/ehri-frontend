@@ -106,18 +106,20 @@ trait DataService {
   /**
     * Rename a batch of items.
     *
+    * @param et      the target entity type
     * @param mapping a mapping of current global ID to new local identifier
     * @return a mapping of old global ID to new (regenerated) global ID
     */
-  def rename(mapping: Seq[(String, String)]): Future[Seq[(String, String)]]
+  def rename(et: EntityType.Value, mapping: Seq[(String, String)]): Future[Seq[(String, String)]]
 
   /**
     * Reparent a batch of items.
     *
+    * @param et      the target entity type
     * @param mapping a mapping of current global ID to new parent global ID
     * @return a mapping of old global ID to new (regenerated) global ID
     */
-  def reparent(mapping: Seq[(String, String)], commit: Boolean = false): Future[Seq[(String, String)]]
+  def reparent(et: EntityType.Value, mapping: Seq[(String, String)], commit: Boolean = false): Future[Seq[(String, String)]]
 
   /**
     * Scan for IDs that require regeneration across an entire item type,
@@ -133,24 +135,25 @@ trait DataService {
     * Scan for IDs that require regeneration within a given scope,
     * and optionally regenerate them.
     *
+    * @param et     the target entity type
     * @param scope  the scope ID
     * @param commit whether to commit changes
     * @return a mapping of old global ID to new (regenerated) global ID
     */
-  def regenerateIdsForScope(scope: String, tolerant: Boolean = false, commit: Boolean = false): Future[Seq[(String, String)]]
+  def regenerateIdsForScope(et: EntityType.Value, scope: String, tolerant: Boolean = false, commit: Boolean = false): Future[Seq[(String, String)]]
 
   /**
     * Check if the given items require ID regeneration and optionally regenerate them.
     *
+    * @param et     the target entity type
     * @param ids    the given items
     * @param commit whether to commit changes
     * @return a mapping of old global ID to new (regenerated) global ID
     */
-  def regenerateIds(ids: Seq[String], tolerant: Boolean = false, commit: Boolean = false): Future[Seq[(String, String)]]
+  def regenerateIds(et: EntityType.Value, ids: Seq[String], tolerant: Boolean = false, commit: Boolean = false): Future[Seq[(String, String)]]
 
   /**
     * Find and replace a text value for a given property across an entire entity type.
-    *
     *
     * @param ct       the parent content type
     * @param et       a specific entity type
@@ -166,9 +169,7 @@ trait DataService {
   /**
     * Delete a batch of items of the same type.
     *
-    * Note: this API does **NOT** propagate delete events. This must be
-    * done from the client.
-    *
+    * @param et      the target entity type
     * @param ids     a sequence of item IDs
     * @param scope   an optional item scope
     * @param logMsg  a log message
@@ -176,28 +177,24 @@ trait DataService {
     * @param commit  whether to commit the changes
     * @return the number of items deleted
     */
-  def batchDelete(ids: Seq[String], scope: Option[String], logMsg: String, version: Boolean, tolerant: Boolean = false, commit: Boolean = false): Future[Int]
+  def batchDelete(et: EntityType.Value, ids: Seq[String], scope: Option[String], logMsg: String, version: Boolean, tolerant: Boolean = false, commit: Boolean = false): Future[Int]
 
   /**
     * Update a batch of items via a stream of partial JSON bundles.
     *
-    * Note: this API does **NOT** propagate update events. This must be
-    * done from the client.
-    *
+    * @param et      the target entity type
     * @param data    partial model data a JSON stream
     * @param scope   the optional shared item scope
     * @param version whether to create pre-update versions of updated items
     * @param commit  whether to commit the changes
     * @return the number of items updated
     */
-  def batchUpdate(data: Source[JsValue, _], scope: Option[String], logMsg: String, version: Boolean, commit: Boolean): Future[BatchResult]
+  def batchUpdate(et: EntityType.Value, data: Source[JsValue, _], scope: Option[String], logMsg: String, version: Boolean, commit: Boolean): Future[BatchResult]
 
   /**
     * Update a batch of items.
     *
-    * Note: this API does **NOT** propagate update events. This must be
-    * done from the client.
-    *
+    * @param et      the target entity type
     * @param data    the model data
     * @param scope   the optional shared item scope
     * @param version whether to create pre-update versions of updated items
@@ -205,7 +202,7 @@ trait DataService {
     * @tparam T the generic model data type
     * @return the number of items updated
     */
-  def batchUpdate[T: Writable](data: Seq[T], scope: Option[String], logMsg: String, version: Boolean, commit: Boolean): Future[BatchResult]
+  def batchUpdate[T: Writable](et: EntityType.Value, data: Seq[T], scope: Option[String], logMsg: String, version: Boolean, commit: Boolean): Future[BatchResult]
 
   /**
     * Fetch any type of item by ID.

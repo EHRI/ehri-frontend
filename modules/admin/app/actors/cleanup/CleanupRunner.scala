@@ -4,7 +4,7 @@ import actors.Ticker
 import models.EntityType
 import org.apache.pekko.actor.{Actor, ActorLogging, ActorRef, Props}
 import play.api.Configuration
-import services.data.{DataService, EventForwarder}
+import services.data.DataService
 import services.ingest.{Cleanup, ImportLogService, IngestService}
 
 import java.time.Instant
@@ -42,7 +42,6 @@ case class CleanupRunner(
   dataApi: DataService,
   logService: ImportLogService,
   importService: IngestService,
-  eventForwarder: ActorRef
 )(implicit config: Configuration, ec: ExecutionContext) extends Actor with ActorLogging {
 
   import CleanupRunner._
@@ -90,10 +89,9 @@ case class CleanupRunner(
       ticker ! (msgTo -> "Deleting...")
 
       val (batch, rest) = todo.splitAt(batchSize)
-      dataApi.batchDelete(batch, Some(job.repoId), logMsg = job.msg,
+      dataApi.batchDelete(EntityType.DocumentaryUnit, batch, Some(job.repoId), logMsg = job.msg,
           version = true, tolerant = true, commit = true)
         .map { batchCount =>
-          eventForwarder ! EventForwarder.Delete(batch.map(EntityType.DocumentaryUnit -> _))
           val st = newStatus.copy(deleteCount = newStatus.deleteCount + batchCount)
           msgTo ! st
           DeleteBatch(cleanup, rest, st)
