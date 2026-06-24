@@ -39,6 +39,7 @@ case class IsadGConditions(
   conditionsOfAccess: Option[String] = None,
   conditionsOfReproduction: Option[String] = None,
   languageOfMaterials: Seq[String] = Nil,
+  languageOfMaterialNotes: Option[String] = None,
   scriptOfMaterials: Seq[String] = Nil,
   physicalCharacteristics: Option[String] = None,
   findingAids: Seq[String] = Nil
@@ -98,6 +99,7 @@ object DocumentaryUnitDescriptionF {
       (__ \ ACCESS_COND).formatNullable[String] and
       (__ \ REPROD_COND).formatNullable[String] and
       (__ \ LANG_MATERIALS).formatSeqOrSingle[String] and
+      (__ \ LANG_MATERIAL_NOTES).formatNullable[String] and
       (__ \ SCRIPT_MATERIALS).formatSeqOrSingle[String] and
       (__ \ PHYSICAL_CHARS).formatNullable[String] and
       (__ \ FINDING_AIDS).formatSeqOrSingle[String]
@@ -169,7 +171,7 @@ object DocumentaryUnitDescription {
   import models.IsadG._
   import utils.EnumUtils.enumMapping
 
-  val form = Form(
+  val form: Form[DocumentaryUnitDescriptionF] = Form(
     mapping(
       ISA -> ignored(EntityType.DocumentaryUnitDescription),
       ID -> optional(nonEmptyText),
@@ -201,6 +203,7 @@ object DocumentaryUnitDescription {
         ACCESS_COND -> optional(text),
         REPROD_COND -> optional(text),
         LANG_MATERIALS -> seq(nonEmptyText),
+        LANG_MATERIAL_NOTES -> optional(text),
         SCRIPT_MATERIALS -> seq(nonEmptyText),
         PHYSICAL_CHARS -> optional(text),
         FINDING_AIDS -> seq(nonEmptyText)

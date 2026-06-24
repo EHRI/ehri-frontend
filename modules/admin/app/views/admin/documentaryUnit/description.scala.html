@@ -35,8 +35,8 @@
     @descriptionSection(CONDITIONS_AREA) {
         @textValue(ACCESS_COND, desc.conditions.conditionsOfAccess)
         @textValue(REPROD_COND, desc.conditions.conditionsOfReproduction)
-
         @listValue(LANG_MATERIALS, desc.conditions.languageOfMaterials, transformFunc = s => views.Helpers.languageCodeToName(s))
+        @textValue(LANG_MATERIAL_NOTES, desc.conditions.languageOfMaterialNotes)
         @listValue(SCRIPT_MATERIALS, desc.conditions.scriptOfMaterials, transformFunc = s => views.Helpers.scriptCodeToName(s))
         @textValue(PHYSICAL_CHARS, desc.conditions.physicalCharacteristics)
         @textListValue(FINDING_AIDS, desc.conditions.findingAids)
