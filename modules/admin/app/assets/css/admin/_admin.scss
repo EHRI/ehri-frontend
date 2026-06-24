@@ -25,6 +25,12 @@ body > .admin-content > .flash {
   }
 }
 
+a.disabled {
+  pointer-events: none;
+  tab-index: -1;
+  color: $text-muted;
+}
+
 .form-descriptions {
   margin-bottom: $margin-md;
 }

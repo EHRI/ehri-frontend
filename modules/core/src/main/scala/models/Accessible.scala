@@ -1,5 +1,7 @@
 package models
 
+import play.api.libs.json.JsTrue
+
 
 trait Accessible extends Model {
   /**
@@ -13,5 +15,13 @@ trait Accessible extends Model {
   def privateTo(accessor: Accessor): Boolean =
     accessors.size == 1 && accessors.head.id == accessor.id
 
+  /**
+    * Get the latest event for this item.
+    */
   def latestEvent: Option[SystemEvent]
+
+  /**
+    * Check if this item has a prior version
+    */
+  def isVersioned: Boolean = (meta \ "isVersioned").toOption.contains(JsTrue)
 }

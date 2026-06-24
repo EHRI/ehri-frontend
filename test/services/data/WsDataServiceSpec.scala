@@ -132,6 +132,7 @@ class WsDataServiceSpec extends IntegrationTestRunner {
           .createInContext[DocumentaryUnit,DocumentaryUnitF,DocumentaryUnit]("c1", doc))
       r.parent must beSome
       r.parent.get.id must equalTo("c1")
+      r.isVersioned must beFalse
     }
 
     "create an item with additional params" in new ITestApp {
@@ -186,6 +187,7 @@ class WsDataServiceSpec extends IntegrationTestRunner {
       val entity = await(testBackend.create[UserProfile,UserProfileF](user))
       val res = await(testBackend.patch[UserProfile](entity.id, patchData))
       res.data.imageUrl must beSome(testVal)
+      res.isVersioned must beTrue
     }
 
     "patch an item with nulls to unset values" in new ITestApp {

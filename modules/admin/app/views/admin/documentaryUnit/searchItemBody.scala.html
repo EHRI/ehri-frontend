@@ -28,6 +28,9 @@
     @item.latestEvent.map { event =>
         <li title="@common.eventTitle(event)">
             <time datetime="@event.data.timestamp">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</time>
+            @if(userOpt.exists(_.isAdmin) && item.isVersioned) {
+                <i class="fa fa-code-compare"></i>
+            }
         </li>
     }
 </ul>
