@@ -180,4 +180,8 @@ case class HistoricalAgents @Inject()(
       Ok(views.html.admin.historicalAgent.editAccessPoints(request.item,
         request.description, holderIds = holders))
     }
+
+  def diff(id: String, versionId: Option[String] = None): Action[AnyContent] = ItemDiffAction(id, versionId).apply { implicit request =>
+    Ok(views.html.admin.common.diff(request.item, request.json, request.current, request.versions, (id, vid) => histRoutes.diff(id, vid)))
+  }
 }

@@ -93,7 +93,8 @@ case class Vocabulary(
 ) extends Model
   with Accessible
   with Promotable
-  with Holder[Concept] {
+  with Holder[Concept]
+  with PersistentIdentifiable {
 
   type T = VocabularyF
 

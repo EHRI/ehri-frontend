@@ -1,0 +1,11 @@
+@(item: DocumentaryUnit, support: Boolean = false)(implicit req: RequestHeader, messages: Messages, appConf: AppConfig)
+erc:
+who: @item.holder.map(_.toStringLang)
+what: @item.toStringLang
+when: @item.latestEvent.map(_.data.date)
+where: @views.Helpers.linkTo(item).absoluteURL(appConf.https)
+@if(support) {
+erc-support:
+@appConf.configuration.get[String]("ehri.portal.arks.erc-support").stripMargin.trim
+when: @java.time.Year.now.getValue
+}

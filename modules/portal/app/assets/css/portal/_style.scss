@@ -2106,8 +2106,8 @@ body.api {
 .api-example-curl .copy-button {
   float: right;
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 2px;
+  right: 2px;
 }
 
 section {
@@ -2246,4 +2246,34 @@ section:last-child {
 
 .orcid-url a {
   color: $black;
+}
+
+.copy-button.copied {
+  color: $green;
+}
+
+a.permalink {
+  display: block;
+  font-size: $font-size-sm;
+  font-family: monospace;
+  color: var(--info);
+  font-weight: bold;
+
+  .copy-button {
+    font-size: 1rem;
+    visibility: hidden;
+  }
+
+  &:hover {
+    text-decoration: none;
+  }
+
+  &:hover .permalink-label {
+    text-decoration: underline;
+  }
+
+  &:hover .copy-button {
+    visibility: unset;
+    color: darken($info, 10%);
+  }
 }

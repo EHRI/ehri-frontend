@@ -40,7 +40,7 @@ case class MockSearchEngine @Inject()(
 
   private def modelToSearchHit(m: Model): SearchHit = m match {
     case d: DescribedModel => descModelToHit(d)
-    case _ => SearchHit(m.id, m.id, m.isA, -1L, Map(
+    case _ => SearchHit(m.id, m.id, m.isA, -1L, Some(m.id + "-1234"), Map(
       SearchConstants.NAME_EXACT -> JsString(m.toStringLang)
     ))
   }
@@ -50,6 +50,7 @@ case class MockSearchEngine @Inject()(
     id = m.descriptions.headOption.flatMap(_.id).getOrElse("???"),
     `type` = m.isA,
     gid = m.meta.value.get("gid").flatMap(_.asOpt[Long]).getOrElse(-1L),
+    pid = Some(m.id + "-1234"),
     fields = Map(
       SearchConstants.NAME_EXACT -> JsString(m.toStringLang)
     )

@@ -35,6 +35,7 @@ import scala.concurrent.duration.{DurationInt, FiniteDuration}
 
 
 object ApiV1 {
+  val arkPattern = "^ark:/?[0-9]+/([a-z0-9]{2})?"
 
   def errorJson(status: Int, message: Option[String] = None)(implicit messages: Messages): JsObject = {
     Json.obj(
@@ -84,6 +85,13 @@ case class ApiV1 @Inject()(
   private val hitsPerSecond = 1000
   // basically, no limit at the moment
   private val rateLimitTimeoutDuration: FiniteDuration = 1.second
+
+  // ARK links, depending on config
+  private def arkLink(pidOpt: Option[String])(implicit req: RequestHeader): Option[String] = pidOpt.map { pid =>
+    config.getOptional[String]("ehri.portal.arks.urlPrefix").fold(
+      ifEmpty = controllers.portal.routes.Portal.lookupPid(pid).absoluteURL(conf.https)
+    )(prefix => s"$prefix$pid")
+  }
 
   // Available facets, defined in `ApiFacet`
   private def apiSearchFacets(facets: Seq[String] = Seq.empty): FacetBuilder = { implicit request =>
@@ -220,11 +228,11 @@ case class ApiV1 @Inject()(
               self = apiRoutes.fetch(doc.id).absoluteURL(conf.https),
               search = apiRoutes.searchIn(doc.id).absoluteURL(conf.https),
               holder = doc.holder.map(r => apiRoutes.fetch(r.id).absoluteURL(conf.https)),
-              parent = doc.parent.map(r => apiRoutes.fetch(r.id).absoluteURL(conf.https))
+              parent = doc.parent.map(r => apiRoutes.fetch(r.id).absoluteURL(conf.https)),
             )
           )
         ),
-        meta = Some(meta(doc).deepMerge(holderMeta(doc)))
+        meta = Some(meta(doc).deepMerge(holderMeta(doc)).deepMerge(pidMeta(doc)))
       )
     )
     case vu: VirtualUnit => Json.toJson(
@@ -246,11 +254,11 @@ case class ApiV1 @Inject()(
             DocumentaryUnitLinks(
               self = apiRoutes.fetch(vu.id).absoluteURL(conf.https),
               search = apiRoutes.searchIn(vu.id).absoluteURL(conf.https),
-              parent = vu.parent.map(r => apiRoutes.fetch(r.id).absoluteURL(conf.https))
+              parent = vu.parent.map(r => apiRoutes.fetch(r.id).absoluteURL(conf.https)),
             )
           )
         ),
-        meta = Some(meta(vu).deepMerge(holderMeta(vu)))
+        meta = Some(merge(meta(vu), holderMeta(vu), pidMeta(vu)))
       )
     )
     case repo: Repository => Json.toJson(
@@ -272,11 +280,11 @@ case class ApiV1 @Inject()(
             RepositoryLinks(
               self = apiRoutes.fetch(repo.id).absoluteURL(conf.https),
               search = apiRoutes.searchIn(repo.id).absoluteURL(conf.https),
-              country = repo.country.map(c => apiRoutes.fetch(c.id).absoluteURL(conf.https))
+              country = repo.country.map(c => apiRoutes.fetch(c.id).absoluteURL(conf.https)),
             )
           )
         ),
-        meta = Some(meta(repo).deepMerge(holderMeta(repo)))
+        meta = Some(merge(meta(repo), holderMeta(repo), pidMeta(repo)))
       )
     )
     case agent: HistoricalAgent => Json.toJson(
@@ -288,11 +296,11 @@ case class ApiV1 @Inject()(
           Json.toJson(
             HistoricalAgentLinks(
               self = apiRoutes.fetch(agent.id).absoluteURL(conf.https),
-              related = apiRoutes.related(agent.id).absoluteURL(conf.https)
+              related = apiRoutes.related(agent.id).absoluteURL(conf.https),
             )
           )
         ),
-        meta = Some(meta(agent))
+        meta = Some(merge(meta(agent), pidMeta(agent)))
       )
     )
     case country: Country => Json.toJson(
@@ -304,11 +312,11 @@ case class ApiV1 @Inject()(
           Json.toJson(
             CountryLinks(
               self = apiRoutes.fetch(country.id).absoluteURL(conf.https),
-              search = apiRoutes.searchIn(country.id).absoluteURL(conf.https)
+              search = apiRoutes.searchIn(country.id).absoluteURL(conf.https),
             )
           )
         ),
-        meta = Some(meta(country).deepMerge(holderMeta(country)))
+        meta = Some(merge(meta(country), holderMeta(country), pidMeta(country)))
       )
     )
     case concept: Concept => Json.toJson(
@@ -322,10 +330,11 @@ case class ApiV1 @Inject()(
               self = apiRoutes.fetch(concept.id).absoluteURL(conf.https),
               search = apiRoutes.searchIn(concept.id).absoluteURL(conf.https),
               related = apiRoutes.related(concept.id).absoluteURL(conf.https),
-              parent = concept.parent.map(p => apiRoutes.fetch(p.id).absoluteURL(conf.https))
+              parent = concept.parent.map(p => apiRoutes.fetch(p.id).absoluteURL(conf.https)),
             )
           )
-        )
+        ),
+        meta = Some(merge(meta(concept), pidMeta(concept)))
       )
     )
     case _ => throw new ItemNotFound()
@@ -402,10 +411,17 @@ case class ApiV1 @Inject()(
       } recoverWith errorHandler
     }
 
-  def fetch(id: String, fields: Seq[FieldFilter]): Action[AnyContent] =
+  def fetch(id: String, fields: Seq[FieldFilter], pid: Boolean): Action[AnyContent] =
     JsonApiAction.async { implicit request =>
       implicit val writer: Writes[Model] = modelWriter(fields)
-      userDataApi.getAny[Model](id).map { item =>
+      // As a nasty backwards compatible hack to allow fetching items by persistent
+      // identifier or PID, remove an optional ARK NAAN and 2-character
+      // shoulder from the passed-in ID. This prefix is not compatible
+      // with regular graph IDs, so it will be a no-op in that case.
+      val idStr = id.replaceFirst(arkPattern, "")
+      val call = if (!pid) userDataApi.getAny[Model](idStr) else
+        userDataApi.getAnyByPid[Model](idStr)
+      call.map { item =>
         Ok(
           Json.toJson(
             JsonApiResponse(
@@ -508,6 +524,8 @@ case class ApiV1 @Inject()(
         case Some(newPath) =>
           val newApiPath = newPath.replace(unitPrefix, routes.ApiV1Home.index().url)
           error(MOVED_PERMANENTLY, Some(newApiPath)).withHeaders(HeaderNames.LOCATION -> newApiPath)
+        case None if e.since.isDefined =>
+          error(GONE, Some(Messages(s"api.error.$GONE.detail", e.since.get)))
         case None =>  error(NOT_FOUND, e.message)
       }
     case e: PermissionDenied => immediate(error(FORBIDDEN))

@@ -1,18 +1,18 @@
 package services.harvesting
 
-import java.util.regex.Pattern
+import models._
 import org.apache.pekko.NotUsed
 import org.apache.pekko.stream.Materializer
 import org.apache.pekko.stream.scaladsl.{Sink, Source}
 import org.apache.pekko.util.ByteString
-
-import javax.inject.Inject
-import models._
 import org.xml.sax.SAXParseException
+import play.api.Logger
 import play.api.libs.ws.{WSAuthScheme, WSClient, WSRequest}
 
-import scala.concurrent.{ExecutionContext, Future}
+import java.util.regex.Pattern
+import javax.inject.Inject
 import scala.concurrent.Future.{successful => immediate}
+import scala.concurrent.{ExecutionContext, Future}
 import scala.xml.{Node, NodeSeq}
 
 /**
@@ -25,6 +25,7 @@ import scala.xml.{Node, NodeSeq}
   */
 case class WSResourceSyncClient @Inject()(ws: WSClient)(implicit mat: Materializer) extends ResourceSyncClient {
 
+  private val logger: Logger = Logger(classOf[WSResourceSyncClient])
   private implicit val ec: ExecutionContext = mat.executionContext
 
   private def parseAttr(nodes: NodeSeq, key: String): Option[String] =
@@ -89,14 +90,18 @@ case class WSResourceSyncClient @Inject()(ws: WSClient)(implicit mat: Materializ
     }
   }
 
-  override def get(config: ResourceSyncConfig, link: FileLink): Source[ByteString, _] =
+  override def get(config: ResourceSyncConfig, link: FileLink): Source[ByteString, _] = {
+    // This ensures that the body of an errored request is consumed
+    // so it releases resources.
+    def fail(err: String, status: Int, src: Source[ByteString, _]) = src
+        .map(_ => ByteString.empty)
+        .flatMapConcat(_ => Source.failed(ResourceSyncError(err, link.loc, status.toString)))
+
     Source.future(wsReq(config, link.loc).get().map { r =>
-      if (r.status == 404) {
-        Source.failed(ResourceSyncError("notFound", link.loc))
-      } else if (r.status == 429) {
-        Source.failed(ResourceSyncError("tooManyRequests", r.status.toString))
-      } else if (r.status != 200) {
-        Source.failed(ResourceSyncError("unexpectedStatus", r.status.toString))
-      } else r.bodyAsSource
+      if (r.status == 404) fail("notFound", r.status, r.bodyAsSource)
+      else if (r.status == 429) fail("tooManyRequest", r.status, r.bodyAsSource)
+      else if (r.status != 200) fail("unexpectedStatus", r.status, r.bodyAsSource)
+      else r.bodyAsSource
     }).flatMapConcat(src => src)
+  }
 }

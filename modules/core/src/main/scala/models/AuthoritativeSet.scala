@@ -88,7 +88,8 @@ case class AuthoritativeSet(
 ) extends Model
   with Accessible
   with Promotable
-  with Holder[HistoricalAgent] {
+  with Holder[HistoricalAgent]
+  with PersistentIdentifiable {
 
   type T = AuthoritativeSetF
 

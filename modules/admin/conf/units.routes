@@ -44,3 +44,4 @@ POST    /:id/deleteLink/:did/:accessPoint/:link    @controllers.units.Documentar
 GET     /:id/ingest                                @controllers.units.DocumentaryUnits.ingest(id: String)
 GET     /:id/rename                                @controllers.units.DocumentaryUnits.rename(id: String)
 POST    /:id/rename                                @controllers.units.DocumentaryUnits.renamePost(id: String)
+GET     /:id/diff                                  @controllers.units.DocumentaryUnits.diff(id: String, versionId: Option[String] ?= None)

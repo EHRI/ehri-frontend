@@ -11,5 +11,6 @@ Disallow: /locale
 Disallow: /feedback/
 Disallow: /activity
 Disallow: /api/datasets
+Disallow: /pid/
 Disallow: /*/export
 Crawl-delay: 5

@@ -155,14 +155,23 @@
             <h3 id="retrieve-item">Retrieve an item</h3>
             <p>
                 For retrieving individual items (of any type) the <code>/{ID}</code> action is provided, with the
-                <code>{ID}</code> being the <i>global EHRI identifier</i> of the item you want.
+                <code>{ID}</code> being the <i>global EHRI identifier</i> of the item you want. You can use the
+                    item persistent identifier (PID) to fetch it if you provide the <code>?pid=true</code> parameter.
             </p>
+            <dl>
+                <dt><code>pid</code></dt>
+                <dd>Fetch the item using the persistent identifier instead of EHRI global identifier.</dd>
+            </dl>
 
             <h4>Test it!</h4>
             @helper.form(controllers.api.v1.routes.ApiV1.fetch("{id}"), attrs._class -> "api-example-form") {
 
                 <div class="api-example-form-controls">
                     @itemIdField("api-example-fetch")
+                    <div class="form-field">
+                        <label class="form-label" for="api-example-fetch-pid">Persistent ID</label>
+                        <input class="form-check-inline" type="checkbox" name="pid" id="api-example-fetch-pid" value="true" />
+                    </div>
                 </div>
                 @submitButton
 
@@ -355,7 +364,7 @@
 
                 function getUrl($form) {
                     var action = $form.attr("action")
-                            .replace(/%7Bid%7D/gi, encodeURI($form.find("[name='id']").val()));
+                            .replace(/%7Bid%7D/gi, encodeURIComponent($form.find("[name='id']").val()));
 
                     var params = $form.find(":input")
                             .filter(function (index, element) {

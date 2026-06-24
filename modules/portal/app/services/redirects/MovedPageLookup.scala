@@ -17,9 +17,12 @@ trait MovedPageLookup {
   def hasMovedTo(path: String): Future[Option[String]]
 
   /**
-   * Add a set of moved pages.
+   * Add a set of moved pages. Note that this works in an
+    * idempotent manner and should not update existing
+    * identical items.
+    *
    * @param moved a sequence of the original and new pages
-   * @return the number that have been inserted.
+   * @return the number that have been modified
    */
   def addMoved(moved: Seq[(String, String)]): Future[Int]
 

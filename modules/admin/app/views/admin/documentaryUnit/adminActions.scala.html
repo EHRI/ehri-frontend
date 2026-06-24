@@ -78,3 +78,16 @@
         }
     }
 }
+
+@if(userOpt.exists(_.isAdmin)) {
+    @views.html.common.sidebarSection(Messages("item.inspect")) {
+        @views.html.admin.common.sidebarActionGroup {
+            @views.html.admin.common.sidebarAction() {
+                <a href="@controllers.units.routes.DocumentaryUnits.diff(item.id)">
+                    <i class="fa fa-fw fa-code-compare"></i>
+                    @Messages("item.versions")
+                </a>
+            }
+        }
+    }
+}

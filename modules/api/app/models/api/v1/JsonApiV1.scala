@@ -4,10 +4,22 @@ import models._
 import play.api.i18n.Messages
 import play.api.libs.json._
 import play.api.mvc.RequestHeader
+import views.AppConfig
 
 object JsonApiV1 {
 
   final val JSONAPI_MIMETYPE = "application/vnd.api+json"
+
+  def merge(obj: JsObject*): JsObject = obj.fold(Json.obj())((a, b) => a.deepMerge(b))
+
+  def pidMeta[T <: PersistentIdentifiable](t: T)(implicit req: RequestHeader, config: AppConfig): JsObject =
+    t.pid.fold(ifEmpty = Json.obj()) { p =>
+      Json.obj(
+        "pid" -> p,
+        "ark" -> config.configuration.getOptional[String]("ehri.portal.arks.prefix")
+          .fold(ifEmpty = controllers.portal.routes.Portal.lookupPid(p)
+            .absoluteURL(config.https))(prefix => s"$prefix$p"))
+    }
 
   def holderMeta[T <: Holder[_] with Accessible](t: T): JsObject = Json.obj(
     "subitems" -> t.childCount
@@ -168,7 +180,7 @@ object JsonApiV1 {
     self: String,
     search: String,
     holder: Option[String] = None,
-    parent: Option[String] = None
+    parent: Option[String] = None,
   )
 
   object DocumentaryUnitLinks {
@@ -230,7 +242,7 @@ object JsonApiV1 {
 
   case class HistoricalAgentLinks(
     self: String,
-    related: String
+    related: String,
   )
 
   object HistoricalAgentLinks {
@@ -240,7 +252,7 @@ object JsonApiV1 {
   case class RepositoryLinks(
     self: String,
     search: String,
-    country: Option[String]
+    country: Option[String],
   )
 
   object RepositoryLinks {
@@ -282,7 +294,7 @@ object JsonApiV1 {
 
   case class CountryLinks(
     self: String,
-    search: String
+    search: String,
   )
 
   object CountryLinks {
