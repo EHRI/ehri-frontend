@@ -30,14 +30,20 @@
         <dt>@Messages("documentaryUnit.levelOfDescription")</dt>
         <dd>@translationOrCode("documentaryUnit.levelOfDescription", e)</dd>
     }
-    @if(desc.conditions.languageOfMaterials.nonEmpty) {
+    @if(desc.conditions.languageOfMaterials.nonEmpty || desc.conditions.languageOfMaterialNotes.exists(_.nonEmpty)) {
         <dt>@Messages("documentaryUnit.languageOfMaterials")</dt>
         <dd class="item-meta-languages">
-            <ul>
-                @desc.conditions.languageOfMaterials.map { l =>
-                    <li>@views.Helpers.languageCodeToName(l)</li>
+            @if(desc.conditions.languageOfMaterials.nonEmpty) {
+                <ul>
+                    @desc.conditions.languageOfMaterials.map { l =>
+                        <li>@views.Helpers.languageCodeToName(l)</li>
+                    }
+                </ul>
+            } else {
+                @desc.conditions.languageOfMaterialNotes.map { notes =>
+                    <span title="@notes">@views.Helpers.ellipsize(notes, 60)</span>
                 }
-            </ul>
+            }
         </dd>
     }
     @if(desc.conditions.scriptOfMaterials.nonEmpty) {

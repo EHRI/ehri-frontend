@@ -54,6 +54,7 @@
             @textInput(desc, ACCESS_COND)
             @textInput(desc, REPROD_COND)
             @choiceInput(desc, LANG_MATERIALS, views.Helpers.languagePairList, attrs._multiple -> true, attrs._size -> 1)
+            @hiddenInput(desc(LANG_MATERIAL_NOTES))
             @choiceInput(desc, SCRIPT_MATERIALS, views.Helpers.scriptPairList, attrs._multiple -> true, attrs._size -> 1)
             @textInput(desc, PHYSICAL_CHARS)
             @inlineTextSet(desc, FINDING_AIDS, rows = 4)

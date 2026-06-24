@@ -57,6 +57,7 @@ case object IsadG {
   val ACCESS_COND = "conditionsOfAccess"
   val REPROD_COND = "conditionsOfReproduction"
   val LANG_MATERIALS = "languageOfMaterial"
+  val LANG_MATERIAL_NOTES = "languageOfMaterialNotes"
   val SCRIPT_MATERIALS = "scriptOfMaterial"
   val PHYSICAL_CHARS = "physicalCharacteristics"
   val FINDING_AIDS = "findingAids"
