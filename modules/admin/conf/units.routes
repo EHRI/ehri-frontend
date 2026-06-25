@@ -5,7 +5,7 @@ GET     /list                                      @controllers.units.Documentar
 GET     /:id                                       @controllers.units.DocumentaryUnits.get(id: String, dlid: Option[String] ?= None, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET     /:id/history                               @controllers.units.DocumentaryUnits.history(id: String, range: utils.RangeParams ?= utils.RangeParams.empty)
 GET     /:id/delete                                @controllers.units.DocumentaryUnits.delete(id: String, paging: utils.PageParams ?= utils.PageParams.empty)
-POST    /:id/delete                                @controllers.units.DocumentaryUnits.deletePost(id: String, goToId: Option[String] ?= None)
+POST    /:id/delete                                @controllers.units.DocumentaryUnits.deletePost(id: String, goTo: Option[String] ?= None)
 GET     /:id/delete-contents                       @controllers.units.DocumentaryUnits.deleteContents(id: String, paging: utils.PageParams ?= utils.PageParams.empty)
 POST    /:id/delete-contents                       @controllers.units.DocumentaryUnits.deleteContentsPost(id: String, paging: utils.PageParams ?= utils.PageParams.empty)
 GET     /:id/update                                @controllers.units.DocumentaryUnits.update(id: String)
