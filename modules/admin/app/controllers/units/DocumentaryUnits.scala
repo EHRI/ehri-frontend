@@ -109,6 +109,7 @@ case class DocumentaryUnits @Inject()(
   private val childForm = models.DocumentaryUnit.form
 
   private val docRoutes = controllers.units.routes.DocumentaryUnits
+  private val repoRoutes = controllers.institutions.routes.Repositories
   private val renameForm = Form(single(IDENTIFIER -> nonEmptyText))
 
   def search(params: SearchParams, paging: PageParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>
@@ -278,7 +279,11 @@ case class DocumentaryUnits @Inject()(
     userDataApi.children[DocumentaryUnit, DocumentaryUnit](id, paging).map { children =>
       Ok(views.html.admin.deleteParent(
         request.item, children,
-        docRoutes.deletePost(id, goToId = request.item.parent.map(_.id)),
+        docRoutes.deletePost(id,
+          goTo = request.item.parent.
+            map(p => docRoutes.get(p.id).url)
+            .orElse(request.item.holder.map(r => repoRoutes.get(r.id).url))
+        ),
         cancel = docRoutes.get(id),
         deleteChild = cid => docRoutes.delete(cid),
         deleteAll = Some(docRoutes.deleteContents(id)),
@@ -286,8 +291,8 @@ case class DocumentaryUnits @Inject()(
     }
   }
 
-  def deletePost(id: String, goToId: Option[String]): Action[AnyContent] = DeleteAction(id).apply { implicit request =>
-    Redirect(goToId.map(p => docRoutes.get(p)).getOrElse(docRoutes.search()))
+  def deletePost(id: String, goTo: Option[String]): Action[AnyContent] = DeleteAction(id).apply { implicit request =>
+    Redirect(goTo.getOrElse(docRoutes.search().url))
       .flashing("success" -> "item.delete.confirmation")
   }
 
