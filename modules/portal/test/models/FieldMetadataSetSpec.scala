@@ -10,7 +10,6 @@ class FieldMetadataSetSpec extends PlaySpecification with ResourceUtils {
   private val et = EntityType.Repository
   private val fm1 = FieldMetadata(et, "1", "test1", Some("description"), Option.empty[FieldMetadata.Usage.Value], Some("info"), None, Seq("seeAlso"))
   private val fm2 = FieldMetadata(et, "2", "test2", Some("description"), Option.empty[FieldMetadata.Usage.Value], None, None, Seq("seeAlso"))
-  private val templates = Seq("" -> Seq("2"), "info" -> Seq("1"))
 
   "FieldMetaSet" should {
     "return a sequence of FieldMetadata" in {
@@ -46,6 +45,24 @@ class FieldMetadataSetSpec extends PlaySpecification with ResourceUtils {
       )
       val doc = readResource(EntityType.DocumentaryUnit).as[DocumentaryUnitF]
       fms.validate(doc) must_== Seq(MissingMandatoryField(LOCATION_ORIGINALS), MissingDesirableField(ARCH_HIST))
+    }
+    "validate a repository w/ empty addresses" in {
+      // This tests an edge case where an empty data map in an address would cause
+      // the validation of a repository to fail.
+      import Isdiah._
+      val fms = FieldMetadataSet(ListMap(
+        ACCESSIBILITY -> FieldMetadata(
+          EntityType.Repository,
+          ACCESSIBILITY,
+          "Accessibility",
+          Some("Should be provided"),
+          Some(FieldMetadata.Usage.Desirable)
+        )
+      ))
+      val repo = readResource(EntityType.Repository).as[RepositoryF]
+      val repoWithAddress = repo
+        .copy(descriptions = repo.descriptions.map(d => d.copy(addresses = AddressF(id = Some("123"), name = None) +: d.addresses)))
+      fms.validate(repoWithAddress) must_== Seq(MissingDesirableField(ACCESSIBILITY))
     }
   }
 }
