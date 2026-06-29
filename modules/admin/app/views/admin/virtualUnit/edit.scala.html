@@ -5,6 +5,7 @@
 @views.html.admin.layout.rightSidebarWithType(Messages("virtualUnit.update"), item.isA, breadcrumbs = breadcrumbs(item), scripts = formHelpers.formJs(f)) {
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
+        @formHelpers.globalErrors(f)
 		@form(f, fieldHints)
         @formHelpers.submitButtonWithLogMessageInput(Messages("virtualUnit.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))
 	}

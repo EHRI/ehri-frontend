@@ -5,6 +5,7 @@
 @views.html.admin.layout.rightSidebar(Messages("authoritativeSet.update"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
+        @formHelpers.globalErrors(f)
         @formHelpers.hiddenInput(f(Entity.IDENTIFIER))
         @views.html.admin.authoritativeSet.form(Some(item), f, fieldHints)
 

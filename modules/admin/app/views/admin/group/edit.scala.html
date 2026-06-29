@@ -3,6 +3,7 @@
 @views.html.admin.layout.rightSidebar(Messages("group.edit"), breadcrumbs = views.html.admin.group.breadcrumbs(Some(item))) {
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
+        @formHelpers.globalErrors(f)
         @form(Some(item), f)
         @formHelpers.submitButtonWithLogMessageInput(Messages("group.edit.submit"), cancel = views.admin.Helpers.linkToOpt(item))
 	}

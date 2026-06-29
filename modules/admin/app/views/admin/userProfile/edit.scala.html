@@ -6,6 +6,7 @@
 
     @helper.form(action = action) {
         @formHelpers.csrfToken()
+        @formHelpers.globalErrors(f)
         @views.html.admin.userProfile.form(item, f)
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("userProfile.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))

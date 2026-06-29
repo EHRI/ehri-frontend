@@ -5,6 +5,7 @@
 @views.html.admin.layout.rightSidebarWithType(Messages("cvocVocabulary.update"), EntityType.Vocabulary, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
     @helper.form(action = action) {
         @formHelpers.csrfToken()
+        @formHelpers.globalErrors(f)
         @formHelpers.hiddenInput(f(Entity.IDENTIFIER))
         @views.html.admin.vocabulary.form(Some(item), f, fieldHints)
 

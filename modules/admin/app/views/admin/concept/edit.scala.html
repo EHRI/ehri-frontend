@@ -6,6 +6,7 @@
 		
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
+        @formHelpers.globalErrors(f)
 		@form(f, fieldHints)
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("cvocConcept.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))

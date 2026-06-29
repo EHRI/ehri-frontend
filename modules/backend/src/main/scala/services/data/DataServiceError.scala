@@ -63,6 +63,11 @@ object InputDataError {
   implicit val _format: Format[InputDataError] = Json.format[InputDataError]
 }
 
+case class ConflictError(error: String, details: String) extends RuntimeException(error) with DataServiceError
+object ConflictError {
+  implicit val _format: Format[ConflictError] = Json.format[ConflictError]
+}
+
 case class DeserializationError() extends RuntimeException() with DataServiceError
 
 case class IntegrityError() extends RuntimeException() with DataServiceError
