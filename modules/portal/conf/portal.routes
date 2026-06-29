@@ -66,6 +66,7 @@ GET         /activity/:id                         @controllers.portal.Portal.ite
 GET         /event/:id                            @controllers.portal.Portal.eventDetails(id: String, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /feed/$key<\w+>                       @controllers.portal.Portal.externalFeed(key: String)
 GET         /item/:entityType/:id                 @controllers.portal.Portal.browseItem(entityType: models.EntityType.Value, id: String)
+GET         /pid/:pid                             @controllers.portal.Portal.lookupPid(pid: String)
 
 # Virtual Units
 GET         /virtual                              @controllers.portal.VirtualUnits.browseVirtualCollections(params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)

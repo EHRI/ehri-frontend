@@ -96,7 +96,8 @@ case class HistoricalAgent(
   meta: JsObject = JsObject(Seq())
 ) extends Model
   with DescribedModel
-  with Accessible {
+  with Accessible
+  with PersistentIdentifiable {
 
   type T = HistoricalAgentF
 }

@@ -14,21 +14,21 @@ class ImportLogsSpec extends IntegrationTestRunner with ResourceUtils {
 
   "Import Logs API" should {
 
-    "get heuristic cleanup" in new DBTestApp("import-log-fixture.sql") {
+    "get heuristic cleanup" in new DBTestApp("import-log-fixtures.sql") {
       val r = FakeRequest(routes.cleanup("r1", 1))
         .withUser(privilegedUser)
         .call()
       contentAsJson(r) must_== Json.toJson(Cleanup(
         deletions = Seq("nl-r1-m19", "c4"),
-        redirects = Seq("nl-r1-m19" -> "nl-r1-TEST-m19")
+        redirects = Seq("nl-r1-m19" -> "nl-r1-test-m19")
       ))
     }
 
-    "perform cleanup" in new DBTestApp("import-log-fixture.sql") {
+    "perform cleanup" in new DBTestApp("import-log-fixtures.sql") {
       val expected = CleanupSummary(
         // we delete both the deleted item and the moved item's source
         deletions = 2,
-        // this would be 1 except the fixture item nl-r1-TEST-m19
+        // this would be 1 except the fixture item nl-r1-test-m19
         // doesn't actually exist on the backend
         relinks = 0,
         // 1 redirect for both admin and public pages, so

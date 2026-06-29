@@ -263,6 +263,13 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
     }
   }
 
+  override def getAnyByPid[MT: Readable](pid: String): Future[MT] = {
+    val url: String = enc(genericItemUrl, s"pid:$pid")
+    BackendRequest(url).withHeaders(authHeaders.toSeq: _*).get().map { response =>
+      checkErrorAndParse(response, context = Some(url))(implicitly[Readable[MT]]._reads)
+    }
+  }
+
   override def fetch[MT: Readable](ids: Seq[String] = Seq.empty, gids: Seq[Long] = Seq.empty): Future[Seq[Option[MT]]] = {
     // NB: Using POST here because the list of IDs can
     // potentially overflow the GET param length...
@@ -370,6 +377,13 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
       .withHeaders(params.headers: _*)
       .withHeaders(Ranged.streamHeader).get().map { response =>
       parsePage(response, context = Some(url))(Readable[A]._reads)
+    }
+  }
+
+  override def diff(id: String, versionId: String): Future[JsValue] = {
+    val url: String = enc(genericItemUrl, id, "diff", versionId)
+    userCall(url).get().map { response =>
+      response.json
     }
   }
 
@@ -723,6 +737,15 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
     Reads.seq[List[String]].map(_.collect { case a :: b :: c :: _ => (a, b, c) }),
     Writes { s => Json.toJson(s.map(t => Seq(t._1, t._2, t._3))) }
   )
+
+  override def migrateUnits(repoId: String, mapping: Seq[(String, String)], tolerant: Boolean = false, commit: Boolean = false): Future[Seq[Seq[String]]] = {
+    val repoUrl = enc(typeBaseUrl, EntityType.Repository, repoId, "migrate")
+    userCall(repoUrl)
+      .withQueryString("tolerant" -> tolerant.toString)
+      .withQueryString("commit" -> commit.toString)
+      .post(Json.toJson(mapping))
+      .map(r => checkErrorAndParse[Seq[Seq[String]]](r, Some(repoUrl)))
+  }
 
   override def relinkTargets(mapping: Seq[(String, String)], tolerant: Boolean = false, commit: Boolean = false): Future[Seq[(String, String, Int)]] = {
     val url = enc(baseUrl, "tools", "relink-targets")

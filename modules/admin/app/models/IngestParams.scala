@@ -60,6 +60,7 @@ case class IngestParams(
   data: PayloadHandle = PayloadHandle.empty,
   properties: ConfigHandle = ConfigHandle.empty,
   hierarchyFile: ConfigHandle = ConfigHandle.empty,
+  version: Boolean = true,
   commit: Boolean = false
 )
 
@@ -69,6 +70,7 @@ object IngestParams {
   val FONDS = "fonds"
   val TOLERANT = "tolerant"
   val ALLOW_UPDATE = "allow-update"
+  val VERSION = "version"
   val USE_SOURCE_ID = "use-source-id"
   val FIELD_SEPARATOR = "field-separator"
   val LANG = "lang"
@@ -104,6 +106,7 @@ object IngestParams {
       DATA_FILE -> ignored(PayloadHandle.empty),
       PROPERTIES_FILE -> ignored(ConfigHandle.empty),
       HIERARCHY_FILE -> ignored(ConfigHandle.empty),
+      VERSION -> boolean,
       COMMIT -> default(boolean, false)
     )(IngestParams.apply)(IngestParams.unapply)
   )

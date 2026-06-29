@@ -142,7 +142,8 @@ case class Concept(
   with DescribedModel
   with Hierarchical[Concept]
   with Accessible
-  with Holder[Concept] {
+  with Holder[Concept]
+  with PersistentIdentifiable {
 
   type T = ConceptF
 }

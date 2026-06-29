@@ -8,6 +8,7 @@
         }
     } {
         @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id), views.html.vocabulary.introNotice())
+        @views.html.common.pid(item)
         @views.html.common.childItemSidebar(item, EntityType.Concept)
         @views.html.common.exportItem(
             Seq(

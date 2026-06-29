@@ -23,6 +23,7 @@
         @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id), introNotice())
 
         @views.html.common.sidepanelToc {
+            @views.html.common.pid(item)
             @views.html.common.sidebarSection(Messages("country.report.toc"), cls = "country-toc") {
                 <ul>
                     @if(item.data.history.isDefined) {

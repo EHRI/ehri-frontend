@@ -9,6 +9,7 @@
                 }
             } {
                 @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id))
+                @views.html.common.pid(item)
             } {
                 @views.html.common.exportItem(
                     Seq("eac").map(format => format -> controllers.portal.routes.HistoricalAgents.render(item.id, format = Some(format), asFile = true))
