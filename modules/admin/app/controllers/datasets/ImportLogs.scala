@@ -84,19 +84,19 @@ case class ImportLogs @Inject()(
   }
 
   def cleanup(id: String, snapshotId: Int): Action[AnyContent] = EditAction(id).async { implicit request =>
-    importLogService.cleanup(id, snapshotId).map { items =>
+    importLogService.cleanupInfo(id, snapshotId).map { items =>
       Ok(Json.toJson(items))
     }
   }
 
   def getCleanup(id: String, snapshotId: Int, cleanupId: Int): Action[AnyContent] = EditAction(id).async { implicit request =>
-    importLogService.getCleanup(id, snapshotId, cleanupId).map { items =>
+    importLogService.getCommittedCleanup(id, snapshotId, cleanupId).map { items =>
       Ok(Json.toJson(items))
     }
   }
 
   def listCleanups(id: String, snapshotId: Int): Action[AnyContent] = EditAction(id).async { implicit request =>
-    importLogService.listCleanups(id, snapshotId).map { items =>
+    importLogService.listCommittedCleanups(id, snapshotId).map { items =>
       Ok(Json.toJson(items))
     }
   }
@@ -117,7 +117,7 @@ case class ImportLogs @Inject()(
     }
 
     for {
-      cleanup <- importLogService.cleanup(id, snapshotId)
+      cleanup <- importLogService.cleanupInfo(id, snapshotId)
       _ = logger.info(s"Relink: ${cleanup.redirects.size}, deletions: ${cleanup.deletions.size}")
       relinkCount  <- userDataApi.relinkTargets(cleanup.redirects, tolerant = true, commit = true).map(_.map(_._3).sum)
       _ = logger.info(s"Done relinks: $relinkCount")
@@ -125,7 +125,7 @@ case class ImportLogs @Inject()(
       _ = logger.info(s"Done redirects: $redirectCount")
       delCount <- deleteBatches(cleanup.deletions)
       _ = logger.info(s"Done deletions: $delCount")
-      _ <- importLogService.saveCleanup(id, snapshotId, cleanup)
+      _ <- importLogService.saveCommittedCleanup(id, snapshotId, cleanup)
     } yield {
       val sum = CleanupSummary(
         deletions = delCount,

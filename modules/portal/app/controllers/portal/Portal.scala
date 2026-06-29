@@ -107,12 +107,24 @@ case class Portal @Inject()(
   }
 
   /**
-    * Portal index. Currently this just shows an overview of the data
+    * Portal index. Currently, this just shows an overview of the data
     * extracted from the search engine facet counts for different
     * types.
     */
   def index: Action[AnyContent] = OptionalUserAction.async { implicit request =>
     getStats.map(s => Ok(views.html.index(s, accountForms)))
+  }
+
+  def lookupPid(pid: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+    userDataApi.getAnyByPid[Model](pid).map { m =>
+      if (request.uri.endsWith("?")) {
+        val extended = request.uri.endsWith("??")
+        m match {
+          case d: DocumentaryUnit => Ok(views.txt.documentaryUnit.pidInfo(d, extended))
+          case _ => Ok("")
+        }
+      } else Redirect(views.Helpers.linkTo(m.isA, m.id))
+    }
   }
 
   def browseItem(entityType: EntityType.Value, id: String): Action[AnyContent] = OptionalUserAction { implicit request =>

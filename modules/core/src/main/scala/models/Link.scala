@@ -160,7 +160,8 @@ case class Link(
   meta: JsObject = JsObject(Seq())
 ) extends Model
   with Accessible
-  with Promotable {
+  with Promotable
+  with PersistentIdentifiable {
 
   type T = LinkF
 

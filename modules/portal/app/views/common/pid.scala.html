@@ -1,0 +1,15 @@
+@(item: PersistentIdentifiable)(implicit req: RequestHeader, userOpt: Option[UserProfile], messages: Messages, appConfig: AppConfig)
+
+@item.pid.map { pid =>
+    @views.html.common.sidebarSection(Messages("item.pid")) {
+        @defining(appConfig.configuration.getOptional[String]("ehri.portal.arks.urlPrefix")) { prefixOpt =>
+            @prefixOpt.map { prefix =>
+                <a href="@prefix@(pid)">@prefix@pid</a>
+            }.getOrElse {
+                <a href="@controllers.portal.routes.Portal.lookupPid(pid)">
+                    @controllers.portal.routes.Portal.lookupPid(pid).absoluteURL(appConfig.https)
+                </a>
+            }
+        }
+    }
+}

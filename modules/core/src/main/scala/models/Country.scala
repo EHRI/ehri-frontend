@@ -95,7 +95,8 @@ case class Country(
   meta: JsObject = JsObject(Seq())
 ) extends Model
   with Accessible
-  with Holder[Repository] {
+  with Holder[Repository]
+  with PersistentIdentifiable {
 
   type T = CountryF
 
