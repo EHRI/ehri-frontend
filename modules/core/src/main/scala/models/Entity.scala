@@ -21,7 +21,7 @@ object Entity {
   implicit lazy val entityReads: Reads[Entity] = (
     (__ \ ID).read[String] and
     (__ \ TYPE).read[EntityType.Type](EnumUtils.enumReads(EntityType)) and
-    (__ \ DATA).lazyRead(Reads.map[JsValue]) and
+    (__ \ DATA).lazyReadNullable(Reads.map[JsValue]).map(_.getOrElse(Map.empty)) and // can be missing
     (__ \ RELATIONSHIPS).lazyReadNullable(Reads.map[Seq[Entity]]).map(_.getOrElse(Map.empty)) // can be missing
   )(Entity.apply _)
 
