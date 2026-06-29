@@ -6,7 +6,6 @@
 @implicitField = @{views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f)}
 
 @defining(Some(fieldHints)) { implicit implicitFieldHints =>
-
     @defining("documentaryUnit") { implicit fieldPrefix =>
         @formHelpers.inlineNameSet(f(""), OTHER_IDENTIFIERS)
 

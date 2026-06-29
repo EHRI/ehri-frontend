@@ -1,10 +1,10 @@
 package controllers.generic
 
-import play.api.mvc._
+import play.api.mvc.{request, _}
 import play.api.data.Form
 import models.{ContentType, EventType, Model, ModelData, PermissionType, Persistable, UserProfile, UsersAndGroups, Writable}
 import forms._
-import services.data.{DataHelpers, ValidationError}
+import services.data.{ConflictError, DataHelpers, ValidationError}
 
 import scala.concurrent.Future
 
@@ -49,30 +49,38 @@ trait Creator[CMT <: Model {type T <: ModelData with Persistable}, MT <: Model] 
 
   private[generic] def CreateChildTransformer(id: String, form: Form[CMT#T], extraParams: ExtraParams = defaultExtra)(implicit ct: ContentType[MT], fmt: Writable[CMT#T], cct: ContentType[CMT]) =
     new CoreActionTransformer[ItemPermissionRequest, CreateChildRequest] {
+
+
       def transform[A](request: ItemPermissionRequest[A]): Future[CreateChildRequest[A]] = {
         implicit val req: ItemPermissionRequest[A] = request
         val extra = extraParams.apply(request.request)
         val visForm = visibilityForm.bindFromRequest()
         val formConfig = FieldMetaFormFieldHintsBuilder(cct.entityType, entityTypeMetadata, config)
+
+        def createNewForm(filledForm: Form[CMT#T]) = {
+          for {
+            fieldHints <- formConfig.forCreate
+            usersAndGroups <- dataHelpers.getUserAndGroupList
+          } yield CreateChildRequest(request.item, Left((filledForm, visForm, fieldHints, usersAndGroups)), request.userOpt, request)
+        }
+
         form.bindFromRequest().fold(
           errorForm => for {
             fieldHints <- formConfig.forCreate
             usersAndGroups <- dataHelpers.getUserAndGroupList
           } yield CreateChildRequest(request.item, Left((errorForm, visForm, fieldHints, usersAndGroups)), request.userOpt, request.request),
 
-          citem => {
+          created => {
             val accessors = visForm.value.getOrElse(Nil)
             (for {
-              pre <- itemLifecycle.preSave(None, None, citem, EventType.creation)
+              pre <- itemLifecycle.preSave(None, None, created, EventType.creation)
               saved <- userDataApi.createInContext[MT, CMT#T, CMT](id, pre, accessors, params = extra, logMsg = getLogMessage)
               post <- itemLifecycle.postSave(saved.id, saved, EventType.creation)
             } yield CreateChildRequest(request.item, Right(post), request.userOpt, request)) recoverWith {
+              case ConflictError(error, details) =>
+                createNewForm(form.fill(created).withGlobalError(s"$error: $details"))
               case ValidationError(errorSet) =>
-                val filledForm = citem.getFormErrors(errorSet, form.fill(citem))
-                for {
-                  fieldHints <- formConfig.forCreate
-                  usersAndGroups <- dataHelpers.getUserAndGroupList
-                } yield CreateChildRequest(request.item, Left((filledForm, visForm, fieldHints, usersAndGroups)), request.userOpt, request)
+                createNewForm(created.getFormErrors(errorSet, form.fill(created)))
             }
           }
         )

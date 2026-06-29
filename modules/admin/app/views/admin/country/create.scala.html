@@ -5,6 +5,7 @@
 @views.html.admin.layout.rightSidebarWithType(Messages("country.create"), EntityType.Country, scripts = formHelpers.formJs(f), breadcrumbs = views.html.admin.country.breadcrumbs()) {
     @helper.form(action = action) {
         @formHelpers.csrfToken()
+        @formHelpers.globalErrors(f)
         @formHelpers.lineInput(f(""), Entity.IDENTIFIER, attrs._autocomplete -> "off")
         @views.html.admin.country.form(None, f, fieldHints)
         @views.html.admin.permissions.visibilityForm(vf, usersAndGroups)

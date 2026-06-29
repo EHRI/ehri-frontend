@@ -6,6 +6,7 @@
 
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
+        @formHelpers.globalErrors(f)
 
         @formHelpers.hiddenInput(f(Entity.IDENTIFIER))
         <p>@Messages("item.identifier"): <strong>@item.data.identifier</strong> [

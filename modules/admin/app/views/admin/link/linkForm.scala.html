@@ -5,6 +5,7 @@
 @import LinkF._
 
 @formHelpers.csrfToken()
+@formHelpers.globalErrors(form)
 <fieldset id="annotate-area">
     <legend>@Messages("link.create")</legend>
     @defining("link") { implicit fieldPrefix =>

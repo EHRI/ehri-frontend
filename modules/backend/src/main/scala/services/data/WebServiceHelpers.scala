@@ -206,10 +206,15 @@ trait WebServiceHelpers {
           throw perm
         }
       )
-      case BAD_REQUEST | CONFLICT => try {
+      case CONFLICT => response.json.validate[HierarchyError]
+        .orElse(response.json.validate[ConflictError])
+        .fold(
+        _ => throw sys.error(s"Unexpected CONFLICT:\n${response.json}"),
+        conflict => throw conflict
+      )
+      case BAD_REQUEST => try {
         response.json.validate[ValidationError]
           .orElse(response.json.validate[InputDataError])
-          .orElse(response.json.validate[HierarchyError])
           .fold(
             e => {
               // Temporary approach to handling random Deserialization errors.

@@ -1,7 +1,7 @@
 package controllers.generic
 
 import forms._
-import models.{ContentType, EventType, Model, ModelData, PermissionType, Persistable, UserProfile, UsersAndGroups, Writable}
+import models._
 import play.api.data._
 import play.api.mvc._
 import services.data._
@@ -11,7 +11,7 @@ import scala.concurrent.Future
 /**
   * Controller trait for creating entities..
   */
-trait Create[MT <: Model{type T <: ModelData with Persistable}] extends Read[MT] with Write {
+trait Create[MT <: Model {type T <: ModelData with Persistable}] extends Read[MT] with Write {
 
   protected def dataHelpers: DataHelpers
 
@@ -57,6 +57,14 @@ trait Create[MT <: Model{type T <: ModelData with Persistable}] extends Read[MT]
         implicit val req: WithUserRequest[A] = request
         val visForm = visibilityForm.bindFromRequest()
         val formConfig = FieldMetaFormFieldHintsBuilder(ct.entityType, entityTypeMetadata, config)
+
+        def createNewForm(filledForm: Form[MT#T]) = {
+          for {
+            fieldHints <- formConfig.forCreate
+            usersAndGroups <- dataHelpers.getUserAndGroupList
+          } yield CreateRequest(Left((filledForm, visForm, fieldHints, usersAndGroups)), request.user, request)
+        }
+
         form.bindFromRequest().fold(
           errorForm => for {
             fieldHints <- formConfig.forCreate
@@ -70,15 +78,13 @@ trait Create[MT <: Model{type T <: ModelData with Persistable}] extends Read[MT]
               saved <- userDataApi.create(pre, accessors, params = pf(request), logMsg = getLogMessage)
               post <- itemLifecycle.postSave(saved.id, saved, EventType.creation)
             } yield CreateRequest(Right(post), request.user, request)) recoverWith {
-              // If we have an error, check if it's a validation error.
+              // If we have an error, check if it's a validation or conflict error.
               // If so, we need to merge those errors back into the form
               // and redisplay it...
+              case ConflictError(error, details) =>
+                createNewForm(form.fill(doc).withGlobalError(s"$error: $details"))
               case ValidationError(errorSet) =>
-                val filledForm = doc.getFormErrors(errorSet, form.fill(doc))
-                for {
-                  fieldHints <- formConfig.forCreate
-                  usersAndGroups <- dataHelpers.getUserAndGroupList
-                } yield CreateRequest(Left((filledForm, visForm, fieldHints, usersAndGroups)), request.user, request)
+                createNewForm(doc.getFormErrors(errorSet, form.fill(doc)))
             }
           }
         )

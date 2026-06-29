@@ -3,6 +3,7 @@
 @views.html.admin.layout.rightSidebarWithType(Messages("group.create"), EntityType.Group, breadcrumbs = views.html.admin.group.breadcrumbs()) {
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
+        @formHelpers.globalErrors(f)
         @form(None, f)
         @views.html.admin.group.memberForm(usersAndGroups)
 

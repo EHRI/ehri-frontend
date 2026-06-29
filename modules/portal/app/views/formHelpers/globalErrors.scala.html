@@ -3,10 +3,14 @@
 @if(form.globalErrors.nonEmpty) {
     <div class="alert alert-danger alert-block form-global-errors" role="alert">
         <h4>@{if(msg.nonEmpty) msg else Messages("error.globalErrors")}</h4>
-        <ul>
-        @form.globalErrors.map { error =>
-            <li>@Messages(error.message)</li>
+        @if(form.globalErrors.size > 1) {
+            <ul>
+            @form.globalErrors.map { error =>
+                <li>@Messages(error.message)</li>
+            }
+            </ul>
+        } else {
+            @Messages(form.globalErrors.head.message)
         }
-        </ul>
     </div>
 }

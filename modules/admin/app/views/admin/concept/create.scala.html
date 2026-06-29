@@ -23,6 +23,7 @@
 
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
+        @formHelpers.globalErrors(f)
         @form(f, fieldHints)
 
         @views.html.admin.permissions.visibilityForm(vf, usersAndGroups)

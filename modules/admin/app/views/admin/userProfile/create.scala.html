@@ -3,10 +3,10 @@
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @views.html.admin.layout.rightSidebarWithType(Messages("userProfile.create"), EntityType.UserProfile, breadcrumbs = views.html.admin.userProfile.breadcrumbs()) {
-    @formHelpers.globalErrors(f)
 
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
+        @formHelpers.globalErrors(f)
         @helper.inputText(f("email"), attrs._autofocus -> "autofocus", attrs._class -> "form-control", attrs._label -> Messages("userProfile.email"))
         @helper.inputText(f("identifier"), attrs._class -> "form-control", attrs._label -> Messages("userProfile.username"))
         @helper.inputText(f("name"), attrs._class -> "form-control", attrs._label -> Messages("userProfile.realname"))
