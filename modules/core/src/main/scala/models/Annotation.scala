@@ -131,7 +131,10 @@ case class Annotation(
   demoters: Seq[UserProfile] = Nil,
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
-) extends Model with Accessible with Promotable {
+) extends Model
+  with Accessible
+  with Promotable
+  with PersistentIdentifiable {
 
   type T = AnnotationF
 

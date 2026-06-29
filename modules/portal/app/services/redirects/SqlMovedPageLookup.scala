@@ -43,7 +43,10 @@ case class SqlMovedPageLookup @Inject ()(db: Database)(implicit actorSystem: Act
         }
         val q = """INSERT INTO moved_pages(original_path_sha1, original_path, new_path)
                    VALUES({hash}, {original}, {path})
-                   ON CONFLICT (original_path_sha1) DO UPDATE SET new_path = {path}"""
+                   ON CONFLICT (original_path_sha1)
+                   DO UPDATE
+                    SET new_path = {path}
+                    WHERE moved_pages.new_path IS DISTINCT FROM EXCLUDED.new_path"""
         val batch = BatchSql(q, inserts.head, inserts.tail: _*)
         val rows: Array[Int] = batch.execute()
         rows.count(_ > 0)

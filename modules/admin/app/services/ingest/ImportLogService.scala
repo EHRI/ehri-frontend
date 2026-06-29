@@ -151,7 +151,7 @@ trait ImportLogService {
     * @return a cleanup object containing a list of ID redirect pairs
     *         and suggested deletion IDs
     */
-  def cleanup(repoId: String, snapshotId: Int): Future[Cleanup]
+  def cleanupInfo(repoId: String, snapshotId: Int): Future[Cleanup]
 
   /**
     * Save actions taken as the result of a cleanup.
@@ -161,7 +161,7 @@ trait ImportLogService {
     * @param cleanup    a cleanup object
     * @return the cleanup object's stored ID
     */
-  def saveCleanup(repoId: String, snapshotId: Int, cleanup: Cleanup): Future[Int]
+  def saveCommittedCleanup(repoId: String, snapshotId: Int, cleanup: Cleanup): Future[Int]
 
   /**
     * Get a list of cleanup action IDs for a given snapshot.
@@ -170,7 +170,7 @@ trait ImportLogService {
     * @param snapshotId the snapshot ID
     * @return a list of cleanup IDs and their timestamps
     */
-  def listCleanups(repoId: String, snapshotId: Int): Future[Seq[(Int, Instant)]]
+  def listCommittedCleanups(repoId: String, snapshotId: Int): Future[Seq[(Int, Instant)]]
 
   /**
     * Retrieve a cleanup item
@@ -180,7 +180,7 @@ trait ImportLogService {
     * @param cleanupId  the cleanup object ID
     * @return
     */
-  def getCleanup(id: String, snapshotId: Int, cleanupId: Int): Future[Cleanup]
+  def getCommittedCleanup(id: String, snapshotId: Int, cleanupId: Int): Future[Cleanup]
 
   /**
     * List the created, updated, unchanged stats for imports in the
