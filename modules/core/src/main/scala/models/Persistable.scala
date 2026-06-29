@@ -17,13 +17,13 @@ import services.data.ErrorSet
 
 object Persistable {
   def getRelationToAttributeMap(p: AnyRef): Map[String,String] = {
-    p.getClass.getDeclaredFields.foldLeft(Map.empty[String,String]) { (a, f) =>
+    p.getClass.getDeclaredFields.foldLeft(Map.empty[String,String]) { (acc, f) =>
       f.setAccessible(true)
       // If there's a relationship annotation on the value, 
       // add it to the map
       val aa = Option(f.getAnnotation(classOf[Relation])) match {
-        case Some(rel) => a + (rel.value -> f.getName)
-        case _ => a
+        case Some(rel) => acc + (rel.value -> f.getName)
+        case _ => acc
       }
       // If the value is a Persistable, add its relations to the map.
       // NB: There is potential for a conflict here if a subtree has
@@ -69,46 +69,37 @@ object Persistable {
    *
    * to:
    *
-   * descriptions[0].addresses[0]: ["No value given for mandatory field"]
+   * descriptions[0].name: ["No value given for mandatory field"]
    *
    * The translation of 'describes' -> 'descriptions' and 'hasAddress' -> 'addresses'
    * is inferred by the @Relation annotation on the Persistable case class field.
    */
-  def unfurlErrors(        
+  private def unfurlErrors(
       errorSet: ErrorSet,
-      relmap: Map[String,String],
+      relationMap: Map[String,String],
       currentMap: Map[String, Seq[String]] = Map(),
       path: Option[String] = None,
       attr: Option[String] = None,
       index: Option[Int] = None): Map[String, Seq[String]] = {
 
-    // TODO: Tidy this mess up
-    val newpath = attr match {
-      case Some(s) => index match {
-        case Some(i) => path match {
-          case Some(p) if p.isEmpty => s"$s[$i]"
-          case Some(p) => s"$p.$s[$i]"
-          case None => s"$s[$i]"
-        }
-        case _ => ""
-      }
-      case _ => ""
+    val newPath = (attr, index, path) match {
+      case (Some(a), Some(i), Some(p)) if p.nonEmpty => s"$p.$a[$i]"
+      case (Some(a), Some(i), _)                     => s"$a[$i]"
+      case _                                          => ""
     }
 
     // Map the top-level errors
-    val nmap = errorSet.errors.toSeq.foldLeft(currentMap) { case (m, (kv1, kv2)) =>
-      if (newpath.isEmpty)
-        m + (kv1 -> kv2)
-      else
-        m + (s"$newpath.$kv1" -> kv2)
+    val nmap = errorSet.errors.toSeq.foldLeft(currentMap) { case (m, (property, errors)) =>
+      if (newPath.isEmpty) m + (property -> errors)
+      else m + (s"$newPath.$property" -> errors)
     }
 
     // And then the nested relationship errors
     errorSet.relationships.foldLeft(nmap) { case (m, (rel, errorSets)) =>
-      val attrName = relmap.getOrElse(rel, sys.error(
-        s"Unknown error map relationship for: $rel ($relmap)"))
+      val attrName = relationMap.getOrElse(rel, sys.error(
+        s"Unknown error map relationship for: $rel ($relationMap)"))
       errorSets.zipWithIndex.foldLeft(m) { case (mm, (e1, e2)) => e1 match {
-          case Some(es) => unfurlErrors(es, relmap, mm, Some(newpath), Some(attrName), Some(e2))
+          case Some(es) => unfurlErrors(es, relationMap, mm, Some(newPath), Some(attrName), Some(e2))
           case None => mm
         }
       }
@@ -117,7 +108,7 @@ object Persistable {
 }
 
 /**
- * Base class for `pure` form-backed models that need to be
+ * Base class for form-backed models that need to be
  * persisted on the server.
  */
 trait Persistable {
