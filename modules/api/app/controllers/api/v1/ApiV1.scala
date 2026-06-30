@@ -86,13 +86,6 @@ case class ApiV1 @Inject()(
   // basically, no limit at the moment
   private val rateLimitTimeoutDuration: FiniteDuration = 1.second
 
-  // ARK links, depending on config
-  private def arkLink(pidOpt: Option[String])(implicit req: RequestHeader): Option[String] = pidOpt.map { pid =>
-    config.getOptional[String]("ehri.portal.arks.urlPrefix").fold(
-      ifEmpty = controllers.portal.routes.Portal.lookupPid(pid).absoluteURL(conf.https)
-    )(prefix => s"$prefix$pid")
-  }
-
   // Available facets, defined in `ApiFacet`
   private def apiSearchFacets(facets: Seq[String] = Seq.empty): FacetBuilder = { implicit request =>
     facets.map(ApiFacet.fromString).collect {

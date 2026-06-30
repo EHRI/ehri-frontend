@@ -256,4 +256,12 @@ object Helpers {
     if (path.isEmpty) controllers.portal.routes.VirtualUnits.searchVirtualCollection(id)
     else controllers.portal.routes.VirtualUnits.searchVirtualUnit(path.map(_.id).mkString(","), id)
   }
+
+  /**
+    * A resolvable permalink URL for a pid, e.g. "https://arks.org/ark:41045/p0abc123".
+    * Falls back to the app's own pid resolver if no external URL prefix is configured.
+    */
+  def pidUrl(pid: String)(implicit req: RequestHeader, config: AppConfig): String =
+    config.configuration.getOptional[String]("ehri.portal.arks.urlPrefix")
+      .fold(controllers.portal.routes.Portal.lookupPid(pid).absoluteURL(config.https))(prefix => s"$prefix$pid")
 }
