@@ -79,7 +79,8 @@ case class Repository(
   with Aliased
   with DescribedModel
   with Accessible
-  with Holder[DocumentaryUnit] {
+  with Holder[DocumentaryUnit]
+  with PersistentIdentifiable {
 
   type T = RepositoryF
 

@@ -5,7 +5,6 @@
     <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror/codemirror.js")"></script>
     <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror/javascript.js")"></script>
     <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror/xml.js")"></script>
-    <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/clipboard.js")"></script>
 }
 
 @includeStyles = {
@@ -32,11 +31,6 @@
     <script>
         jQuery(function($) {
             $('body').scrollspy({target: "#doc-navbar"});
-
-            var clip = new ClipboardJS(".copy-button")
-            clip.on("success", function(e) {
-                console.info("Copied!")
-            });
         });
     </script>
 } {

@@ -79,12 +79,12 @@ class SqlImportLogServiceSpec extends PlaySpecification with AfterAll {
 
     "calculate cleanup" in withDatabaseFixture("data-transformation-fixtures.sql") { implicit db =>
       // The log contains unit-1 and unit-2 but not unit-3
-      val idMap = List("oldunit-1" -> "1", "oldunit-2" -> "2", "todelete" -> "del")
+      val idMap = List("nl-r1-oldunit-1" -> "1", "nl-r1-oldunit-2" -> "2", "nl-r1-todelete" -> "del")
       val s = await(service.saveSnapshot("r1", Source(idMap), Some("Test...")))
       await(service.save("r1", "default", job, log))
-      val cleanup = await(service.cleanup("r1", s.id))
-      cleanup.redirects must_== Seq("oldunit-1" -> "unit-1", "oldunit-2" -> "unit-2")
-      cleanup.deletions must_== Seq("todelete", "oldunit-2", "oldunit-1")
+      val cleanup = await(service.cleanupInfo("r1", s.id))
+      cleanup.redirects must_== Seq("nl-r1-oldunit-1" -> "unit-1", "nl-r1-oldunit-2" -> "unit-2")
+      cleanup.deletions must_== Seq("nl-r1-todelete", "nl-r1-oldunit-2", "nl-r1-oldunit-1")
     }
 
     "store cleanup logs" in withDatabaseFixture("data-transformation-fixtures.sql") { implicit db =>
@@ -92,9 +92,9 @@ class SqlImportLogServiceSpec extends PlaySpecification with AfterAll {
       val idMap = List("oldunit-1" -> "1", "oldunit-2" -> "2", "todelete" -> "del")
       val s = await(service.saveSnapshot("r1", Source(idMap), Some("Test...")))
       await(service.save("r1", "default", job, log))
-      val cleanup = await(service.cleanup("r1", s.id))
-      val cid = await(service.saveCleanup("r1", s.id, cleanup))
-      val cleanup2 = await(service.getCleanup("r1", s.id, cid))
+      val cleanup = await(service.cleanupInfo("r1", s.id))
+      val cid = await(service.saveCommittedCleanup("r1", s.id, cleanup))
+      val cleanup2 = await(service.getCommittedCleanup("r1", s.id, cid))
       cleanup must_== cleanup2
     }
 
