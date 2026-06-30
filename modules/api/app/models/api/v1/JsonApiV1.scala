@@ -12,14 +12,17 @@ object JsonApiV1 {
 
   def merge(obj: JsObject*): JsObject = obj.fold(Json.obj())((a, b) => a.deepMerge(b))
 
-  def pidMeta[T <: PersistentIdentifiable](t: T)(implicit req: RequestHeader, config: AppConfig): JsObject =
-    t.pid.fold(ifEmpty = Json.obj()) { p =>
-      Json.obj(
-        "pid" -> p,
-        "ark" -> config.configuration.getOptional[String]("ehri.portal.arks.prefix")
-          .fold(ifEmpty = controllers.portal.routes.Portal.lookupPid(p)
-            .absoluteURL(config.https))(prefix => s"$prefix$p"))
-    }
+  def pidMeta[T <: PersistentIdentifiable](t: T)(implicit req: RequestHeader, config: AppConfig): JsObject = {
+    if (config.configuration.get[Boolean]("ehri.portal.arks.display")) {
+      t.pid.fold(ifEmpty = Json.obj()) { p =>
+        Json.obj(
+          "pid" -> p,
+          "ark" -> config.configuration.getOptional[String]("ehri.portal.arks.prefix")
+            .fold(ifEmpty = controllers.portal.routes.Portal.lookupPid(p)
+              .absoluteURL(config.https))(prefix => s"$prefix$p"))
+      }
+    } else Json.obj()
+  }
 
   def holderMeta[T <: Holder[_] with Accessible](t: T): JsObject = Json.obj(
     "subitems" -> t.childCount
