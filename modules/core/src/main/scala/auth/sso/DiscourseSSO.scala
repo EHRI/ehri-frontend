@@ -13,6 +13,7 @@ import play.api.Configuration
 
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
 import java.util.Base64
 
 case class DiscourseSSOError(msg: String) extends Exception(msg)
@@ -82,7 +83,7 @@ case class DiscourseSSO(endpoint: String, secret: String) {
   @throws[DiscourseSSOError]
   def decode(payload: String, sig: String): Seq[(String, String)] = {
     val check = Hashing.hmacSha256(secret.getBytes(utf8)).hashString(payload, utf8).toString
-    if (check != sig) {
+    if (!MessageDigest.isEqual(check.getBytes(utf8), sig.getBytes(utf8))) {
       throw DiscourseSSOError("Mismatched signature")
     }
 
