@@ -51,6 +51,7 @@
                             @views.html.common.childItemSidebar(item, EntityType.DocumentaryUnit)
                         } {
                             @views.html.admin.common.identifiers(item.data.identifier, item.data.otherIdentifiers)
+                            @views.html.common.pid(item)
                             @views.html.admin.common.latestAction(item, controllers.units.routes.DocumentaryUnits.history(item.id))
                             @views.html.admin.common.visibility(item, controllers.units.routes.DocumentaryUnits.visibility(item.id), ContentTypes.DocumentaryUnit)
                             @adminActions(item)

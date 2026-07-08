@@ -22,5 +22,15 @@ class SqlMovedPageLookupSpec extends IntegrationTestRunner {
         n must_== "/newer"
       }
     }
+
+    "work in an idempotent manner" in new DBTestApp {
+      val first = await(movedPageService.addMoved(Seq("/old" -> "/new")))
+      val second = await(movedPageService.addMoved(Seq("/old" -> "/new")))
+      await(movedPageService.hasMovedTo("/old")) must beSome.which { n =>
+        n must_== "/new"
+      }
+      first must_== 1
+      second must_== 0
+    }
   }
 }

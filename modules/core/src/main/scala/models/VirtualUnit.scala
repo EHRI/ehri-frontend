@@ -106,7 +106,8 @@ case class VirtualUnit(
   with Hierarchical[VirtualUnit]
   with Holder[VirtualUnit]
   with DescribedModel
-  with Accessible {
+  with Accessible
+  with PersistentIdentifiable {
 
   type T = VirtualUnitF
 

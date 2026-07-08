@@ -14,6 +14,7 @@
             } {
                 @views.html.repository.logo(item)
                 @views.html.common.sidepanelToc {
+                    @views.html.common.pid(item)
                     @views.html.common.childItemSidebar(item, EntityType.DocumentaryUnit)
                     @views.html.common.exportItem(
                         Seq("eag").map(format => format -> controllers.portal.routes.Repositories.render(item.id, format = Some(format), asFile = true))

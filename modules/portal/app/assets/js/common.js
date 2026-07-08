@@ -297,5 +297,17 @@ jQuery(function($) {
         .toggleClass("hidden");
     $item.toggleClass("fa-comments fa-comments-o")
   });
+
+  // Clipboard buttons
+  var clip = new ClipboardJS(".copy-button")
+  clip.on("success", function(e) {
+    e.trigger.classList.add("copied", "fa-check", "fa-solid");
+    e.trigger.classList.remove("fa-regular", "fa-copy")
+    setTimeout(function() {
+      e.trigger.classList.remove("copied",  "fa-check", "fa-solid");
+      e.trigger.classList.add("fa-regular", "fa-copy");
+    }, 1000);
+    console.info("Copied!")
+  });
 });
 

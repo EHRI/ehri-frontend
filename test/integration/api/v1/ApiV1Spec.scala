@@ -1,5 +1,6 @@
 package integration.api.v1
 
+import controllers.api.v1.ApiV1
 import helpers.IntegrationTestRunner
 import models.EntityType
 import models.api.v1.JsonApiV1
@@ -14,8 +15,9 @@ import utils.FieldFilter
 
 
 class ApiV1Spec extends IntegrationTestRunner {
-
+  import mockdata.{privilegedUser}
   private val apiRoutes = controllers.api.v1.routes.ApiV1
+  private val docRoutes = controllers.units.routes.DocumentaryUnits
 
   private def validateJson(json: JsValue): Unit = {
     val is = getClass.getResourceAsStream("/jsonapi-schema.json")
@@ -61,18 +63,51 @@ class ApiV1Spec extends IntegrationTestRunner {
       status(idx) must_== NOT_ACCEPTABLE
     }
 
-    "forbid fetching protected items" in new ITestApp {
-      val fetch = FakeRequest(apiRoutes.fetch("c1")).call()
-      status(fetch) must_== FORBIDDEN
-      validateJson(contentAsJson(fetch))
-    }
-
     "allow fetching items" in new ITestApp {
       val fetch = FakeRequest(apiRoutes.fetch("c4")).call()
       status(fetch) must_== OK
       validateJson(contentAsJson(fetch))
       contentAsJson(fetch) \ "data" \ "attributes" \ "descriptions" \ 0 \
-          "scopeAndContent" must_== JsDefined(JsString("Some description text for c4"))
+        "scopeAndContent" must_== JsDefined(JsString("Some description text for c4"))
+    }
+
+    "allow fetching items by PID" in new ITestApp(
+        specificConfig = Map("ehri.portal.arks.display" -> true)) {
+      val fetch = FakeRequest(apiRoutes.fetch("c4-12345678", pid = true)).call()
+      status(fetch) must_== OK
+      validateJson(contentAsJson(fetch))
+      contentAsJson(fetch) \ "data" \ "meta" \ "pid" must_== JsDefined(JsString("c4-12345678"))
+    }
+
+    "allow fetching items by prefixed PID" in new ITestApp(
+        specificConfig = Map("ehri.portal.arks.display" -> true, "ehri.portal.arks.prefix" -> "ark:12345/x1")) {
+      val fetch = FakeRequest(apiRoutes.fetch("ark:12345/p0c4-12345678", pid = true)).call()
+      status(fetch) must_== OK
+      validateJson(contentAsJson(fetch))
+      contentAsJson(fetch) \ "data" \ "meta" \ "pid" must_== JsDefined(JsString("c4-12345678"))
+      contentAsJson(fetch) \ "data" \ "meta" \ "ark" must_== JsDefined(JsString("ark:12345/x1c4-12345678"))
+    }
+
+    "forbid fetching protected items" in new ITestApp {
+      val fetch = FakeRequest(apiRoutes.fetch("c1")).call()
+      status(fetch) must_== NOT_FOUND
+      validateJson(contentAsJson(fetch))
+    }
+
+    "return GONE for removed items" in new ITestApp {
+      val delete = FakeRequest(docRoutes.deletePost("c4"))
+        .withUser(privilegedUser)
+        .call()
+      status(delete) must_== SEE_OTHER
+
+      val gone = FakeRequest(apiRoutes.fetch("c4")).call()
+      status(gone) must_== GONE
+      validateJson(contentAsJson(gone))
+      contentAsJson(gone) \ "errors" \ 0 \ "title" must_== JsDefined(JsString("Gone"))
+
+      val gonePid = FakeRequest(apiRoutes.fetch("c4-12345678", pid = true)).call()
+      status(gonePid) must_== GONE
+      validateJson(contentAsJson(gone))
     }
 
     "send CORS headers" in new ITestApp {
@@ -141,6 +176,12 @@ class ApiV1Spec extends IntegrationTestRunner {
       status(search) must_== OK
       validateJson(contentAsJson(search))
       contentAsJson(search) \ "meta" \ "facets" \ 0 \ "param" must_== JsDefined(JsString("lang"))
+    }
+
+    "remove the ARK prefix correctly" in {
+      "ark:12345/x1" must beMatching(ApiV1.arkPattern)
+      "ark:/12345/x1" must beMatching(ApiV1.arkPattern)
+      "ark:12345/x1abc" must not(beMatching(ApiV1.arkPattern))
     }
   }
 }

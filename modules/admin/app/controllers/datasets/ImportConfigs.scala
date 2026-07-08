@@ -79,6 +79,9 @@ case class ImportConfigs @Inject()(
             .getOrElse(ConfigHandle.empty)
       else ConfigHandle.empty
 
+      // TODO: make this a UI setting somewhere?
+      val versionUpdates = config.get[Boolean]("ehri.admin.dataManager.versionUpdates")
+
       // Use the sync endpoint if this fonds is synced and we a) are doing the complete
       // set and b) have a fonds.
       // Don't allow sync on the repository scope, because it is too dangerous.
@@ -104,6 +107,7 @@ case class ImportConfigs @Inject()(
           lang = request.body.config.defaultLang,
           fieldSeparator = fieldSeparator,
           commit = request.body.commit,
+          version = versionUpdates,
           properties = request.body.config.properties.map(ref =>
               ConfigHandle(configFileRefToFullUrl(id, ds, ref).toString))
             .getOrElse(ConfigHandle.empty),

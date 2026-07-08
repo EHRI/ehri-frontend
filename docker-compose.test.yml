@@ -17,7 +17,7 @@ services:
 
   # The actual Neo4j data backend
   neo4j:
-    image: docker.io/ehri/ehri-rest:0.15.5
+    image: ehri/ehri-rest:dev
     ports:
       - ${NEO4J_TEST_PORT:-7575}:7474
       - ${BOLT_TEST_PORT:-7686}:7687
@@ -27,7 +27,7 @@ services:
       EHRI_INIT: "true"
 
   solr:
-    image: docker.io/ehri/ehri-search-tools
+    image: ehri/ehri-search-tools:1.1.17
     ports:
       - ${SOLR_TEST_PORT:-8982}:8983
 

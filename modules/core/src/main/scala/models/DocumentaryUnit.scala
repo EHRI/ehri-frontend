@@ -10,6 +10,7 @@ import java.net.URL
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
+import play.api.mvc.RequestHeader
 import services.data.Constants
 import utils.EnumUtils
 
@@ -138,7 +139,8 @@ case class DocumentaryUnit(
   with DescribedModel
   with Hierarchical[DocumentaryUnit]
   with Holder[DocumentaryUnit]
-  with Accessible {
+  with Accessible
+  with PersistentIdentifiable {
 
   type T = DocumentaryUnitF
 
