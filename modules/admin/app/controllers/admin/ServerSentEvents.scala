@@ -1,7 +1,7 @@
 package controllers.admin
 
 import controllers.AppComponents
-import controllers.admin.ServerSentEvents.LAST_EVENT_ID_HEADER
+import controllers.admin.ServerSentEvents.LAST_EVENT_ID_PARAM
 import controllers.base.AdminController
 import org.apache.pekko.actor.{ActorRef, ActorSystem}
 import org.apache.pekko.stream.scaladsl.{BroadcastHub, Keep, Source}
@@ -18,7 +18,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration
 
 object ServerSentEvents {
-  val LAST_EVENT_ID_HEADER = "Last-Event-Id"
+  val LAST_EVENT_ID_PARAM = "Last-Event-Id"
 }
 
 /**
@@ -61,7 +61,10 @@ case class ServerSentEvents @Inject()(
   def lifecycle: Action[AnyContent] = Action { implicit request =>
 
     // If we have a replay header, fetch an initial stream from the store
-    val lastInsertId: Option[String] = request.headers.get(LAST_EVENT_ID_HEADER).filter(_.trim.nonEmpty)
+    val lastInsertId: Option[String] = request.headers
+      .get(LAST_EVENT_ID_PARAM)
+      .orElse(request.getQueryString(LAST_EVENT_ID_PARAM))
+      .filter(_.trim.nonEmpty)
     val replay: Future[Seq[EventSource.Event]] = lastInsertId.map { id =>
       eventStore.get(id).map(_.map(ev => EventSource.Event(ev.data, id = Some(ev.id.toString), name = ev.name)))
     }.getOrElse(Future.successful(Seq.empty[EventSource.Event]))

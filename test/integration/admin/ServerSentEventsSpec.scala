@@ -58,5 +58,27 @@ class ServerSentEventsSpec extends IntegrationTestRunner with FakeMultipartUploa
       events.head must contain(s"event: hello-world")
       events.head must contain(s"id: ${ids.head}")
     }
+
+    "check event stream supports replay via query param" in new ITestServer() {
+      val eventStore = app.injector.instanceOf[ApplicationEventService]
+      private val ids = 1.to(3).map(_ => GUID.v7().toUUID)
+      await(eventStore.save(
+        ids.map(id => ApplicationEvent(id, "test", Some("hello-world")))
+      ))
+
+      val req = client.url(s"http://localhost:${this.port}${controllers.admin.routes.ServerSentEvents.lifecycle()}")
+        .withHttpHeaders("Accept" -> MimeTypes.EVENT_STREAM)
+        .withQueryStringParameters( "Last-Event-Id" -> ids.head.toString)
+        .stream()
+
+      val resp = await(req)
+      resp.status must_== OK
+      resp.contentType must_== MimeTypes.EVENT_STREAM
+
+      val events: Seq[String] = await(resp.bodyAsSource.take(6).map(_.utf8String).runWith(Sink.seq))
+      events.head must contain("data: test")
+      events.head must contain(s"event: hello-world")
+      events.head must contain(s"id: ${ids.head}")
+    }
   }
 }
