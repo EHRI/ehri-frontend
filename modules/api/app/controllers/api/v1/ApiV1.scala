@@ -426,6 +426,11 @@ case class ApiV1 @Inject()(
       } recoverWith errorHandler
     }
 
+  def fetchArk(ark: String, fields: Seq[FieldFilter]): Action[AnyContent] = JsonApiAction.async { implicit request =>
+    // Internal redirect to handle the slashes in an ark URL.
+    fetch(ark, fields, pid = true).apply(request)
+  }
+
   def searchIn(id: String, `type`: Seq[ApiEntity.Value], params: SearchParams, paging: PageParams, fields: Seq[FieldFilter], facets: ApiFacets): Action[AnyContent] =
     JsonApiAction.async { implicit request =>
       implicit val writer: Writes[Model] = modelWriter(fields)

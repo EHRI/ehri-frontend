@@ -15,7 +15,7 @@ import utils.FieldFilter
 
 
 class ApiV1Spec extends IntegrationTestRunner {
-  import mockdata.{privilegedUser}
+  import mockdata.privilegedUser
   private val apiRoutes = controllers.api.v1.routes.ApiV1
   private val docRoutes = controllers.units.routes.DocumentaryUnits
 
@@ -81,7 +81,7 @@ class ApiV1Spec extends IntegrationTestRunner {
 
     "allow fetching items by prefixed PID" in new ITestApp(
         specificConfig = Map("ehri.portal.arks.display" -> true, "ehri.portal.arks.urlPrefix" -> "https://arks.org/ark:12345/x1")) {
-      val fetch = FakeRequest(apiRoutes.fetch("ark:12345/p0c4-12345678", pid = true)).call()
+      val fetch = FakeRequest(apiRoutes.fetchArk("ark:12345/p0c4-12345678")).call()
       status(fetch) must_== OK
       validateJson(contentAsJson(fetch))
       contentAsJson(fetch) \ "data" \ "meta" \ "pid" must_== JsDefined(JsString("c4-12345678"))
