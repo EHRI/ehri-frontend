@@ -62,6 +62,7 @@ case class WSIngestService @Inject()(
     case IngestDataType.Eac => EntityType.HistoricalAgent
     case IngestDataType.Ead | IngestDataType.EadSync => EntityType.DocumentaryUnit
     case IngestDataType.Csv => EntityType.DocumentaryUnit
+    case IngestDataType.Json => EntityType.DocumentaryUnit
     case IngestDataType.Skos => EntityType.Concept
   }
 

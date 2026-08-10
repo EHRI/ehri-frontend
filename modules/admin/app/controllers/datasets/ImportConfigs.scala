@@ -88,6 +88,7 @@ case class ImportConfigs @Inject()(
       val taskType = if (dataset.fonds.isDefined && request.body.files.isEmpty && dataset.sync)
         IngestDataType.EadSync
       else if (dataset.contentType.contains("text/csv")) IngestDataType.Csv
+      else if (dataset.contentType.contains("application/json")) IngestDataType.Json
       else IngestDataType.Ead
 
       // Field separator for tabular datasets: only CSV supported at the moment
