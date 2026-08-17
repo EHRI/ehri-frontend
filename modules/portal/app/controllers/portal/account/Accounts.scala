@@ -280,7 +280,7 @@ case class Accounts @Inject()(
     }
   }
 
-  def signup: Action[AnyContent] = (NotReadOnlyAction andThen OptionalAccountAction).apply { implicit request =>
+  def signup: Action[AnyContent] = (NotReadOnlyAction andThen OptionalAccountLoginAction).apply { implicit request =>
     logger.debug(s"Signup, session is ${request.session.data}")
     implicit val userOpt: Option[UserProfile] = None
     request.accountOpt match {
@@ -303,7 +303,7 @@ case class Accounts @Inject()(
     }
   }
 
-  def login: Action[AnyContent] = (NotReadOnlyAction andThen OptionalAccountAction).apply { implicit request =>
+  def login: Action[AnyContent] = (NotReadOnlyAction andThen OptionalAccountLoginAction).apply { implicit request =>
     logger.debug(s"Login, session is ${request.session.data}")
     implicit val userOpt: Option[UserProfile] = None
     request.accountOpt match {
@@ -356,7 +356,7 @@ case class Accounts @Inject()(
     }
   }
 
-  def passwordLoginPost: Action[AnyContent] = (NotReadOnlyAction andThen OptionalUserAction).async { implicit request =>
+  def passwordLoginPost: Action[AnyContent] = (NotReadOnlyAction andThen OptionalAccountLoginAction andThen FetchProfile).async { implicit request =>
     def badForm(f: Form[(String, String)], status: Status = BadRequest): Future[Result] = immediate {
       status(
         views.html.account.login(
