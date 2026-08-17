@@ -34,6 +34,30 @@ class AccountsSpec extends IntegrationTestRunner {
       }
     }
 
+    "ensure access to the login page works when public view is disabled" in new ITestApp(
+      specificConfig = Map("ehri.portal.secured" -> true)) {
+      val login = FakeRequest(accountRoutes.login()).call()
+      status(login) must_== OK
+    }
+
+    "ensure user can login when public view is disabled" in new ITestApp(
+        specificConfig = Map("ehri.portal.secured" -> true)) {
+      val data: Map[String, Seq[String]] = Map(
+        SignupData.EMAIL -> Seq(privilegedUser.email),
+        SignupData.PASSWORD -> Seq(testPassword),
+        TIMESTAMP -> Seq(java.time.ZonedDateTime.now.toString),
+        BLANK_CHECK -> Seq(""),
+        CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
+      )
+
+      await(mockAccounts.update(privilegedUser
+        .copy(password = Some(HashedPassword.fromPlain(testPassword)))))
+      val login = FakeRequest(accountRoutes.passwordLoginPost())
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString).callWith(data)
+      status(login) must equalTo(SEE_OTHER)
+      redirectLocation(login) must beSome(controllers.portal.users.routes.UserProfiles.profile().url)
+    }
+
     "allow user to login with password" in new ITestApp(
       specificConfig = Map(
         "recaptcha.skip" -> true,

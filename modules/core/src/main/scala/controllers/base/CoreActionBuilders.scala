@@ -382,6 +382,16 @@ trait CoreActionBuilders extends BaseController with controllers.base.Controller
       EmbedTransformer andThen
       AllowedFilter
 
+  /**
+    * Same as `OptionalAccountAction` but doesn't enforce the AllowedFilter to
+    * prevent redirect loops.
+    */
+  protected def OptionalAccountLoginAction: ActionBuilder[OptionalAccountRequest, AnyContent] =
+    GenericOptionalAccountFunction andThen
+      MaintenanceFilter andThen
+      IpFilter andThen
+      ReadOnlyTransformer andThen
+      EmbedTransformer
 
   protected def GenericOptionalAccountFunction: CoreActionBuilder[OptionalAccountRequest, AnyContent] =
     new CoreActionBuilder[OptionalAccountRequest, AnyContent] {
