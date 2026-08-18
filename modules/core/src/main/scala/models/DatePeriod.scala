@@ -5,6 +5,8 @@ import java.time.temporal.TemporalAccessor
 import java.time.{LocalDate, Year, YearMonth}
 import utils.EnumUtils
 
+import scala.annotation.tailrec
+
 
 object DatePeriodF {
 
@@ -93,8 +95,11 @@ case class DatePeriodF(
   override def toString: String = (startDate, endDate) match {
     // Start and end are the same, show start date
     case (Some(s), Some(e)) if s == e => formatDate(s)
-      // Start and end are different, show a range
-    case (Some(s), Some(e)) => s"${formatDate(s)} - ${formatDate(e)}"
+      // Start and end are different, show a range (unless years are the same)
+    case (Some(s), Some(e)) => (formatDate(s), formatDate(e)) match {
+        case (fs, fe) if fs == fe => fs
+        case (fs, fe) => s"$fs - $fe"
+      }
     // Only start date present...
     case (Some(s), None) => formatDate(s)
       // Only end date?...
@@ -114,22 +119,23 @@ object DatePeriod {
     LocalDate.parse, YearMonth.parse, Year.parse
   )
 
-  def tryFormats(s: String, formats: List[String => TemporalAccessor]): Boolean = formats match {
+  @tailrec
+  private def tryFormats(s: String, formats: List[String => TemporalAccessor]): Boolean = formats match {
     case f :: rest => try {
       f.apply(s)
       true
     } catch {
-      case e: DateTimeParseException => tryFormats(s, rest)
+      case _: DateTimeParseException => tryFormats(s, rest)
     }
     case Nil => false
   }
 
-  val dateValidator: (String) => Boolean = date => tryFormats(date, parsers)
+  val dateValidator: String => Boolean = date => tryFormats(date, parsers)
 
   import play.api.data.Form
   import play.api.data.Forms._
 
-  val form = Form(mapping(
+  val form: Form[DatePeriodF] = Form(mapping(
     ISA -> ignored(EntityType.DatePeriod),
     ID -> optional(nonEmptyText),
     TYPE -> optional(enumMapping(DatePeriodType)),
