@@ -220,7 +220,7 @@ trait PortalController
   protected def renderItem(entityType: EntityType.Value, id: String, format: Option[String], supportedFormats: Seq[String], asFile: Boolean = false)(
     implicit apiUser: DataUser, request: RequestHeader): Future[Result] = {
     val fmt: String = format.filter(supportedFormats.contains).getOrElse(supportedFormats.head)
-    val params = request.queryString.view.filterKeys(_ == "lang").toMap
+    val params = request.queryString.view.filterKeys(List("lang", "code").contains).toMap
     // since rendering EAD can take a long time, override the default timeout
     val timeout: Option[Duration] = config.getOptional[Duration]("ehri.backend.streamingTimeout")
     userDataApi.stream(s"classes/$entityType/$id/$fmt", params = params,
