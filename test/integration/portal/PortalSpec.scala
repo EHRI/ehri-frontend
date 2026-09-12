@@ -198,6 +198,26 @@ class PortalSpec extends IntegrationTestRunner {
       contentAsString(show) must contain("<meta property=\"og:type\" content=\"website\">")
       contentAsString(show) must contain("<meta property=\"og:description\" content=\"Some description text for c4\">")
     }
+
+    "resolve PIDs" in new ITestApp {
+      val redir = FakeRequest(controllers.portal.routes.Portal.lookupPid("gb-1234")).call()
+      status(redir) must_== SEE_OTHER
+      redirectLocation(redir) must beSome(controllers.portal.routes.Countries.browse("gb").url)
+    }
+
+    "resolve PID info via inflections" in new ITestApp {
+      val info1 = FakeRequest(controllers.portal.routes.Portal.lookupPid("gb-1234", info = true)).call()
+      status(info1) must_== OK
+      contentAsString(info1) must contain("erc-support:") // extended info via ?info
+
+      val info2 = FakeRequest(GET, controllers.portal.routes.Portal.lookupPid("gb-1234").url + "?").call()
+      status(info2) must_== OK
+      contentAsString(info2) must contain("erc:") // minimal info via ?
+
+      val info3 = FakeRequest(GET, controllers.portal.routes.Portal.lookupPid("gb-1234").url + "??").call()
+      status(info3) must_== OK
+      contentAsString(info3) must contain("erc-support:") // extended info via ??
+    }
   }
 
   private def zipEntries(bytes: ByteString): List[ZipEntry] = {

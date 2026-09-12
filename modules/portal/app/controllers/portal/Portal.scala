@@ -115,10 +115,10 @@ case class Portal @Inject()(
     getStats.map(s => Ok(views.html.index(s, accountForms)))
   }
 
-  def lookupPid(pid: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+  def lookupPid(pid: String, info: Boolean): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     userDataApi.getAnyByPid[Model](pid).map { m =>
-      if (request.uri.endsWith("?")) {
-        val extended = request.uri.endsWith("??")
+      if (info || request.uri.endsWith("?")) {
+        val extended = info || request.uri.endsWith("??")
         m match {
           case d: DocumentaryUnit => Ok(views.txt.documentaryUnit.pidInfo(d, extended))
           case a: Accessible => Ok(views.txt.common.pidInfo(a, extended))
