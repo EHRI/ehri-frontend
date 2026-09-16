@@ -9,7 +9,7 @@ services:
   s3_local:
     networks:
       - ehri-frontend-minio_default
-    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
+    image: docker.io/pgsty/silo:RELEASE.2026-09-16T00-00-00Z
     ports:
       - ${MINIO_PORT:-9100}:9000
       - ${MINIO_UI_PORT:-9101}:9001
