@@ -24,10 +24,12 @@ class DatePeriodSpec extends PlaySpecification {
     }
 
     "render correctly" in {
-      DatePeriodF(startDate = Some("1940-09"), endDate = Some("1945-05")).toString must_== "Sep 1940 - May 1945"
-      DatePeriodF(startDate = Some("1940-09")).toString must_== "Sep 1940"
+      // NB. JDK became a bit unpredictable w/ how it renders 'September' as 'MMM', sometime 'Sep'
+      // and other times 'Sept' depending on CLDR version.
+      DatePeriodF(startDate = Some("1940-09"), endDate = Some("1945-05")).toString must beMatching("Sept? 1940 - May 1945")
+      DatePeriodF(startDate = Some("1940-09")).toString must beMatching("Sept? 1940")
       DatePeriodF(startDate = Some("1940"), endDate = Some("1945-05")).toString must_== "1940 - May 1945"
-      DatePeriodF(startDate = Some("1940-09-20"), endDate = Some("1945-05")).toString must_== "20 Sep 1940 - May 1945"
+      DatePeriodF(startDate = Some("1940-09-20"), endDate = Some("1945-05")).toString must beMatching("20 Sept? 1940 - May 1945")
       DatePeriodF(startDate = Some("1940"), endDate = Some("1945")).toString must_== "1940 - 1945"
     }
   }
