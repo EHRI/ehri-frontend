@@ -66,7 +66,7 @@ val coreDependencies = backendDependencies ++ Seq(
   "org.apache.pekko" %% "pekko-http-xml"   % pekkoHttpVersion,
 
   // Anorm DB lib
-  "org.playframework.anorm" %% "anorm" % "2.7.0",
+  "org.playframework.anorm" %% "anorm" % "3.1.0",
   "org.playframework.anorm" %% "anorm-postgres" % "2.7.0",
 
   // Time-based UUIDs
