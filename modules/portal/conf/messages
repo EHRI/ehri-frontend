@@ -1066,6 +1066,7 @@ historicalAgent.descriptionArea=Description Area
 historicalAgent.identity=Identity Area
 historicalAgent.services=Services Area
 historicalAgent.administrationArea=Administration
+historicalAgent.seeAlso=See Also
 mshistoricalAgent.creation=Creation
 historicalAgent.name=Authorized Form Of Name
 historicalAgent.parallelFormsOfName=Parallel Names
