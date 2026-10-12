@@ -18,6 +18,7 @@ object HistoricalAgentF {
   final val UNNAMED_PLACEHOLDER = "UNNAMED Authority"
 
   val PUBLICATION_STATUS = "publicationStatus"
+  val SEEALSO = "seeAlso"
 
   import Entity._
   import Ontology._
@@ -27,6 +28,7 @@ object HistoricalAgentF {
     (__ \ ID).formatNullable[String] and
     (__ \ DATA \ IDENTIFIER).format[String] and
     (__ \ DATA \ PUBLICATION_STATUS).formatNullable[PublicationStatus.Value] and
+    (__ \ DATA \ SEEALSO).formatSeqOrSingle[String] and
     (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).formatSeqOrEmpty[HistoricalAgentDescriptionF]
   )(HistoricalAgentF.apply, unlift(HistoricalAgentF.unapply))
 
@@ -40,6 +42,7 @@ case class HistoricalAgentF(
   id: Option[String],
   identifier: String,
   publicationStatus: Option[PublicationStatus.Value] = None,
+  seeAlso: Seq[String] = Nil,
 
   @models.relation(Ontology.DESCRIPTION_FOR_ENTITY)
   descriptions: Seq[HistoricalAgentDescriptionF] = Nil
@@ -82,6 +85,8 @@ object HistoricalAgent {
       ID -> optional(nonEmptyText),
       IDENTIFIER -> nonEmptyText(minLength=2), // TODO: Increase to > 2, not done yet 'cos of test fixtures,
       PUBLICATION_STATUS -> optional(enumMapping(models.PublicationStatus)),
+      SEEALSO -> seq(nonEmptyText.verifying("error.badUrl",
+        url => forms.isValidUrl(url))),
       DESCRIPTIONS -> seq(HistoricalAgentDescription.form.mapping)
     )(HistoricalAgentF.apply)(HistoricalAgentF.unapply)
   )

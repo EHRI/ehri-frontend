@@ -11,6 +11,8 @@
             @descriptionForm(desc)
         }
 
+        @inlineNameSet(f(""), SEEALSO)
+
         @formHelpers.descriptionFormSection(ADMINISTRATION_AREA) {
             @defining(PUBLICATION_STATUS) { implicit fieldPrefix =>
                 @formHelpers.enumChoiceInput(f(""), Messages(PUBLICATION_STATUS), PublicationStatus)

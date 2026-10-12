@@ -1240,6 +1240,9 @@ historicalAgent.endDate=End Date
 historicalAgent.identifier.description=To identify the authority record uniquely within the\
   context in which it will be used. (5.4.1)
 
+historicalAgent.seeAlso.description=URLs of records describing the same person, family or corporate body \
+  elsewhere, such as in other authority files or databases.
+
 historicalAgent.name.description=To create an authorized access point that uniquely identifies a \
   corporate body, person or family.\n\n\
 Record the standardized form of name for the entity being described in accordance with\

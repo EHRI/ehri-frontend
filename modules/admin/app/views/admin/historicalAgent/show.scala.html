@@ -21,6 +21,15 @@
                             )
                         }
 
+                        @if(item.data.seeAlso.nonEmpty) {
+                            <h4>@Messages("historicalAgent.seeAlso"):</h4>
+                            <ul class="list-unstyled">
+                            @item.data.seeAlso.map { url =>
+                                <li><a href="@url" target="_blank" rel="noopener">@url</a></li>
+                            }
+                            </ul>
+                        }
+
                         @views.html.admin.link.annotationLinks(item, links)
                         @views.html.admin.link.externalLinks(item, links)
 

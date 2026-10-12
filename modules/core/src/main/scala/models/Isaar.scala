@@ -21,6 +21,7 @@ case object Isaar {
   val IDENTIFIER = "identifier"
   val NAME = "name"
   val PUBLICATION_STATUS = "publicationStatus"
+  val SEEALSO = "seeAlso"
 
   val ADMINISTRATION_AREA = "administrationArea"
 

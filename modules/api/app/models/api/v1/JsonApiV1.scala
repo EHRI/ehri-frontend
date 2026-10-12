@@ -216,7 +216,8 @@ object JsonApiV1 {
     functions: Seq[String] = Nil,
     mandates: Seq[String] = Nil,
     internalStructure: Option[String] = None,
-    generalContext: Option[String] = None
+    generalContext: Option[String] = None,
+    seeAlso: Option[Seq[String]] = None
   )
 
   object HistoricalAgentAttrs {
@@ -234,10 +235,11 @@ object JsonApiV1 {
           functions = d.details.functions,
           mandates = d.details.mandates,
           internalStructure = d.details.internalStructure,
-          generalContext = d.details.generalContext
+          generalContext = d.details.generalContext,
+          seeAlso = if (a.data.seeAlso.isEmpty) None else Some(a.data.seeAlso)
         )
       }.getOrElse {
-        HistoricalAgentAttrs()
+        HistoricalAgentAttrs(seeAlso = if (a.data.seeAlso.isEmpty) None else Some(a.data.seeAlso))
       }
     }
   }
