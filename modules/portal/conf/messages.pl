@@ -740,9 +740,7 @@ search.helper.field.example.description=Można na przykład wyszukać wszystkie 
     wpisując tytuł:"Auschwitz Birkenau".
 search.helper.field.available=Obecnie dostępne są następujące pola:
 contact.header=Kontakt z EHRI
-contact.p1=Koordynatorem projektu EHRI jest Instytut Badań nad Wojną, \
-    Zagładą Żydów i Ludobójstwem NIOD. Z Instytutem NIOD można skontaktować się pisemnie \
-    pod następującym adresem:
+contact.p1=Do EHRI-ERIC można napisać pod następującym adresem:
 contact.p2=Istnieje wiele innych sposobów, by uzyskać dalszą \
     pomoc bądź skontaktować się z nami:
 contact.p2.1=w sprawie wszelkich pytań dotyczących zasad ochrony danych osobowych/prywatności, \

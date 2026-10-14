@@ -850,8 +850,7 @@ copyright.holder=Copyright EHRI-ERIC {0,number,#}
 # Contact page
 #
 contact.header=Contacting EHRI
-contact.p1=The coordinator of the EHRI project is NIOD Institute for War, Holocaust and Genocide Studies. \
-  You can write to NIOD using the following address:
+contact.p1=You can write to EHRI-ERIC using the following address:
 contact.p2=There are a variety of other ways by which you can get further help or get in touch with us:
 contact.p2.1=for all question in relation to our data/privacy policies, please contact {0}.
 contact.p2.2=if you have any questions about the holdings and access policies of any of the archives that \
