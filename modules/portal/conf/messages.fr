@@ -738,9 +738,7 @@ search.helper.field.example.description=Par exemple, vous pouvez trouver \
   en cherchant title:"Auschwitz Birkenau".
 search.helper.field.available=Les champs suivants sont actuellement disponibles :
 contact.header=Contacter l''EHRI
-contact.p1=Le coordinateur du projet EHRI est le NIOD Institute for War, \
-  Holocaust and Genocide Studies. Vous pouvez écrire au NIOD à \
-  l''adresse suivante :
+contact.p1=Vous pouvez écrire à EHRI-ERIC à l''adresse suivante :
 contact.p2=Il existe une variété d''autres moyens par lesquels vous pouvez obtenir \
   plus d'aide ou nous contacter :
 contact.p2.1=pour toutes les questions relatives à nos politiques en matière de données/confidentialité, \

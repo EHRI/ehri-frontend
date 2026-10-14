@@ -791,7 +791,7 @@ termsAndConditions=Términos y condiciones
 # Contact page
 #
 contact.header=Ponerse en contacto con el EHRI
-contact.p1=El coordinador del proyecto EHRI es NIOD Institute for War, Holocaust and Genocide Studies. Puede escribir a NIOD usando la siguiente dirección postal:
+contact.p1=Puede escribir a EHRI-ERIC usando la siguiente dirección postal:
 contact.p2=También disponemos de otras formas mendiante las cuales puede obtener más ayuda o puede ponerse en contacto con nosotros:
 contact.p2.1=para cuestiones relativas a las políticas de datos o privacidad, por favor póngase en contacto con {0}.
 contact.p2.2=si tiene cualquier pregunta sobre la documentación o las políticas de acceso de cualquiera de los archivos que contribuyen en el portal del EHRI, por favor contacte al archivo en cuestión usando la información de contacto proporcionada en la descripción del archivo.
