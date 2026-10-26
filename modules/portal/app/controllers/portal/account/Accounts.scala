@@ -551,12 +551,12 @@ case class Accounts @Inject()(
     }
   }
 
-  def forgotPassword: Action[AnyContent] = OptionalUserAction { implicit request =>
+  def forgotPassword: Action[AnyContent] = (OptionalAccountLoginAction andThen FetchProfile) { implicit request =>
     Ok(views.html.account.forgotPassword(forgotPasswordForm,
       recaptchaKey, accountRoutes.forgotPasswordPost()))
   }
 
-  def forgotPasswordPost: Action[AnyContent] = (NotReadOnlyAction andThen OptionalUserAction).async { implicit request =>
+  def forgotPasswordPost: Action[AnyContent] = (NotReadOnlyAction andThen OptionalAccountLoginAction andThen FetchProfile).async { implicit request =>
     checkRecapture.flatMap {
       case false =>
         val errForm = forgotPasswordForm.withGlobalError("error.badRecaptcha")
@@ -672,7 +672,7 @@ case class Accounts @Inject()(
     )
   }
 
-  def resetPassword(token: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+  def resetPassword(token: String): Action[AnyContent] = (OptionalAccountLoginAction andThen FetchProfile).async { implicit request =>
     accounts.findByToken(token).map {
       case Some(_) => Ok(views.html.account.resetPassword(resetPasswordForm,
         accountRoutes.resetPasswordPost(token)))
@@ -695,7 +695,7 @@ case class Accounts @Inject()(
     }
   }
 
-  def resetPasswordPost(token: String): Action[AnyContent] = (NotReadOnlyAction andThen OptionalUserAction).async { implicit request =>
+  def resetPasswordPost(token: String): Action[AnyContent] = (NotReadOnlyAction andThen OptionalAccountLoginAction andThen FetchProfile).async { implicit request =>
     val boundForm: Form[(String, String)] = resetPasswordForm.bindFromRequest()
     boundForm.fold(
       errForm => immediate(BadRequest(views.html.account.resetPassword(errForm,

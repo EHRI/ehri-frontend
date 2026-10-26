@@ -58,6 +58,36 @@ class AccountsSpec extends IntegrationTestRunner {
       redirectLocation(login) must beSome(controllers.portal.users.routes.UserProfiles.profile().url)
     }
 
+    "ensure user can reset password when public view is disabled" in new ITestApp(
+        specificConfig = Map("ehri.portal.secured" -> true, "recaptcha.skip" -> true)) {
+      val forgotForm = FakeRequest(accountRoutes.forgotPassword()).call()
+      status(forgotForm) must_== OK
+
+      val data: Map[String, Seq[String]] = Map(
+        "email" -> Seq(privilegedUser.email),
+        CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
+      )
+      val forgot = FakeRequest(accountRoutes.forgotPasswordPost())
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString).callWith(data)
+      status(forgot) must equalTo(SEE_OTHER)
+      redirectLocation(forgot) must not(beSome(accountRoutes.login().url))
+
+      val uuid = UUID.randomUUID()
+      await(mockAccounts.createToken(privilegedUser.id, uuid, isSignUp = false))
+      val resetForm = FakeRequest(accountRoutes.resetPassword(uuid.toString)).call()
+      status(resetForm) must_== OK
+
+      val rstData: Map[String, Seq[String]] = Map(
+        "password" -> Seq("hellokitty"),
+        "confirm" -> Seq("hellokitty"),
+        CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
+      )
+      val resetPost = FakeRequest(accountRoutes.resetPasswordPost(uuid.toString))
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString).callWith(rstData)
+      status(resetPost) must equalTo(SEE_OTHER)
+      redirectLocation(resetPost) must not(beSome(accountRoutes.login().url))
+    }
+
     "allow user to login with password" in new ITestApp(
       specificConfig = Map(
         "recaptcha.skip" -> true,
