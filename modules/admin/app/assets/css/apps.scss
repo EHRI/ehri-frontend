@@ -22,6 +22,10 @@
 
 .modal {
   background-color: rgba(0, 0, 0, 0.1);
+  // Vue modals don't add Bootstrap's `modal-open` class to the body,
+  // so enable the scrolling it would otherwise provide.
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .modal-alert {
