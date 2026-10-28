@@ -46,6 +46,21 @@ case class ImportLogs @Inject()(
   importService: IngestService,
 )(implicit mat: Materializer) extends AdminController with ApiBodyParsers with StorageHelpers with Update[Repository] {
 
+  /**
+    * Cleanup deletes documentary units within the repository, so check
+    * the user has scoped delete permission before any changes are made,
+    * rather than failing part-way through.
+    */
+  private def CleanupAction(id: String): ActionBuilder[EditRequest, AnyContent] =
+    EditAction(id) andThen new CoreActionFilter[EditRequest] {
+      override protected def filter[A](request: EditRequest[A]): Future[Option[Result]] = {
+        request.userOpt.map { user =>
+          if (user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Delete)) Future.successful(None)
+          else authorizationFailed(request, user).map(r => Some(r))
+        }.getOrElse(authenticationFailed(request).map(r => Some(r)))
+      }
+    }
+
   def list(id: String, dsId: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>
     importLogService.list(id, dsId).map { stats =>
       Ok(Json.toJson(stats))
@@ -101,7 +116,7 @@ case class ImportLogs @Inject()(
     }
   }
 
-  def doCleanup(id: String, snapshotId: Int): Action[CleanupConfirmation] = EditAction(id).async(apiJson[CleanupConfirmation]) { implicit request =>
+  def doCleanup(id: String, snapshotId: Int): Action[CleanupConfirmation] = CleanupAction(id).async(apiJson[CleanupConfirmation]) { implicit request =>
     logger.info(s"Starting cleanup for repository $id, snapshot $snapshotId")
 
     // Function to recursively perform a large batch deletion if over a particular threshold. This avoids
@@ -136,7 +151,7 @@ case class ImportLogs @Inject()(
     }
   }
 
-  def doCleanupAsync(id: String, snapshotId: Int): Action[CleanupConfirmation] = EditAction(id).apply(apiJson[CleanupConfirmation]) { implicit request =>
+  def doCleanupAsync(id: String, snapshotId: Int): Action[CleanupConfirmation] = CleanupAction(id).apply(apiJson[CleanupConfirmation]) { implicit request =>
     logger.info(s"Starting async cleanup for repository $id, snapshot $snapshotId")
     val jobId = UUID.randomUUID().toString
     val job = CleanupJob(id, snapshotId, jobId, request.body.msg)

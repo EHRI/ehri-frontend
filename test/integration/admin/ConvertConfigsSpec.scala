@@ -13,7 +13,7 @@ import scala.concurrent.Future
 
 class ConvertConfigsSpec extends IntegrationTestRunner with ResourceUtils {
 
-  import mockdata.privilegedUser
+  import mockdata.{privilegedUser, unprivilegedUser}
 
   private val dtRoutes = controllers.datasets.routes.ConvertConfigs
 
@@ -99,6 +99,19 @@ class ConvertConfigsSpec extends IntegrationTestRunner with ResourceUtils {
 
       status(r) must_== BAD_REQUEST
       contentAsJson(r) must_== Json.obj("error" -> "mapping-error at /ead: err:XPST0003 at /ead/eadheader: Expecting valid step.")
+    }
+
+    "deny conversion to unauthenticated users" in new ITestApp {
+      val r = FakeRequest(dtRoutes.convertFile(repoId, datasetId, stage, testFileName))
+        .callWith(Json.toJson(ConvertSpec(Seq.empty)))
+      status(r) must_== SEE_OTHER
+    }
+
+    "deny conversion to users without update permission on the repository" in new ITestApp {
+      val r = FakeRequest(dtRoutes.convertFile(repoId, datasetId, stage, testFileName))
+        .withUser(unprivilegedUser)
+        .callWith(Json.toJson(ConvertSpec(Seq.empty)))
+      status(r) must_== FORBIDDEN
     }
   }
 }
