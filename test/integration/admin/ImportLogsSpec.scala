@@ -9,7 +9,7 @@ import services.ingest.Cleanup
 
 class ImportLogsSpec extends IntegrationTestRunner with ResourceUtils {
 
-  import mockdata.privilegedUser
+  import mockdata.{privilegedUser, unprivilegedUser}
   private val routes = controllers.datasets.routes.ImportLogs
 
   "Import Logs API" should {
@@ -39,6 +39,27 @@ class ImportLogsSpec extends IntegrationTestRunner with ResourceUtils {
         .withUser(privilegedUser)
         .callWith(Json.toJson(CleanupConfirmation("Do it")))
       contentAsJson(r) must_== Json.toJson(expected)
+    }
+
+    "deny cleanup to users without delete permission in the repository" in new DBTestApp("import-log-fixtures.sql") {
+      // reto can update r2, which allows access to the dataset manager,
+      // but has no permission to delete items within it
+      val r = FakeRequest(routes.doCleanup("r2", 1))
+        .withUser(unprivilegedUser)
+        .callWith(Json.toJson(CleanupConfirmation("Do it")))
+      status(r) must_== FORBIDDEN
+
+      val async = FakeRequest(routes.doCleanupAsync("r2", 1))
+        .withUser(unprivilegedUser)
+        .callWith(Json.toJson(CleanupConfirmation("Do it")))
+      status(async) must_== FORBIDDEN
+    }
+
+    "allow other snapshot operations to users with update permission" in new DBTestApp("import-log-fixtures.sql") {
+      val r = FakeRequest(routes.listSnapshots("r2"))
+        .withUser(unprivilegedUser)
+        .call()
+      status(r) must_== OK
     }
   }
 }

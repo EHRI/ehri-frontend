@@ -17,7 +17,7 @@ import scala.concurrent.Future
 
 class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
 
-  import mockdata.privilegedUser
+  import mockdata.{privilegedUser, unprivilegedUser}
 
   private val repoDataRoutes = controllers.datasets.routes.ImportFiles
 
@@ -195,6 +195,19 @@ class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
 
       status(r) must_== BAD_REQUEST
       contentAsJson(r) must_== Json.parse("{\"error\":\"invalid\",\"details\":{\"obj\":[{\"msg\":[\"error.expected.jsobject\"],\"args\":[]}]}}")
+    }
+
+    "deny validation to unauthenticated users" in new ITestApp {
+      val r = FakeRequest(repoDataRoutes.validateFiles(repoId, datasetId, fileStage))
+        .callWith(Json.obj())
+      status(r) must_== SEE_OTHER
+    }
+
+    "deny validation to users without update permission on the repository" in new ITestApp {
+      val r = FakeRequest(repoDataRoutes.validateFiles(repoId, datasetId, fileStage))
+        .withUser(unprivilegedUser)
+        .callWith(Json.obj())
+      status(r) must_== FORBIDDEN
     }
   }
 }

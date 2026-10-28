@@ -167,7 +167,7 @@ case class ImportFiles @Inject()(
       .map ( num => Ok(Json.obj("deleted" -> num)))
   }
 
-  def validateFiles(id: String, ds: String, stage: FileStage.Value): Action[Map[String, String]] = Action.async(apiJson[Map[String, String]]) { implicit request =>
+  def validateFiles(id: String, ds: String, stage: FileStage.Value): Action[Map[String, String]] = EditAction(id).async(apiJson[Map[String, String]]) { implicit request =>
     // Input is a map of eTag -> key
     // Convert the map to a sequence and reverse key/value
     val pre = prefix(id, ds, stage)

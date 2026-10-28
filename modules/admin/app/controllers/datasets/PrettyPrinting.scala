@@ -2,6 +2,7 @@ package controllers.datasets
 
 import controllers.AppComponents
 import controllers.base.{AdminController, ApiBodyParsers}
+import controllers.generic.Update
 import models._
 import org.apache.pekko.NotUsed
 import org.apache.pekko.stream.Materializer
@@ -26,7 +27,7 @@ case class PrettyPrinting @Inject()(
   appComponents: AppComponents,
   dataHelpers: DataHelpers,
   @Named("dam") storage: FileStorage,
-)(implicit mat: Materializer, executionContext: ExecutionContext) extends AdminController with ApiBodyParsers with StorageHelpers {
+)(implicit mat: Materializer, executionContext: ExecutionContext) extends AdminController with ApiBodyParsers with StorageHelpers with Update[Repository] {
 
   private val xmlFormatFlow: Flow[ByteString, ByteString, NotUsed] = XmlParsing.parser()
     .via(XmlFormatter.format)
@@ -78,7 +79,7 @@ case class PrettyPrinting @Inject()(
       }
     }
 
-  def reformat(id: String, ds: String, stage: FileStage.Value, fileName: String, versionId: Option[String]): Action[AnyContent] = Action.async { implicit req =>
+  def reformat(id: String, ds: String, stage: FileStage.Value, fileName: String, versionId: Option[String]): Action[AnyContent] = EditAction(id).async { implicit req =>
     storage.get(s"${prefix(id, ds, stage)}$fileName", versionId = versionId).map {
       case Some((meta, bytes)) =>
         val newBytes = reformatData(bytes, meta.contentType)
@@ -87,7 +88,7 @@ case class PrettyPrinting @Inject()(
     }
   }
 
-  def reformatPost(id: String): Action[Source[ByteString, _]] = Action.async(combinedBodyParser(prettyJsonBodyParser, xmlFormatBodyParser)) { request =>
+  def reformatPost(id: String): Action[Source[ByteString, _]] = EditAction(id).async(combinedBodyParser(prettyJsonBodyParser, xmlFormatBodyParser)) { request =>
     request.body
       .runWith(Sink.fold(ByteString.empty)(_ ++ _))
       .map(bytes => Ok(bytes.utf8String))

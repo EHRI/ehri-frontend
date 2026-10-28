@@ -90,7 +90,7 @@ case class ConvertConfigs @Inject()(
     }
   }
 
-  def convertFile(id: String, ds: String, stage: FileStage.Value, fileName: String): Action[ConvertConfig] = Action.async(apiJson[ConvertConfig]) { implicit request =>
+  def convertFile(id: String, ds: String, stage: FileStage.Value, fileName: String): Action[ConvertConfig] = EditAction(id).async(apiJson[ConvertConfig]) { implicit request =>
     // We need a recursive error handler here which, in the case of a
     // CompletionException thrown by the cache, attempts to handle the
     // underlying cause
