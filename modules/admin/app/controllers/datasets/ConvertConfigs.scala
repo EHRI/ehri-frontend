@@ -15,6 +15,7 @@ import models._
 import play.api.cache.{AsyncCacheApi, NamedCache}
 import play.api.libs.json.{JsObject, Json, Writes}
 import play.api.mvc._
+import services.data.ItemNotFound
 import services.datasets.ImportDatasetService
 import services.storage.{FileMeta, FileStorage}
 import services.transformation._
@@ -44,12 +45,21 @@ case class ConvertConfigs @Inject()(
     dataTransformations.getConfig(id, ds).map { pairs => Ok(Json.toJson(pairs))}
   }
 
-  def save(id: String, ds: String): Action[Seq[(String, JsObject)]] = EditAction(id).async(apiJson[Seq[(String, JsObject)]]) { implicit request =>
-    dataTransformations.saveConfig(id, ds, request.body).map(_ => Ok(Json.obj("ok" -> true)))
+  // Transformations that do not exist, or belong to another repository, are
+  // reported as bad requests by the endpoints that refer to them.
+  private val transformationNotFound: PartialFunction[Throwable, Result] = {
+    case e: ItemNotFound => BadRequest(Json.obj("error" -> s"Transformation not found: ${e.value.getOrElse("")}"))
   }
 
-  private def configToMappings(config: ConvertConfig): Future[Seq[(TransformationType.Value, String, JsObject)]] = config match {
-    case TransformationList(mappings, _) => dataTransformations.get(mappings.map(_._1)).map { dts =>
+  def save(id: String, ds: String): Action[Seq[(String, JsObject)]] = EditAction(id).async(apiJson[Seq[(String, JsObject)]]) { implicit request =>
+    (for {
+      _ <- dataTransformations.get(id, request.body.map(_._1))
+      _ <- dataTransformations.saveConfig(id, ds, request.body)
+    } yield Ok(Json.obj("ok" -> true))).recover(transformationNotFound)
+  }
+
+  private def configToMappings(id: String, config: ConvertConfig): Future[Seq[(TransformationType.Value, String, JsObject)]] = config match {
+    case TransformationList(mappings, _) => dataTransformations.get(id, mappings.map(_._1)).map { dts =>
       mappings.zip(dts).map { case ((_, params), dt) => (dt.bodyType, dt.body, params) }
     }
     case ConvertSpec(mappings, _) => immediate(mappings)
@@ -90,7 +100,7 @@ case class ConvertConfigs @Inject()(
     }
   }
 
-  def convertFile(id: String, ds: String, stage: FileStage.Value, fileName: String): Action[ConvertConfig] = EditAction(id).async(apiJson[ConvertConfig]) { implicit request =>
+  def convertFile(id: String, ds: String, stage: FileStage.Value, fileName: String): Action[ConvertConfig] = WithItemPermissionAction(id, PermissionType.Update).async(apiJson[ConvertConfig]) { implicit request =>
     // We need a recursive error handler here which, in the case of a
     // CompletionException thrown by the cache, attempts to handle the
     // underlying cause
@@ -103,17 +113,17 @@ case class ConvertConfigs @Inject()(
       case e: XmlTransformationError => BadRequest(Json.toJson(e))
     }
 
-    for {
-      mappings <- configToMappings(request.body)
+    (for {
+      mappings <- configToMappings(id, request.body)
       datasetOpt <- datasetApi.find(id, ds)
       path = prefix(id, ds, stage) + fileName
-      result <- convertFile1(path, mappings, datasetOpt).recover(errorHandler)
-    } yield result
+      result <- convertFile1(path, mappings, datasetOpt)
+    } yield result).recover(errorHandler orElse transformationNotFound)
   }
 
   def convert(id: String, ds: String, key: Option[String]): Action[ConvertConfig] = EditAction(id).async(apiJson[ConvertConfig]) { implicit request =>
     val config = request.body
-    for (ts <- configToMappings(config); datasetOpt <- datasetApi.find(id, ds)) yield {
+    (for (ts <- configToMappings(id, config); datasetOpt <- datasetApi.find(id, ds)) yield {
       val jobId = UUID.randomUUID().toString
       val data = XmlConvertData(
         ts,
@@ -131,6 +141,6 @@ case class ConvertConfigs @Inject()(
           .taskMonitorWS(jobId).webSocketURL(conf.https),
         "jobId" -> jobId
       ))
-    }
+    }).recover(transformationNotFound)
   }
 }

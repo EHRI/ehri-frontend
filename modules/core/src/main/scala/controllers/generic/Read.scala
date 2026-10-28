@@ -70,8 +70,13 @@ trait Read[MT] extends CoreActionBuilders {
   with WithOptionalUser
 
 
-  private def WithPermissionFilter(perm: PermissionType.Value, contentType: ContentTypes.Value) = new CoreActionFilter[ItemPermissionRequest] {
-    override protected def filter[A](request: ItemPermissionRequest[A]): Future[Option[Result]] = {
+  /**
+    * Check the user has the given permission on a content type. To check
+    * permissions within an item's scope, the request's user must have been
+    * fetched with scoped permissions, e.g. via [[ItemPermissionAction]].
+    */
+  protected def WithPermissionFilter[R[X] <: WrappedRequest[X] with WithOptionalUser](perm: PermissionType.Value, contentType: ContentTypes.Value): CoreActionFilter[R] = new CoreActionFilter[R] {
+    override protected def filter[A](request: R[A]): Future[Option[Result]] = {
       request.userOpt.map { user =>
         if (user.hasPermission(contentType, perm)) Future.successful(None)
         else authorizationFailed(request, user).map(r => Some(r))
@@ -80,7 +85,7 @@ trait Read[MT] extends CoreActionBuilders {
   }
 
   private def WithItemPermissionFilter(perm: PermissionType.Value)(implicit ct: ContentType[MT]) =
-    WithPermissionFilter(perm, ct.contentType)
+    WithPermissionFilter[ItemPermissionRequest](perm, ct.contentType)
 
   protected def ItemPermissionAction(itemId: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionRequest, AnyContent] =
     OptionalUserAction andThen new CoreActionRefiner[OptionalUserRequest, ItemPermissionRequest] {
@@ -117,7 +122,7 @@ trait Read[MT] extends CoreActionBuilders {
 
   protected def WithParentPermissionAction(itemId: String, perm: PermissionType.Value, contentType: ContentTypes.Value)(
     implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionRequest, AnyContent] =
-    ItemPermissionAction(itemId) andThen WithPermissionFilter(perm, contentType)
+    ItemPermissionAction(itemId) andThen WithPermissionFilter[ItemPermissionRequest](perm, contentType)
 
   protected def ItemMetaAction(itemId: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemMetaRequest, AnyContent] =
     ItemPermissionAction(itemId) andThen new CoreActionTransformer[ItemPermissionRequest, ItemMetaRequest] {

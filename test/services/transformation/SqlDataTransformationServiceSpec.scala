@@ -4,6 +4,7 @@ import helpers._
 import models.{DataTransformationInfo, TransformationType}
 import play.api.Application
 import play.api.libs.json.Json
+import services.data.ItemNotFound
 
 
 class SqlDataTransformationServiceSpec extends IntegrationTestRunner {
@@ -15,13 +16,22 @@ class SqlDataTransformationServiceSpec extends IntegrationTestRunner {
 
   "Data transformation service" should {
     "list items" in new DBTestApp("data-transformation-fixtures.sql") {
-      val dts = await(service.list())
-      dts.size must_== 1
+      await(service.list("r1")).size must_== 1
     }
 
     "locate items" in new DBTestApp("data-transformation-fixtures.sql") {
-      val dt = await(service.get(dtId))
+      val dt = await(service.get("r1", dtId))
       dt.name must_== "test"
+    }
+
+    "report missing items" in new DBTestApp("data-transformation-fixtures.sql") {
+      await(service.get("r1", "missing")) must throwA[ItemNotFound]
+      await(service.get("r1", Seq(dtId, "missing"))) must throwA[ItemNotFound]
+    }
+
+    "not return another repository's items" in new DBTestApp("data-transformation-fixtures.sql") {
+      await(service.list("r2")) must beEmpty
+      await(service.get("r2", dtId)) must throwA[ItemNotFound]
     }
 
     "delete items" in new DBTestApp("data-transformation-fixtures.sql") {
@@ -42,7 +52,7 @@ class SqlDataTransformationServiceSpec extends IntegrationTestRunner {
     }
 
     "update items" in new DBTestApp("data-transformation-fixtures.sql") {
-      val dt = await(service.get(dtId))
+      val dt = await(service.get("r1", dtId))
       val dt2 = await(service.update(dt.id, DataTransformationInfo("blah", dt.bodyType, dt.body, dt.comments), Some("r2")))
       dt2.name must_== "blah"
     }

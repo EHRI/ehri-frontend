@@ -99,7 +99,7 @@ case class ImportDatasets @Inject()(
     Ok(Json.toJson(messagesApi.messages))
   }
 
-  def dashboard(): Action[AnyContent] = OptionalUserAction.apply { implicit request =>
+  def dashboard(): Action[AnyContent] = AdminAction.apply { implicit request =>
     Ok(views.html.admin.datasets.dashboard())
   }
 
@@ -138,7 +138,7 @@ case class ImportDatasets @Inject()(
     datasets.list(id).map(dsl => Ok(Json.toJson(dsl)))
   }
 
-  def listAll(): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+  def listAll(): Action[AnyContent] = AdminAction.async { implicit request =>
     val defaultLogo = controllers.portal.routes.PortalAssets.versioned("img/institution-icon.png").url
     for {
       sets <- datasets.listAll().map(_.toSeq)

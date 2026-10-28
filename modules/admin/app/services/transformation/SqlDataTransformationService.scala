@@ -8,6 +8,7 @@ import models.{DataTransformation, DataTransformationInfo}
 import play.api.Logger
 import play.api.db.Database
 import play.api.libs.json.JsObject
+import services.data.ItemNotFound
 
 import java.sql.SQLException
 import javax.inject.Inject
@@ -24,23 +25,22 @@ case class SqlDataTransformationService @Inject()(db: Database, actorSystem: Act
     Macro.parser[DataTransformation](
       "id", "name", "repo_id", "type", "map", "created", "comments", "has_params")
 
-  override def list(): Future[Seq[DataTransformation]] = Future {
+  override def list(repoId: String): Future[Seq[DataTransformation]] = Future {
     db.withConnection { implicit conn =>
-      SQL"SELECT * FROM data_transformation ORDER BY id".as(parser.*)
+      SQL"""SELECT * FROM data_transformation
+            WHERE repo_id = $repoId OR repo_id IS NULL
+            ORDER BY id""".as(parser.*)
     }
   }
 
-  override def get(id: String): Future[DataTransformation] = Future {
-    db.withConnection { implicit conn =>
-      SQL"SELECT * FROM data_transformation WHERE id = $id".as(parser.single)
-    }
-  }
+  override def get(repoId: String, id: String): Future[DataTransformation] =
+    get(repoId, Seq(id)).map(_.head)
 
-  override def get(ids: Seq[String]): Future[Seq[DataTransformation]] = Future {
+  override def get(repoId: String, ids: Seq[String]): Future[Seq[DataTransformation]] = Future {
     if (ids.isEmpty) Seq.empty else db.withConnection { implicit conn =>
-      val dts = SQL"SELECT * FROM data_transformation WHERE id IN ($ids)".as(parser.*)
-      ids.map(id => dts.find(_.id == id)
-        .getOrElse(throw new Exception(s"Transformation cannot be found: '$id'")))
+      val dts = SQL"""SELECT * FROM data_transformation
+            WHERE id IN ($ids) AND (repo_id = $repoId OR repo_id IS NULL)""".as(parser.*)
+      ids.map(id => dts.find(_.id == id).getOrElse(throw new ItemNotFound(id)))
     }
   }
 

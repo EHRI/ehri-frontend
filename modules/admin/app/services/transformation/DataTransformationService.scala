@@ -5,6 +5,7 @@ import com.google.inject.ImplementedBy
 import models.{DataTransformation, DataTransformationInfo}
 import play.api.http.{MimeTypes, Writeable}
 import play.api.libs.json.{JsObject, Json}
+import services.data.ItemNotFound
 
 import scala.concurrent.Future
 
@@ -24,27 +25,33 @@ object DataTransformationExists {
 @ImplementedBy(classOf[SqlDataTransformationService])
 trait DataTransformationService {
   /**
-    * List available data transformations
+    * List the data transformations available to a repository, i.e. its
+    * own and generic ones.
     *
+    * @param repoId the repository ID
     * @return a sequence of transformations
     */
-  def list(): Future[Seq[DataTransformation]]
+  def list(repoId: String): Future[Seq[DataTransformation]]
 
   /**
-    * Fetch a transformation by id
+    * Fetch a transformation available to a repository by id.
     *
-    * @param id the transformation's id
-    * @return a transformation object
+    * @param repoId the repository ID
+    * @param id     the transformation's id
+    * @return a transformation object, or a failed future with [[ItemNotFound]]
+    *         if it does not exist or belongs to another repository
     */
-  def get(id: String): Future[DataTransformation]
+  def get(repoId: String, id: String): Future[DataTransformation]
 
   /**
-    * Fetch a sequence of transformations by ID
+    * Fetch a sequence of transformations available to a repository by ID.
     *
-    * @param ids the sequence of transformation ids
-    * @return an ordered sequence of transformations
+    * @param repoId the repository ID
+    * @param ids    the sequence of transformation ids
+    * @return an ordered sequence of transformations, or a failed future with
+    *         [[ItemNotFound]] if any do not exist or belong to another repository
     */
-  def get(ids: Seq[String]): Future[Seq[DataTransformation]]
+  def get(repoId: String, ids: Seq[String]): Future[Seq[DataTransformation]]
 
   /**
     * Create a new transformation object.

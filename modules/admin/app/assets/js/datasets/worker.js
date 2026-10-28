@@ -52,10 +52,43 @@ addEventListener('message', ({data}) => {
     });
   }
 
+  // Post an error for a failed response. JSON error bodies (e.g. from
+  // the conversion API) are passed through as-is, but other responses,
+  // such as HTML error pages or auth failures, must not be shown as data.
+  function postResponseError(r) {
+    return r.text().then(body => {
+      try {
+        let json = JSON.parse(body);
+        if (json && json.error) {
+          return postMessage({error: json, done: true});
+        }
+      } catch (e) {
+        // not JSON...
+      }
+      let msg = r.status === 401
+          ? "not logged in, or session has expired"
+          : r.status === 403
+              ? "permission denied"
+              : `request failed (${r.status} ${r.statusText})`;
+      postMessage({error: {error: msg}, done: true});
+    });
+  }
+
+  function postFetchError(e) {
+    if (e.name !== 'AbortError') {
+      postMessage({error: {error: e.message}, done: true});
+    }
+  }
+
   if (data.type === 'preview') {
+    // Requests to the app (as opposed to storage URLs) are marked as AJAX so
+    // that auth failures give a 401 rather than redirecting to the login page.
+    // This header is not sent to storage, since it would need a CORS preflight.
     fetch(data.url, {
+      headers: data.ajax ? {"X-Requested-With": "XMLHttpRequest"} : {},
       signal: abortController.signal
-    }).then(r => readStream(r));
+    }).then(r => r.ok ? readStream(r) : postResponseError(r))
+      .catch(postFetchError);
 
   } else if (data.type === 'convert-preview') {
     fetch(data.url, {
@@ -69,13 +102,8 @@ addEventListener('message', ({data}) => {
       body: JSON.stringify({mappings: data.mappings, force: false}),
       credentials: 'same-origin',
       signal: abortController.signal,
-    }).then(r => {
-      if (r.status === 200) {
-        readStream(r)
-      } else {
-        r.json().then(data => postMessage({error: data, done: true}));
-      }
-    });
+    }).then(r => r.ok ? readStream(r) : postResponseError(r))
+      .catch(postFetchError);
   } else if (data.type === 'websocket') {
     let url = data.url;
     let websocket = new WebSocket(url);

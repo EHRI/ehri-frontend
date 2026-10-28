@@ -358,7 +358,7 @@ lazy val xslt = Project(appName + "-xslt", file("modules/xslt"))
     "com.typesafe.play" %% "play-json" % "2.10.6",
 
     // Saxon for XSLT transformation
-    "net.sf.saxon" % "Saxon-HE" % "10.2",
+    "net.sf.saxon" % "Saxon-HE" % "12.10",
 
     specs2 % Test,
   ))
@@ -366,14 +366,13 @@ lazy val xslt = Project(appName + "-xslt", file("modules/xslt"))
 lazy val xquery = Project(appName + "-xquery", file("modules/xquery"))
   .disablePlugins(PlayScala)
   .settings(commonSettings: _*)
-  .settings(resolvers += "BaseX repository" at "https://files.basex.org/maven/")
   .settings(libraryDependencies ++= Seq(
     "javax.inject" % "javax.inject" % "1",
     "org.slf4j" % "slf4j-api" % "2.0.13",
     "ch.qos.logback" % "logback-classic" % "1.5.6",
 
     // EAD transformation...
-    "org.basex" % "basex" % "8.5",
+    "org.basex" % "basex" % "12.4",
 
     // Command line parsing
     "com.github.scopt" %% "scopt" % "4.1.0",
