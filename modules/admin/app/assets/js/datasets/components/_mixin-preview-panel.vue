@@ -102,6 +102,7 @@ export default {
       this.worker.postMessage({
         type: 'preview',
         url: prettyPrintUrl,
+        ajax: true,
         contentType: this.contentType,
         max: this.config.maxPreviewSize,
       });

@@ -79,7 +79,7 @@ case class PrettyPrinting @Inject()(
       }
     }
 
-  def reformat(id: String, ds: String, stage: FileStage.Value, fileName: String, versionId: Option[String]): Action[AnyContent] = EditAction(id).async { implicit req =>
+  def reformat(id: String, ds: String, stage: FileStage.Value, fileName: String, versionId: Option[String]): Action[AnyContent] = WithItemPermissionAction(id, PermissionType.Update).async { implicit req =>
     storage.get(s"${prefix(id, ds, stage)}$fileName", versionId = versionId).map {
       case Some((meta, bytes)) =>
         val newBytes = reformatData(bytes, meta.contentType)
@@ -88,7 +88,7 @@ case class PrettyPrinting @Inject()(
     }
   }
 
-  def reformatPost(id: String): Action[Source[ByteString, _]] = EditAction(id).async(combinedBodyParser(prettyJsonBodyParser, xmlFormatBodyParser)) { request =>
+  def reformatPost(id: String): Action[Source[ByteString, _]] = WithItemPermissionAction(id, PermissionType.Update).async(combinedBodyParser(prettyJsonBodyParser, xmlFormatBodyParser)) { request =>
     request.body
       .runWith(Sink.fold(ByteString.empty)(_ ++ _))
       .map(bytes => Ok(bytes.utf8String))

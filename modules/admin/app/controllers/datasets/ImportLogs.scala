@@ -52,14 +52,7 @@ case class ImportLogs @Inject()(
     * rather than failing part-way through.
     */
   private def CleanupAction(id: String): ActionBuilder[EditRequest, AnyContent] =
-    EditAction(id) andThen new CoreActionFilter[EditRequest] {
-      override protected def filter[A](request: EditRequest[A]): Future[Option[Result]] = {
-        request.userOpt.map { user =>
-          if (user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Delete)) Future.successful(None)
-          else authorizationFailed(request, user).map(r => Some(r))
-        }.getOrElse(authenticationFailed(request).map(r => Some(r)))
-      }
-    }
+    EditAction(id) andThen WithPermissionFilter[EditRequest](PermissionType.Delete, ContentTypes.DocumentaryUnit)
 
   def list(id: String, dsId: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>
     importLogService.list(id, dsId).map { stats =>

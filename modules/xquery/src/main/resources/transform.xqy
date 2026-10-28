@@ -49,6 +49,12 @@ declare function local:make-children(
       }
 };
 
+(: Mapping expressions are user input, so they are evaluated with no permissions. :)
+(: BaseX then refuses any function that can access files, the network, the :)
+(: environment, other queries, or Java, e.g. file, proc, fetch, http, doc, :)
+(: parse-xml and environment-variable. :)
+declare variable $evalOptions := map { "permission": "none" };
+
 (: evaluate an XQuery expression within a given context node :)
 (: $xquery: the XQuery expression to evalute as a string :)
 (: $context: the node (e.g. element) to use as context for the XQuery expression :)
@@ -60,12 +66,14 @@ declare function local:evaluate-xquery(
   $libURI as xs:anyURI
 ) as item()* {
   if ($xquery) then
-    if (fn:exists($libURI) and fn:contains($xquery, "xtra")) then
-      xquery:eval("import module namespace xtra = ""xtra"" at """ || $libURI || """;" || $nsString || $xquery, map { "": $context })
-    else if (fn:contains($xquery, ":")) then
-      xquery:eval($nsString || $xquery, map {"": $context})
-    else
-      xquery:eval($xquery, map {"": $context})
+    let $query :=
+      if (fn:exists($libURI) and fn:contains($xquery, "xtra")) then
+        "import module namespace xtra = ""xtra"" at """ || $libURI || """;" || $nsString || $xquery
+      else if (fn:contains($xquery, ":")) then
+        $nsString || $xquery
+      else
+        $xquery
+    return xquery:eval($query, map { "": $context }, $evalOptions)
   else ()
 };
 
@@ -101,7 +109,9 @@ declare variable $input as xs:string external;
 declare variable $nsString as xs:string external;
 declare variable $libURI as xs:anyURI external;
 
-let $source-document := fn:parse-xml($input)
+(: The input is user-supplied, so do not process DTDs: this stops external entities :)
+(: from reading local files or URLs, and external DTDs from being fetched. :)
+let $source-document := fn:parse-xml($input, map { "dtd": fn:false() })
 for $target-document in local:transform($source-document, $mapping, $namespaces, $nsString, $libURI)
     return $target-document
 

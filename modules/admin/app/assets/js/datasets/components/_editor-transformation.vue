@@ -85,6 +85,9 @@ export default {
   },
   methods: {
     save: function () {
+      if (!this.canEdit) {
+        return Promise.resolve();
+      }
       this.saving = true;
       let p = this.id
           ? this.api.updateDataTransformation(this.id, this.data.generic, this.data)
@@ -194,7 +197,12 @@ export default {
     },
     valid: function () {
       return this.data.name.trim() !== "" && this.data.comments.trim() !== "";
-    }
+    },
+    // Generic transformations are shared by all repositories, so only
+    // admins can create, change, or delete them.
+    canEdit: function () {
+      return Boolean(this.config.admin) || !this.generic;
+    },
   },
   mounted() {
 
@@ -251,7 +259,7 @@ export default {
               <label for="transformation-scope">Scope</label>
               <select id="transformation-scope" v-model="data.generic">
                 <option v-bind:value="false">Repository Specific</option>
-                <option v-bind:value="true">Generic</option>
+                <option v-bind:value="true" v-bind:disabled="!config.admin">Generic</option>
               </select>
               <label for="transformation-has-params">Parameters</label>
               <input type="checkbox" id="transformation-has-params" v-model="data.hasParams"/>
@@ -259,7 +267,7 @@ export default {
               <input v-model.trim="data.comments" id="transformation-comments" minlength="3" required
                      placeholder="(required)"/>
               <div class="buttons">
-                <button class="btn btn-success btn-sm" v-on:click="save" v-bind:disabled="!valid || !modified">
+                <button class="btn btn-success btn-sm" v-on:click="save" v-bind:disabled="!canEdit || !valid || !modified">
                   Save
                   <i v-if="saving" class="fa fa-spin fa-circle-o-notch fa-fw"></i>
                   <i v-else class="fa fa-save fa-fw"></i>
@@ -293,7 +301,7 @@ export default {
                     <div class="dropdown-divider"></div>
                     <button class="dropdown-item btn btn-sm"
                             v-on:click="showRemoveDialog = true; showOptions = false;"
-                            v-bind:disabled="!Boolean(id)">
+                            v-bind:disabled="!canEdit || !Boolean(id)">
                       <i class="fa fa-trash-o"></i>
                       Delete Transformation
                     </button>

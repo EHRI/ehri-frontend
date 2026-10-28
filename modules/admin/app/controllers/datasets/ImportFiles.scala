@@ -105,18 +105,20 @@ case class ImportFiles @Inject()(
     }
   }
 
-  private def streamToStorage(id: String, ds: String, stage: FileStage.Value, fileName: String): BodyParser[Source[ByteString, _]] = BodyParser { implicit r =>
-    Accumulator.source[ByteString]
-      .mapFuture(src => storage.putBytes(s"${prefix(id, ds, stage)}$fileName", src, r.contentType))
-      .map(f => Source.single(ByteString(Json.prettyPrint(Json.obj("url" -> f.toString)))))
-      .map(Right.apply)
+  // NB: this must not consume the body itself, since body parsers run
+  // before the action's permission checks. The body is only streamed to
+  // storage once the request has been authorised.
+  private def streamBody: BodyParser[Source[ByteString, _]] = BodyParser { _ =>
+    Accumulator.source[ByteString].map(Right.apply)
   }
 
   def uploadStream(id: String, ds: String, stage: FileStage.Value, fileName: String): Action[Source[ByteString, _]] =
-    EditAction(id).apply(streamToStorage(id, ds, stage, fileName)) { implicit request =>
+    EditAction(id).async(streamBody) { implicit request =>
       // Upload via the server. Normally you'd PUT direct from the client
       // to the storage, but this is useful for testing
-      Ok.chunked(request.body).as(ContentTypes.JSON)
+      storage.putBytes(s"${prefix(id, ds, stage)}$fileName", request.body, request.contentType).map { url =>
+        Ok(Json.prettyPrint(Json.obj("url" -> url.toString))).as(ContentTypes.JSON)
+      }
     }
 
   def download(id: String, ds: String, stage: FileStage.Value, fileName: String, versionId: Option[String]): Action[AnyContent] = EditAction(id).async { implicit req =>
@@ -167,7 +169,7 @@ case class ImportFiles @Inject()(
       .map ( num => Ok(Json.obj("deleted" -> num)))
   }
 
-  def validateFiles(id: String, ds: String, stage: FileStage.Value): Action[Map[String, String]] = EditAction(id).async(apiJson[Map[String, String]]) { implicit request =>
+  def validateFiles(id: String, ds: String, stage: FileStage.Value): Action[Map[String, String]] = WithItemPermissionAction(id, PermissionType.Update).async(apiJson[Map[String, String]]) { implicit request =>
     // Input is a map of eTag -> key
     // Convert the map to a sequence and reverse key/value
     val pre = prefix(id, ds, stage)

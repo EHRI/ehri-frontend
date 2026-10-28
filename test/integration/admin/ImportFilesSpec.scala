@@ -8,7 +8,7 @@ import org.apache.commons.codec.digest.DigestUtils
 import play.api.http.{ContentTypes, HeaderNames, MimeTypes, Writeable}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse
-import play.api.mvc.{Headers, Result}
+import play.api.mvc.{AnyContentAsEmpty, Headers, Request, Result}
 import play.api.test.FakeRequest
 import services.storage.{FileList, FileMeta}
 
@@ -48,16 +48,15 @@ class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
 
   private implicit val writeBytes: Writeable[ByteString] = new Writeable[ByteString](s => s, Some(ContentTypes.XML))
 
-  private def putFile(name: String, payload: ByteString = testPayload, ds: String = datasetId, stage: FileStage.Value = fileStage)(
-    implicit app: play.api.Application): Future[Result] = {
+  private def putFile(name: String, payload: ByteString = testPayload, ds: String = datasetId, stage: FileStage.Value = fileStage,
+      user: Option[Account] = Some(privilegedUser))(implicit app: play.api.Application): Future[Result] = {
 
-    FakeRequest(repoDataRoutes.uploadStream(repoId, ds, stage, name))
+    val req = FakeRequest(repoDataRoutes.uploadStream(repoId, ds, stage, name))
       .withHeaders(Headers(
         HeaderNames.CONTENT_TYPE -> ContentTypes.XML,
         HeaderNames.HOST -> "localhost"
       ))
-      .withUser(privilegedUser)
-      .callWith(payload)
+    user.fold[Request[AnyContentAsEmpty.type]](req)(req.withUser(_)).callWith(payload)
   }
 
   private def putFileNoMultiPart(name: String, payload: ByteString = testPayload, ds: String = datasetId, stage: FileStage.Value = fileStage)(
@@ -95,6 +94,21 @@ class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
     "upload via server" in new ITestApp {
       val r = putFile(testFileName)
       contentAsJson(r) must_== Json.parse("{\"url\":\"" + testFilePath + "\"}")
+    }
+
+    "not store uploads from users without update permission on the repository" in new ITestApp {
+      val anonName = "anon.xml"
+      status(putFile(anonName, user = None)) must_== SEE_OTHER
+
+      val unprivName = "unpriv.xml"
+      status(putFile(unprivName, user = Some(unprivilegedUser))) must_== FORBIDDEN
+
+      val list = FakeRequest(repoDataRoutes.listFiles(repoId, datasetId, fileStage))
+        .withUser(privilegedUser)
+        .call()
+      val keys = contentAsJson(list).as[FileList].files.map(_.key)
+      keys must not(contain(anonName))
+      keys must not(contain(unprivName))
     }
 
     "fetch data" in new ITestApp {
