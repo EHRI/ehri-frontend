@@ -352,6 +352,11 @@ $active-table-row: #e7f1ff;
           color: $white;
           background-color: $orange;
         }
+
+        &.badge-tabular {
+          color: $white;
+          background-color: $purple;
+        }
       }
 
       display: grid;
@@ -514,7 +519,8 @@ $active-table-row: #e7f1ff;
 }
 
 .xquery-editor,
-.xquery-json-editor {
+.xquery-json-editor,
+.tabular-ops-editor {
   @extend %expanding-column;
   border: 1px solid $ehri-border-gray;
 }
@@ -544,6 +550,34 @@ $active-table-row: #e7f1ff;
   padding: $margin-xs;
 }
 
+.tabular-editor-legend {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  border-top: 1px solid $ehri-border-gray;
+  padding: $margin-xs;
+
+  dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: min-content auto;
+    grid-gap: 0 $margin-sm;
+  }
+
+  dt {
+    font-weight: bold;
+    white-space: nowrap;
+  }
+
+  dd {
+    margin: 0;
+  }
+
+  code {
+    color: inherit;
+    font-size: inherit;
+  }
+}
+
 .tabular-editor-header {
   position: sticky;
   top: 0;
@@ -564,7 +598,9 @@ $active-table-row: #e7f1ff;
 }
 
 .xquery-editor .tabular-editor-header,
-.xquery-editor .tabular-editor-mappings {
+.xquery-editor .tabular-editor-mappings,
+.tabular-ops-editor .tabular-editor-header,
+.tabular-ops-editor .tabular-editor-mappings {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
 }
