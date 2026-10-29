@@ -6,7 +6,7 @@ import actors.transformation.XmlConverterManager.XmlConvertJob
 import org.apache.pekko.actor.{Actor, ActorLogging, ActorRef, Scheduler}
 import org.apache.pekko.stream.Materializer
 import services.transformation.utils.getUtf8Transcoder
-import models.UserProfile
+import models.{TransformationType, UserProfile}
 import services.storage.{FileMeta, FileStorage}
 import services.transformation.XmlTransformer
 
@@ -42,6 +42,7 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
     implicit userOpt: Option[UserProfile], mat: Materializer, ec: ExecutionContext) extends Actor with ActorLogging {
 
   private val transformDigest: String = services.transformation.utils.digest(job.data.transformers)
+  private val outputContentType: String = TransformationType.outputContentType(job.data.transformers.map(_._1))
 
   import org.apache.pekko.pattern.pipe
 
@@ -183,7 +184,7 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
           storage.putBytes(
             path,
             outStream,
-            contentType = Some("text/xml; charset=UTF-8"),
+            contentType = Some(outputContentType),
             meta = Map("source" -> "convert", "fingerprint" -> fingerPrint)
           )
 
