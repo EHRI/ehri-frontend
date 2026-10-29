@@ -87,19 +87,30 @@ trait Read[MT] extends CoreActionBuilders {
   private def WithItemPermissionFilter(perm: PermissionType.Value)(implicit ct: ContentType[MT]) =
     WithPermissionFilter[ItemPermissionRequest](perm, ct.contentType)
 
+  /**
+    * Fetch a user's permissions on an item and within its scope, so that
+    * `hasPermission` checks apply to that item.
+    */
+  protected def withItemPermissions(profile: UserProfile, itemId: String)(implicit ct: ContentType[MT]): Future[UserProfile] = {
+    implicit val user: Option[UserProfile] = Some(profile)
+    val scopedPermsF = userDataApi.scopePermissions(profile.id, itemId)
+    val permsF = userDataApi.itemPermissions(profile.id, ct.contentType, itemId)
+    for {
+      scopedPerms <- scopedPermsF
+      perms <- permsF
+    } yield profile.copy(itemPermissions = Some(perms), globalPermissions = Some(scopedPerms))
+  }
+
   protected def ItemPermissionAction(itemId: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionRequest, AnyContent] =
     OptionalUserAction andThen new CoreActionRefiner[OptionalUserRequest, ItemPermissionRequest] {
       private def transform[A](input: OptionalUserRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val user: Option[UserProfile] = input.userOpt
         input.userOpt.map { profile =>
           val itemF = userDataApi.get[MT](itemId)
-          val scopedPermsF = userDataApi.scopePermissions(profile.id, itemId)
-          val permsF = userDataApi.itemPermissions(profile.id, ct.contentType, itemId)
+          val profileF = withItemPermissions(profile, itemId)
           for {
             item <- itemF
-            scopedPerms <- scopedPermsF
-            perms <- permsF
-            newProfile = profile.copy(itemPermissions = Some(perms), globalPermissions = Some(scopedPerms))
+            newProfile <- profileF
           } yield ItemPermissionRequest[A](item, Some(newProfile), input)
         }.getOrElse {
           for {
