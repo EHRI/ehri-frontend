@@ -16,6 +16,17 @@ object BaseXXQueryXmlTransformer {
   final val uriResolver: UriResolver = (path, _, _) =>
     new IOStream(getClass.getResource("/" + path).openStream())
 
+  /**
+    * Run a function with a query processor for a script, closing it and its
+    * BaseX context afterwards.
+    */
+  def withQuery[R](script: String, resolver: Option[UriResolver] = Some(uriResolver))(f: QueryProcessor => R): R = {
+    val context = new Context()
+    try using(new QueryProcessor(script, context)) { proc =>
+      f(resolver.fold(proc)(proc.uriResolver))
+    } finally context.close()
+  }
+
   val INPUT = "input"
   val MAPPING = "mapping"
   val NAMESPACES = "namespaces"
@@ -53,7 +64,7 @@ case class BaseXXQueryXmlTransformer(scriptOpt: Option[String] = None, funcOpt: 
       logger.trace(s"Mapping: $map")
       logger.trace(s"Params: $params")
       time("Transformation") {
-        using(new QueryProcessor(script, new Context()).uriResolver(uriResolver)) { proc =>
+        withQuery(script) { proc =>
           val allNs = DEFAULT_NS ++ params
           val ns: XQMap = allNs.foldLeft(XQMap.empty()) { case (m, (k, v)) =>
             m.put(Str.get(k), Str.get(v))

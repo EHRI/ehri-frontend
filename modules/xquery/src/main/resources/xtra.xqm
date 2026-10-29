@@ -292,3 +292,11 @@ declare function xtra:clean-namespaces($nodes as item()*) as item()* {
       }
     default return $node
 };
+
+(: Parse a string of XML markup, which may contain several elements and text, :)
+(: into a document node. Unlike fn:parse-xml (which mappings cannot use) this :)
+(: does not allow DTDs, so cannot load external entities, and does not process :)
+(: XIncludes. :)
+declare function xtra:parse-markup($markup as xs:string?) as document-node()? {
+  if (fn:exists($markup)) then fn:parse-xml-fragment($markup) else ()
+};

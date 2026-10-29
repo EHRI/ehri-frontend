@@ -1,7 +1,10 @@
 xquery version "3.1" encoding "UTF-8";
 
 declare namespace xquery="http://basex.org/modules/xquery";
-declare namespace csv="http://basex.org/modules/csv";
+import module namespace mapping = "mapping" at "mapping.xqm";
+
+(: Indent the output, which newer versions of BaseX (unlike 8.5) do not do by default :)
+declare option output:indent "yes";
 
 (: make children for the given target path in the configuration :)
 (: $target-path: the target path for which to make children as in the configuration :)
@@ -49,12 +52,6 @@ declare function local:make-children(
       }
 };
 
-(: Mapping expressions are user input, so they are evaluated with no permissions. :)
-(: BaseX then refuses any function that can access files, the network, the :)
-(: environment, other queries, or Java, e.g. file, proc, fetch, http, doc, :)
-(: parse-xml and environment-variable. :)
-declare variable $evalOptions := map { "permission": "none" };
-
 (: evaluate an XQuery expression within a given context node :)
 (: $xquery: the XQuery expression to evalute as a string :)
 (: $context: the node (e.g. element) to use as context for the XQuery expression :)
@@ -73,7 +70,7 @@ declare function local:evaluate-xquery(
         $nsString || $xquery
       else
         $xquery
-    return xquery:eval($query, map { "": $context }, $evalOptions)
+    return mapping:eval($query, $context)
   else ()
 };
 
@@ -97,7 +94,7 @@ declare function local:transform(
   $nsString as xs:string,
   $libURI as xs:anyURI
 ) as document-node()* {
-  let $configuration := csv:parse($configuration, map { "separator": "tab", "header": "yes", "quotes": "no" })
+  let $configuration := mapping:parse-tsv($configuration)
     for $target-root-node in local:make-children("/", $source-document, $configuration, $namespaces, $nsString, $libURI, 0)
     return document { $target-root-node }
 };
