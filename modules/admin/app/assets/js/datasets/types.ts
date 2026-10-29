@@ -77,7 +77,7 @@ export interface JobMonitor {
   url: string,
 }
 
-export type TransformationType = 'xquery' | 'xslt';
+export type TransformationType = 'xquery' | 'json' | 'xslt';
 
 export interface DataTransformationInfo {
   id: string,

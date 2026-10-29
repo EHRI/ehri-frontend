@@ -347,6 +347,11 @@ $active-table-row: #e7f1ff;
           color: $white;
           background-color: $green;
         }
+
+        &.badge-json {
+          color: $white;
+          background-color: $orange;
+        }
       }
 
       display: grid;
@@ -508,7 +513,8 @@ $active-table-row: #e7f1ff;
   overflow-y: auto;
 }
 
-.xquery-editor {
+.xquery-editor,
+.xquery-json-editor {
   @extend %expanding-column;
   border: 1px solid $ehri-border-gray;
 }
@@ -561,6 +567,12 @@ $active-table-row: #e7f1ff;
 .xquery-editor .tabular-editor-mappings {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
+}
+
+.xquery-json-editor .tabular-editor-header,
+.xquery-json-editor .tabular-editor-mappings {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
 }
 
 

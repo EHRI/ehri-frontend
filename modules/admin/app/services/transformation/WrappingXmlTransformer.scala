@@ -3,7 +3,7 @@ package services.transformation
 import org.apache.pekko.stream.Materializer
 import org.apache.pekko.stream.scaladsl.{Flow, Source}
 import org.apache.pekko.util.ByteString
-import eu.ehri.project.xml.{Timer, XQueryXmlTransformer, XsltXmlTransformer}
+import eu.ehri.project.xml.{Timer, XQueryJsonTransformer, XQueryXmlTransformer, XsltXmlTransformer}
 import models.TransformationType
 import play.api.cache.{NamedCache, SyncCacheApi}
 import play.api.libs.json.{JsObject, JsString, Json}
@@ -17,6 +17,7 @@ import scala.concurrent.{ExecutionContext, Future}
 case class WrappingXmlTransformer @Inject()(
   xsltTransformer: XsltXmlTransformer,
   xqueryTransformer: XQueryXmlTransformer,
+  xqueryJsonTransformer: XQueryJsonTransformer,
   @NamedCache("transformer-cache") cache: SyncCacheApi,
   config: Configuration
 )(implicit ec: ExecutionContext, mat: Materializer) extends XmlTransformer with Timer {
@@ -61,6 +62,9 @@ case class WrappingXmlTransformer @Inject()(
               case TransformationType.XQuery =>
                 val mapParams = params.value.collect { case (key, JsString(value)) => key -> value}
                 xqueryTransformer.transform(out, map, mapParams.toMap)
+              case TransformationType.Json =>
+                val mapParams = params.value.collect { case (key, JsString(value)) => key -> value}
+                xqueryJsonTransformer.transform(out, map, mapParams.toMap)
             }
           }
         }
