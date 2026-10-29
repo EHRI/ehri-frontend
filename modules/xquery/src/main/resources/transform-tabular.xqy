@@ -83,9 +83,10 @@ declare function local:produce-merge($record as element(record), $cols as xs:str
 declare function local:produce-split($record as element(record), $col as xs:string, $into as xs:string*, $sep as xs:string) as element(entry)* {
   let $parts := local:split-str(fn:string(local:entry($record, $col)), $sep)
   let $n := fn:count($into)
-  (: any parts beyond the number of target columns are kept in the last one :)
+  (: with several target columns, any parts beyond them are kept in the last one, :)
+  (: joined with the separator. A single target column just takes the first part. :)
   for $i in 1 to $n
-  let $value := if ($i eq $n) then fn:string-join($parts[position() ge $n], $sep) else $parts[$i]
+  let $value := if ($n gt 1 and $i eq $n) then fn:string-join($parts[position() ge $n], $sep) else $parts[$i]
   return <entry name="{$into[$i]}">{ $value }</entry>
 };
 
@@ -117,6 +118,16 @@ declare function local:produce(
   } catch * {
     fn:error(xs:QName("mapping-error"), $err:code || " in op '" || $name || "': " || $err:description)
   }
+};
+
+(: the cells a producing row must have a value in :)
+declare function local:required-cells($op as xs:string) as xs:string* {
+  switch ($op)
+    case "select" return "columns"
+    case "merge" return ("columns", "to")
+    case "split" return ("columns", "to")
+    case "derive" return "to"
+    default return ()
 };
 
 (: the output column name(s) a producing row is declared to contribute, :)
@@ -197,13 +208,23 @@ return
   then fn:error(xs:QName("mapping-error"), "Unknown op: " || fn:normalize-space($unknown[1]/op))
   else
     let $producing := $ops[fn:normalize-space(op) = ("select", "merge", "split", "derive")]
+    (: a row with a required cell left empty would silently drop data, or fail obscurely :)
+    let $incomplete := (
+      for $op in $producing
+      for $cell in local:required-cells(fn:normalize-space($op/op))
+      where fn:empty(local:cols($op/*[fn:local-name() eq $cell]))
+      return map { "op": fn:normalize-space($op/op), "cell": $cell }
+    )[1]
     let $all-targets := $producing ! local:targets(.)
     (: two rows producing the same output column is (almost) always a mistake - most :)
     (: often, listing several source columns across separate `merge` rows instead of :)
     (: as one comma-separated `columns` cell on a single row :)
     let $dupes := for $t in fn:distinct-values($all-targets) where fn:count($all-targets[. = $t]) gt 1 return $t
     return
-      if (fn:exists($dupes))
+      if (fn:exists($incomplete))
+      then fn:error(xs:QName("mapping-error"),
+        "A '" || $incomplete?op || "' row needs a value in its '" || $incomplete?cell || "' cell")
+      else if (fn:exists($dupes))
       then fn:error(xs:QName("mapping-error"),
         "Column '" || $dupes[1] || "' is produced by more than one row. If you meant to combine " ||
         "several source columns, list them together in one row's 'columns' cell (comma-separated), " ||

@@ -226,6 +226,28 @@ class BaseXTabularTransformerSpec extends Specification {
       out must_== "start,end\na,b||c\nd,\n"
     }
 
+    "take the first value when splitting into a single column" in {
+      val config = header + "\nsplit\tauthors\tmain_author\t||"
+      val out = BaseXTabularTransformer().transform("authors\nA||B||C\n", config, Map("input.separator" -> "comma"))
+      out must_== "main_author\nA\n"
+    }
+
+    "join extra split values with the split separator, not the array separator" in {
+      val config = header + "\nsplit\tplaces\tfirst,rest\t; "
+      val out = BaseXTabularTransformer().transform("places\nAmsterdam; Berlin; Paris\n", config, Map("input.separator" -> "comma"))
+      out must_== "first,rest\nAmsterdam,Berlin; Paris\n"
+    }
+
+    "report a producing row with a required cell left empty" in {
+      def run(row: String) = BaseXTabularTransformer().transform("dates\na||b\n", header + "\n" + row, Map("input.separator" -> "comma"))
+      run("split\tdates\t\t||") must throwA[InvalidMappingError].like { case e =>
+        e.getMessage must contain("A 'split' row needs a value in its 'to' cell")
+      }
+      run("split\t\ta,b\t||") must throwA[InvalidMappingError].like { case e =>
+        e.getMessage must contain("A 'split' row needs a value in its 'columns' cell")
+      }
+    }
+
     "name columns by position when the input has no header" in {
       val input = "1,Letters,a||b\n2,Photos,c\n"
       val opts = Map("input.separator" -> "comma", "input.header" -> "no")
