@@ -38,14 +38,14 @@ class ConvertConfigsSpec extends IntegrationTestRunner with ResourceUtils {
 
   private implicit val writeBytes: Writeable[ByteString] = new Writeable[ByteString](s => s, Some(ContentTypes.XML))
 
-  private def putFile()(implicit app: play.api.Application): Future[Result] = {
-    FakeRequest(controllers.datasets.routes.ImportFiles.uploadStream(repoId, datasetId, stage, testFileName))
+  private def putFile(name: String = testFileName, payload: ByteString = testPayload, contentType: String = ContentTypes.XML)(implicit app: play.api.Application): Future[Result] = {
+    FakeRequest(controllers.datasets.routes.ImportFiles.uploadStream(repoId, datasetId, stage, name))
       .withHeaders(Headers(
-        HeaderNames.CONTENT_TYPE -> ContentTypes.XML,
+        HeaderNames.CONTENT_TYPE -> contentType,
         HeaderNames.HOST -> "localhost"
       ))
       .withUser(privilegedUser)
-      .callWith(testPayload)
+      .callWith(payload)
   }
 
   "Conversion API" should {
@@ -61,6 +61,26 @@ class ConvertConfigsSpec extends IntegrationTestRunner with ResourceUtils {
       status(r) must_== OK
       contentType(r) must beSome("text/xml")
       contentAsString(r) must contain("test-id-EHRI")
+    }
+
+    "give the content type of tabular and JSON conversion output" in new ITestApp {
+      await(putFile("test.csv", ByteString("id,title\n1,Letters\n"), "text/csv"))
+      val tabular = FakeRequest(dtRoutes.convertFile(repoId, datasetId, stage, "test.csv"))
+        .withUser(privilegedUser)
+        .callWith(Json.toJson(ConvertSpec(Seq((TransformationType.Tabular,
+          "op\tcolumns\tto\texpr\nselect\tid\t\t", Json.obj())))))
+      status(tabular) must_== OK
+      contentType(tabular) must beSome("text/csv")
+      contentAsString(tabular) must contain("id\n1")
+
+      await(putFile("test.json", ByteString("""{"id": "1"}"""), ContentTypes.JSON))
+      val json = FakeRequest(dtRoutes.convertFile(repoId, datasetId, stage, "test.json"))
+        .withUser(privilegedUser)
+        .callWith(Json.toJson(ConvertSpec(Seq((TransformationType.Json,
+          "target-path\ttarget-node\ttype\tsource-node\tvalue\n/\tidentifier\tvalue\t.\t?id", Json.obj())))))
+      status(json) must_== OK
+      contentType(json) must beSome("application/json")
+      contentAsString(json) must contain("\"identifier\": \"1\"")
     }
 
     "convert files with XSLT scripts" in new ITestApp {
