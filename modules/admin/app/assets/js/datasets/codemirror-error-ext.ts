@@ -42,6 +42,12 @@ class ErrorWidget extends WidgetType {
   }
 }
 
+// The errors that can be shown at a line of the document. Others (e.g. field
+// validation errors, which have no line) are ignored rather than breaking the
+// editor.
+const locatedErrors = (errors: XmlValidationError[], lines: number): XmlValidationError[] =>
+  errors.filter(e => Number.isInteger(e.line) && e.line > 0 && e.line <= lines);
+
 export const setValidationErrors = StateEffect.define<XmlValidationError[] | null>();
 export const toggleErrorWidget = StateEffect.define<number | null>();
 
@@ -87,8 +93,7 @@ const errorState = StateField.define<{
         } else if (errors.length === 0) {
           return RangeSet.of([new SuccessMarker().range(v.state.doc.line(1).from)]);
         } else {
-          const markers = errors
-            .filter(e => e.line > 0 && e.line <= v.state.doc.lines)
+          const markers = locatedErrors(errors, v.state.doc.lines)
             .map(e => new ErrorMarker(e.error).range(v.state.doc.line(e.line).from))
             .sort((a, b) => a.from - b.from); // Ensure sorted order
 
@@ -117,10 +122,7 @@ const errorState = StateField.define<{
       }
 
       const decos = [];
-      for (let e of errors) {
-        if (e.line <= 0 || e.line > state.doc.lines) {
-          continue;
-        }
+      for (let e of locatedErrors(errors, state.doc.lines)) {
         const line = state.doc.line(e.line);
         decos.push(Decoration.line({ class: "line-error" }).range(line.from));
         if (activeLine === e.line) {
