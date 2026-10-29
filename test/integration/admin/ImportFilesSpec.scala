@@ -238,7 +238,7 @@ class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
       errors.map(e => (e \ "kind").as[String]).distinct must_== Seq("missing")
     }
 
-    "not treat a charset-suffixed content type as tabular (must match ingest dispatch exactly)" in new ITestApp {
+    "treat a charset-suffixed CSV content type as tabular" in new ITestApp {
       val dsId = "csv_ds_charset"
       val csvPayload = ByteString("id,title\n1,Letters\n")
 
@@ -250,11 +250,45 @@ class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
         .withUser(privilegedUser)
         .callWith(Json.obj(tag -> testFileName))
 
+      // Field-validated as tabular (unexpected 'id'/'title' fields), not as EAD
       val errors = (contentAsJson(r) \ 0 \ "errors").as[Seq[JsObject]]
-      // EAD-shaped (line/pos), not field-shaped - must fall through like ingest does
-      errors must not(beEmpty)
-      (errors.head \ "line").asOpt[Int] must beSome
-      (errors.head \ "field").asOpt[String] must beNone
+      errors.map(e => (e \ "field").asOpt[String]) must contain(Some("id"))
+      errors.flatMap(e => (e \ "line").asOpt[Int]) must beEmpty
+    }
+
+    "validate a JSON dataset by its objects' field names, not EAD" in new ITestApp {
+      val dsId = "json_ds"
+      await(createDataset(dsId, "application/json"))
+
+      val files = Map(
+        "valid.json" -> """{"objectIdentifier": "1", "languageCode": "eng", "name": "Letters"}""",
+        "fields.json" -> """{"objectIdentifier": "1", "languageCode": "eng", "Titel": "Letters"}""",
+        "array.json" -> ("""[{"objectIdentifier": "1", "languageCode": "eng", "name": "A"},""" +
+          """{"objectIdentifier": "2", "languageCode": "eng"},""" +
+          """{"objectIdentifier": "3", "languageCode": "eng", "name": "C"},""" +
+          """{"objectIdentifier": "4", "languageCode": "eng"}]"""),
+        "valid-array.json" -> """[{"objectIdentifier": "1", "languageCode": "eng", "name": "A"}]""",
+        "mixed-array.json" -> """[{"objectIdentifier": "1"}, "not an object"]""",
+        "string.json" -> "\"just a string\"",
+        "invalid.json" -> """{"objectIdentifier": """,
+      ).map { case (name, json) => name -> ByteString(json) }
+      files.foreach { case (name, payload) => await(putFile(name, payload = payload, ds = dsId)) }
+
+      val r = FakeRequest(repoDataRoutes.validateFiles(repoId, dsId, fileStage))
+        .withUser(privilegedUser)
+        .callWith(Json.toJson(files.map { case (name, payload) => DigestUtils.md5Hex(payload.utf8String) -> name }))
+
+      val errors = contentAsJson(r).as[Seq[JsObject]]
+        .map(o => (o \ "key").as[String] -> (o \ "errors").as[Seq[JsObject]].map(e => (e \ "error").as[String]))
+        .toMap
+      errors("valid.json") must beEmpty
+      errors("fields.json") must containTheSameElementsAs(Seq(
+        "Required field 'name' is missing", "Unexpected field 'Titel'"))
+      errors("array.json") must_== Seq("Required field 'name' is missing (records 2, 4)")
+      errors("valid-array.json") must beEmpty
+      errors("mixed-array.json") must_== Seq("Expected a JSON object or an array of objects")
+      errors("string.json") must_== Seq("Expected a JSON object or an array of objects")
+      errors("invalid.json") must contain(startWith("Invalid JSON"))
     }
 
     "report a missing file as an error rather than a silent pass, for a tabular dataset" in new ITestApp {

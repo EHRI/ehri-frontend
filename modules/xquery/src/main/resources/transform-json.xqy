@@ -40,16 +40,18 @@ declare function local:has-children(
   fn:exists($configuration/csv/record[target-path = $target-path])
 };
 
-(: the "effective boolean value", extended to treat empty maps/arrays as false :)
-declare function local:ebv(
-  $item as item()*
-) as xs:boolean {
-  if (fn:count($item) gt 1) then
-    let $ones := for $element in $item return if (local:ebv($element)) then 1 else ()
-    return fn:count($ones) gt 0
+(: does the item (or sequence) have a value, i.e. is it not empty? Empty :)
+(: sequences, strings, objects and arrays are empty, but other scalars, :)
+(: including false and 0, are values. :)
+declare function local:has-value($item as item()*) as xs:boolean {
+  if (fn:count($item) gt 1) then fn:exists($item[local:has-value(.)])
+  else if (fn:empty($item)) then fn:false()
   else if ($item instance of map(*)) then map:size($item) gt 0
   else if ($item instance of array(*)) then array:size($item) gt 0
-  else fn:boolean($item)
+  else if ($item instance of xs:string or $item instance of xs:untypedAtomic or $item instance of xs:anyURI)
+    then fn:string-length($item) gt 0
+  else if ($item instance of node()) then fn:string-length(fn:string($item)) gt 0 or fn:exists($item/*)
+  else fn:true()
 };
 
 (: compute the JSON value (object, array, or scalar) produced by a single record :)
@@ -116,7 +118,7 @@ declare function local:make-object(
       return try {
         let $value := local:record-value($record, $target-path, $source-node, $configuration, $libURI)
         (: prune keys whose value is empty/absent (incl. empty objects and arrays) :)
-        return if (local:ebv($value)) then map:entry($key, $value) else ()
+        return if (local:has-value($value)) then map:entry($key, $value) else ()
       } catch * {
         fn:error(xs:QName("mapping-error"), $err:code || " at " || $target-path || $key || ": " || $err:description)
       }

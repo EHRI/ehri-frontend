@@ -70,6 +70,18 @@ class BaseXXQueryJsonTransformerSpec extends Specification {
       }
     }
 
+    "keep false and zero values, but drop empty ones" in {
+      val payload = """{"public": false, "count": 0, "blank": "", "none": {}}"""
+      val map = "target-path\ttarget-node\ttype\tsource-node\tvalue\n" +
+        "/\tpublic\tvalue\t.\t?public\n/\tcount\tvalue\t.\t?count\n" +
+        "/\tblank\tvalue\t.\t?blank\n/\tnone\tvalue\t.\t?none\n"
+      val out = BaseXXQueryJsonTransformer().transform(payload, map, Map.empty)
+      out must contain("\"public\": false")
+      out must contain("\"count\": 0")
+      out must not(contain("blank"))
+      out must not(contain("none"))
+    }
+
     "handle empty string literals in mapping values" in {
       val map = "target-path\ttarget-node\ttype\tsource-node\tvalue\n/\tflag\tvalue\t.\t" +
         "if (fn:false()) then \"x\" else fn:concat(\"\", \"ok\")"

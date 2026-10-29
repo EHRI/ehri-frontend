@@ -193,6 +193,23 @@ return
         "several source columns, list them together in one row's 'columns' cell (comma-separated), " ||
         "e.g. merge / colA,colB / " || $dupes[1] || " / <separator> - rather than a separate row per column.")
       else
+        (: a source column that isn't in the input would silently give empty values, :)
+        (: so report it - typically a typo, or a header that doesn't match :)
+        let $input-cols := fn:distinct-values($grid/record/entry/@name ! fn:string(.))
+        let $missing :=
+          if ($in-header = "yes" and fn:exists($grid/record))
+          then (
+            for $op in $ops[fn:normalize-space(op) = ("select", "merge", "split")]
+            for $col in local:cols($op/columns)
+            where fn:not($col = $input-cols)
+            return map { "op": fn:normalize-space($op/op), "col": $col }
+          )[1]
+          else ()
+        return if (fn:exists($missing))
+        then fn:error(xs:QName("mapping-error"),
+          "Column '" || $missing?col || "' in a '" || $missing?op || "' row is not in the input. " ||
+          "Input columns: " || fn:string-join($input-cols, ", "))
+        else
         let $filters := $ops[fn:normalize-space(op) = "filter"]
         let $result :=
           <csv>{

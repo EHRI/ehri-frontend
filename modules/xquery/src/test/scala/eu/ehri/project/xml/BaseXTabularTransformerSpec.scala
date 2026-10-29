@@ -220,6 +220,14 @@ class BaseXTabularTransformerSpec extends Specification {
         throwA[InvalidMappingError].like { case e => e.getMessage must contain("Unknown op: bogus") }
     }
 
+    "report a source column that is not in the input" in {
+      val config = header + "\nselect\tTitel\tname\t"
+      BaseXTabularTransformer().transform("id,Title\np1,Letters\n", config, Map("input.separator" -> "comma")) must
+        throwA[InvalidMappingError].like { case e =>
+          e.getMessage must contain("Column 'Titel' in a 'select' row is not in the input. Input columns: id, Title")
+        }
+    }
+
     "handle empty string literals in a derive expression" in {
       val config = header + "\nderive\t\tflag\tif (?a = \"\") then \"empty\" else \"\""
       val out = BaseXTabularTransformer().transform("id,a\np1,\n", config, Map("input.separator" -> "comma"))
