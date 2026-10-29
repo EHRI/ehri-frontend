@@ -21,26 +21,35 @@ import scala.concurrent.{ExecutionContext, Future}
 case class RelaxNGEadValidator @Inject()()(implicit mat: Materializer, exec: ExecutionContext) extends EadValidator {
 
   private val logger = Logger(classOf[RelaxNGEadValidator])
-  //noinspection UnstableApiUsage
-  private val rngUrl = Resources.getResource("ehri_ead.rng")
-  private val rng: InputSource = ValidationDriver.uriOrFileInputSource(rngUrl.toString)
 
-  override def validateEad(src: Source[ByteString, _]): Future[Seq[XmlValidationError]] = {
+  private val schemaResource: Map[EadSchema.Value, String] = Map(
+    EadSchema.Ead2002 -> "ehri_ead.rng",
+    EadSchema.Ead3 -> "ehri_ead3_undeprecated.rng",
+    EadSchema.Ead4 -> "ehri_ead4.rng",
+  )
+
+  //noinspection UnstableApiUsage
+  private def schemaSource(schema: EadSchema.Value): InputSource = {
+    val rngUrl = Resources.getResource(schemaResource(schema))
+    ValidationDriver.uriOrFileInputSource(rngUrl.toString)
+  }
+
+  override def validateEad(src: Source[ByteString, _], schema: EadSchema.Value): Future[Seq[XmlValidationError]] = {
     val inputStream = src.runWith(StreamConverters.asInputStream())
     val stream = new InputStreamReader(inputStream)
     val is = new InputSource(stream)
-    validateInputSource(is)
+    validateInputSource(is, schema)
   }
 
-  override def validateEad(path: Path): Future[Seq[XmlValidationError]] =
-    validateInputSource(ValidationDriver.fileInputSource(path.toFile))
+  override def validateEad(path: Path, schema: EadSchema.Value): Future[Seq[XmlValidationError]] =
+    validateInputSource(ValidationDriver.fileInputSource(path.toFile), schema)
 
-  override def validateEad(url: Uri): Future[Seq[XmlValidationError]] = {
+  override def validateEad(url: Uri, schema: EadSchema.Value): Future[Seq[XmlValidationError]] = {
     logger.debug(s"Validating URI: $url")
-    validateInputSource(ValidationDriver.uriOrFileInputSource(url.toString))
+    validateInputSource(ValidationDriver.uriOrFileInputSource(url.toString), schema)
   }
 
-  private def validateInputSource(is: InputSource): Future[Seq[XmlValidationError]] = Future {
+  private def validateInputSource(is: InputSource, schema: EadSchema.Value): Future[Seq[XmlValidationError]] = Future {
     val props = new PropertyMapBuilder()
     props.put(RngProperty.CHECK_ID_IDREF, null)
     val bs = ArrayBuffer[XmlValidationError]()
@@ -59,7 +68,7 @@ case class RelaxNGEadValidator @Inject()()(implicit mat: Materializer, exec: Exe
     props.put(ValidateProperty.ENTITY_RESOLVER, entityResolver)
     try {
       val driver = new ValidationDriver(props.toPropertyMap)
-      driver.loadSchema(rng)
+      driver.loadSchema(schemaSource(schema))
       driver.validate(is)
       bs.toList
     } catch {
