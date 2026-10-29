@@ -27,11 +27,12 @@ object Helpers {
     ("contentTypes.SystemEvent",      controllers.events.routes.SystemEvents.list().url),
     ("s2", "-"),
     ("cypherQuery.list",              controllers.cypher.routes.CypherQueries.listQueries().url),
+    ("s3", "-"),
+    // NB: lists only institutions the user can manage datasets for
+    ("ingest.datasets",               controllers.datasets.routes.ImportDatasets.dashboard().url),
   )
 
   val adminMenu = Seq(
-    ("s3", "-"),
-    ("ingest.datasets",             controllers.datasets.routes.ImportDatasets.dashboard().url),
     ("s4", "-"),
     ("dataModel",                   controllers.datamodel.routes.EntityTypeMetadata.editor().url),
     ("dataModel.audit",             controllers.datamodel.routes.EntityTypeMetadata.auditor().url),

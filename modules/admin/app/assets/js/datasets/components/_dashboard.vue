@@ -15,22 +15,18 @@ export default {
   data: function () {
     return {
       loaded: false,
-      loading: false,
       filter: "",
       datasetInfo: [],
     }
   },
   methods: {
     loadDatasetInfo: async function () {
-      this.loading = true;
       try {
         this.datasetInfo = await this.api.listAllDatasets()
         this.loaded = true;
       } catch (e) {
         console.log(e);
         this.showError("Error loading dataset info", e);
-      } finally {
-        this.loading = true;
       }
     },
     goTo: function (id: string, ds?: string) {
@@ -66,6 +62,9 @@ export default {
     <div id="dashboard-institution-list" class="dashboard-institution-list">
       <div class="panel-placeholder" v-if="loaded && filter && filteredInfo.length === 0">
           No institutions found containing with &quot;<code>{{ filter }}</code>&quot;...
+      </div>
+      <div class="panel-placeholder" v-else-if="loaded && datasetInfo.length === 0">
+          There are no institutions with datasets that you can manage.
       </div>
       <div v-else
            v-for="info in filteredInfo"

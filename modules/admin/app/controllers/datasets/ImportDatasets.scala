@@ -5,6 +5,7 @@ import controllers.base.{AdminController, ApiBodyParsers}
 import controllers.generic._
 import models._
 import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.scaladsl.{Sink, Source}
 import play.api.cache.AsyncCacheApi
 import play.api.http.MimeTypes
 import play.api.libs.json.{Format, Json}
@@ -17,6 +18,7 @@ import services.storage.FileStorage
 
 import javax.inject._
 import scala.concurrent.Future
+import scala.util.control.NonFatal
 
 
 case class RepositoryDatasets(repoId: String, name: String, altNames: String, logoUrl: String, sets: Seq[ImportDataset])
@@ -99,7 +101,7 @@ case class ImportDatasets @Inject()(
     Ok(Json.toJson(messagesApi.messages))
   }
 
-  def dashboard(): Action[AnyContent] = AdminAction.apply { implicit request =>
+  def dashboard(): Action[AnyContent] = WithUserAction.apply { implicit request =>
     Ok(views.html.admin.datasets.dashboard())
   }
 
@@ -138,19 +140,68 @@ case class ImportDatasets @Inject()(
     datasets.list(id).map(dsl => Ok(Json.toJson(dsl)))
   }
 
-  def listAll(): Action[AnyContent] = AdminAction.async { implicit request =>
+  // Permissions that cannot be read (e.g. for a deleted item, or because
+  // of a backend error) are treated as not granted, so that one failure
+  // does not prevent listing the other repositories.
+  private def notGranted(user: UserProfile, id: String): PartialFunction[Throwable, Boolean] = {
+    case _: ItemNotFound => false
+    case NonFatal(e) =>
+      logger.warn(s"Unable to check permissions for user ${user.id} on $id", e)
+      false
+  }
+
+  // Whether the user can update a repository, and hence manage its datasets.
+  // NB: the backend permission calls are cached by the data service, so
+  // these are not cached again here.
+  private def canUpdate(user: UserProfile, repoId: String): Future[Boolean] =
+    withItemPermissions(user, repoId)
+      .map(_.hasPermission(ContentTypes.Repository, PermissionType.Update))
+      .recover(notGranted(user, repoId))
+
+  // Whether the user can update all repositories in a country, via
+  // permissions scoped to it, which is a common way of granting them.
+  private def canUpdateWithin(user: UserProfile, countryId: String): Future[Boolean] = {
+    implicit val userOpt: Option[UserProfile] = Some(user)
+    userDataApi.scopePermissions(user.id, countryId)
+      .map(_.has(ContentTypes.Repository, PermissionType.Update))
+      .recover(notGranted(user, countryId))
+  }
+
+  // The given repositories that the user can update. To minimise backend calls:
+  //  - users with global update permission on repositories (whose profile
+  //    already includes their global permissions) can update all of them
+  //  - users with update permission scoped to a country can update all of
+  //    its repositories
+  //  - only the remaining repositories are checked individually
+  private def updatableRepositories(user: UserProfile, repos: Seq[Repository]): Future[Seq[Repository]] = {
+    def filterAsync[T](items: Seq[T])(f: T => Future[Boolean]): Future[Seq[T]] =
+      Source(items.toList)
+        .mapAsync(16)(item => f(item).map(item -> _))
+        .collect { case (item, true) => item }
+        .runWith(Sink.seq)
+
+    if (user.isAdmin || user.hasPermission(ContentTypes.Repository, PermissionType.Update))
+      Future.successful(repos)
+    else for {
+      countries <- filterAsync(repos.flatMap(_.country.map(_.id)).distinct)(canUpdateWithin(user, _)).map(_.toSet)
+      (inCountries, others) = repos.partition(_.country.exists(c => countries.contains(c.id)))
+      individually <- filterAsync(others)(r => canUpdate(user, r.id))
+    } yield inCountries ++ individually
+  }
+
+  def listAll(): Action[AnyContent] = WithUserAction.async { implicit request =>
     val defaultLogo = controllers.portal.routes.PortalAssets.versioned("img/institution-icon.png").url
     for {
-      sets <- datasets.listAll().map(_.toSeq)
-      repos <- userDataApi.fetch[Repository](sets.map(_._1))
-      combined = sets.zip(repos).collect {
-        case ((id, sets), Some(r)) =>
-          RepositoryDatasets(
-          id,
+      allSets <- datasets.listAll()
+      repos <- userDataApi.fetch[Repository](allSets.keys.toSeq).map(_.flatten)
+      updatable <- updatableRepositories(request.user, repos)
+      combined = updatable.map { r =>
+        RepositoryDatasets(
+          r.id,
           r.toStringLang,
           r.allNames.mkString(", "),
           r.data.logoUrl.getOrElse(defaultLogo),
-          sets
+          allSets.getOrElse(r.id, Seq.empty)
         )
       }.sortBy(_.name)
     } yield Ok(Json.toJson(combined))
