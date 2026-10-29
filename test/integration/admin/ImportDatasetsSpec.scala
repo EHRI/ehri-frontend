@@ -27,6 +27,9 @@ class ImportDatasetsSpec extends IntegrationTestRunner with ResourceUtils {
       val r = FakeRequest(routes.listAll()).withUser(privilegedUser).call()
       status(r) must_== OK
       repoIds(r) must containTheSameElementsAs(Seq("r1", "r2"))
+      // with each institution's country, to group them by
+      contentAsJson(r).as[Seq[JsObject]].map(o => (o \ "repoId").as[String] -> (o \ "countryCode").as[String]).toMap must_==
+        Map("r1" -> "nl", "r2" -> "gb")
     }
 
     "list datasets only for repositories a user can update" in new DBTestApp("import-dataset-fixtures.sql") {
