@@ -1,9 +1,9 @@
 package guice
 
 import com.google.inject.AbstractModule
-import eu.ehri.project.xml.{BaseXTabularTransformer, BaseXXQueryJsonTransformer, BaseXXQueryXmlTransformer, SaxonXsltXmlTransformer, XQueryJsonTransformer, XQueryTabularTransformer, XQueryXmlTransformer, XsltXmlTransformer}
+import eu.ehri.project.xml.{BaseXTabularHeaderReader, BaseXTabularTransformer, BaseXXQueryJsonTransformer, BaseXXQueryXmlTransformer, SaxonXsltXmlTransformer, XQueryJsonTransformer, XQueryTabularHeaderReader, XQueryTabularTransformer, XQueryXmlTransformer, XsltXmlTransformer}
 import services.harvesting._
-import services.ingest.{CoreferenceService, EadValidator, IngestService, RelaxNGEadValidator, SqlCoreferenceService, WSIngestService}
+import services.ingest.{CoreferenceService, EadValidator, FieldValidator, IngestService, IsadGFieldValidator, RelaxNGEadValidator, SqlCoreferenceService, WSIngestService}
 
 import javax.inject.Provider
 
@@ -11,6 +11,7 @@ class AdminModule extends AbstractModule {
   override def configure(): Unit = {
     bind(classOf[IngestService]).to(classOf[WSIngestService])
     bind(classOf[EadValidator]).to(classOf[RelaxNGEadValidator])
+    bind(classOf[FieldValidator]).to(classOf[IsadGFieldValidator])
     bind(classOf[OaiPmhClient]).to(classOf[WSOaiPmhClient])
     bind(classOf[ResourceSyncClient]).to(classOf[WSResourceSyncClient])
     bind(classOf[HarvestEventService]).to(classOf[SqlHarvestEventService])
@@ -24,6 +25,9 @@ class AdminModule extends AbstractModule {
     })
     bind(classOf[XQueryTabularTransformer]).toProvider(new Provider[XQueryTabularTransformer] {
       override def get(): XQueryTabularTransformer = BaseXTabularTransformer()
+    })
+    bind(classOf[XQueryTabularHeaderReader]).toProvider(new Provider[XQueryTabularHeaderReader] {
+      override def get(): XQueryTabularHeaderReader = BaseXTabularHeaderReader()
     })
   }
 }

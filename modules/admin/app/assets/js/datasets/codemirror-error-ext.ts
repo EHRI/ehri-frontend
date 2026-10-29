@@ -1,13 +1,15 @@
 /**
  * Configuration for CodeMirror 6 error and success markers.
  *
- * The validator starts with a NULL array of {FileValidationError} instances, indicating
- * that it hasn't yet been checked.
+ * The validator starts with a NULL array of {XmlValidationError} instances, indicating
+ * that it hasn't yet been checked. This is inherently line-based (it places gutter
+ * markers at document lines), so it only handles XML errors - field-based validation
+ * errors (tabular/JSON) have no line to place a marker at.
  */
 
 import {Decoration, EditorView, gutter, GutterMarker, WidgetType} from '@codemirror/view';
 import {RangeSet, StateEffect, StateField} from '@codemirror/state';
-import {FileValidationError} from "./types";
+import {XmlValidationError} from "./types";
 
 class ErrorMarker extends GutterMarker {
   constructor(readonly error: string) { super(); }
@@ -40,14 +42,14 @@ class ErrorWidget extends WidgetType {
   }
 }
 
-export const setValidationErrors = StateEffect.define<FileValidationError[] | null>();
+export const setValidationErrors = StateEffect.define<XmlValidationError[] | null>();
 export const toggleErrorWidget = StateEffect.define<number | null>();
 
 const errorState = StateField.define<{
-  errors: FileValidationError[] | null,
+  errors: XmlValidationError[] | null,
   activeLine: number | null,
 }>({
-  create(): { errors: FileValidationError[] | null, activeLine: number | null } {
+  create(): { errors: XmlValidationError[] | null, activeLine: number | null } {
     return {
       errors: null,
       activeLine: null,

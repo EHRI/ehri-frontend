@@ -1,5 +1,6 @@
 package controllers.datasets
 
+import eu.ehri.project.xml.XQueryTabularHeaderReader
 import org.apache.pekko.http.scaladsl.model.Uri
 import org.apache.pekko.stream.Materializer
 import org.apache.pekko.stream.scaladsl.{Sink, Source}
@@ -18,6 +19,7 @@ import services.data.DataHelpers
 import services.datasets.ImportDatasetService
 import services.ingest._
 import services.storage.FileStorage
+import services.transformation.utils.getUtf8Transcoder
 
 import java.net.URI
 import javax.inject._
@@ -31,7 +33,7 @@ object FileToUpload {
   implicit val _json: Format[FileToUpload] = Json.format[FileToUpload]
 }
 
-case class ValidationResult(key: String, eTag: Option[String], errors: Seq[XmlValidationError])
+case class ValidationResult(key: String, eTag: Option[String], errors: Seq[FileValidationError])
 
 object ValidationResult {
   implicit val _json: Writes[ValidationResult] = Json.writes[ValidationResult]
@@ -44,6 +46,8 @@ case class ImportFiles @Inject()(
   dataHelpers: DataHelpers,
   @Named("dam") storage: FileStorage,
   eadValidator: EadValidator,
+  fieldValidator: FieldValidator,
+  headerReader: XQueryTabularHeaderReader,
   ingestService: IngestService,
   importLogService: ImportLogService,
   asyncCache: AsyncCacheApi,
@@ -169,6 +173,32 @@ case class ImportFiles @Inject()(
       .map ( num => Ok(Json.obj("deleted" -> num)))
   }
 
+  // Must match ImportConfigs.scala's exact-equality content-type check, or a
+  // dataset could validate as tabular but ingest as something else.
+  private def tabularSeparator(contentType: Option[String]): Option[String] =
+    if (contentType.contains("text/csv")) Some("comma") else None
+
+  // Report file-level problems as data, not a failed Future, so one bad file
+  // doesn't fail the whole batch.
+  private def fileError(msg: String): Seq[FileValidationError] = Seq(FieldValidationError("(file)", "error", msg))
+
+  private def validateTabularFile(key: String, separator: String): Future[Seq[FileValidationError]] =
+    storage.get(key).flatMap {
+      case Some((meta, src)) =>
+        val transcoder = getUtf8Transcoder(meta.contentType)
+        val utf8src = transcoder.map(tc => src.via(tc)).getOrElse(src)
+        utf8src.runFold(ByteString.empty)(_ ++ _).map(_.utf8String).map { text =>
+          try {
+            val headerJson = headerReader.readHeader(text, Map("input.separator" -> separator))
+            val header = Json.parse(headerJson).as[Seq[String]]
+            fieldValidator.validateFields(header)
+          } catch {
+            case e: Throwable => fileError(s"Unable to read header row: ${e.getMessage}")
+          }
+        }
+      case None => Future.successful(fileError("File not found"))
+    }
+
   def validateFiles(id: String, ds: String, stage: FileStage.Value): Action[Map[String, String]] = WithItemPermissionAction(id, PermissionType.Update).async(apiJson[Map[String, String]]) { implicit request =>
     // Input is a map of eTag -> key
     // Convert the map to a sequence and reverse key/value
@@ -178,15 +208,24 @@ case class ImportFiles @Inject()(
         .map(f => f.key -> f.eTag)
     else Source(request.body.map{ case (t, k) => (pre + k) -> Some(t)}.toList)
 
-    val results: Future[Seq[ValidationResult]] = src
-      .mapAsync(3) { case (key, tag) =>
-        val url = storage.uri(key).toString
-        eadValidator.validateEad(Uri(url)).map(errs =>
-          ValidationResult(key.replace(pre, ""), tag, errs))
+    // A dataset with no registered metadata (no explicit content type) is
+    // treated the same as one with contentType unset: fall through to EAD/XML
+    // validation, exactly as before this dispatch existed.
+    datasets.find(id, ds).flatMap { datasetOpt =>
+      val results: Future[Seq[ValidationResult]] = tabularSeparator(datasetOpt.flatMap(_.contentType)) match {
+        case Some(sep) =>
+          src.mapAsync(3) { case (key, tag) =>
+            validateTabularFile(key, sep).map(errs => ValidationResult(key.replace(pre, ""), tag, errs))
+          }.runWith(Sink.seq)
+        case None =>
+          src.mapAsync(3) { case (key, tag) =>
+            val url = storage.uri(key).toString
+            eadValidator.validateEad(Uri(url)).map(errs =>
+              ValidationResult(key.replace(pre, ""), tag, errs))
+          }.runWith(Sink.seq)
       }
-      .runWith(Sink.seq)
-
-    results.map(out => Ok(Json.toJson(out))).recover {
+      results.map(out => Ok(Json.toJson(out)))
+    }.recover {
       case e => BadRequest(Json.obj("error" -> e.getMessage))
     }
   }
