@@ -1,0 +1,7 @@
+target-path	target-node	type	source-node	value
+/	identifier	value	.	?id
+/	title	value	?meta	?title
+/	language	value	?meta	xtra:language-name-to-code(?lang)
+/	items	array	?records?*
+/items/	ref	value	.	?ref
+/items/	dates	value	.	xtra:normalize-date-interval(?date)
