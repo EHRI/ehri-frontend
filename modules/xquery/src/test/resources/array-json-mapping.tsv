@@ -1,0 +1,5 @@
+target-path	target-node	type	source-node	value
+/	[]	array	?*
+/[]/	identifier	value	.	?ref
+/[]/	name	value	.	?title
+/[]/	language	value	.	xtra:language-name-to-code(?lang)

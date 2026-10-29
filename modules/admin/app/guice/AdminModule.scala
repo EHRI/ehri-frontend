@@ -1,7 +1,7 @@
 package guice
 
 import com.google.inject.AbstractModule
-import eu.ehri.project.xml.{BaseXXQueryXmlTransformer, SaxonXsltXmlTransformer, XQueryXmlTransformer, XsltXmlTransformer}
+import eu.ehri.project.xml.{BaseXXQueryJsonTransformer, BaseXXQueryXmlTransformer, SaxonXsltXmlTransformer, XQueryJsonTransformer, XQueryXmlTransformer, XsltXmlTransformer}
 import services.harvesting._
 import services.ingest.{CoreferenceService, EadValidator, IngestService, RelaxNGEadValidator, SqlCoreferenceService, WSIngestService}
 
@@ -18,6 +18,9 @@ class AdminModule extends AbstractModule {
     bind(classOf[CoreferenceService]).to(classOf[SqlCoreferenceService])
     bind(classOf[XQueryXmlTransformer]).toProvider(new Provider[XQueryXmlTransformer] {
       override def get(): XQueryXmlTransformer = BaseXXQueryXmlTransformer()
+    })
+    bind(classOf[XQueryJsonTransformer]).toProvider(new Provider[XQueryJsonTransformer] {
+      override def get(): XQueryJsonTransformer = BaseXXQueryJsonTransformer()
     })
   }
 }
