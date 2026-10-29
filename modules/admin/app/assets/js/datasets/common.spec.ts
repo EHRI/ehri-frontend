@@ -33,3 +33,15 @@ test("decodeTsv with quotes", () => {
   let data = decodeTsv(tsv, 2);
   expect(data).toStrictEqual([["header1", "header2"], ["a", "\"b\""], ["c", "d with \"quotes\""]]);
 });
+
+test("decodeTsv(quoted) resolves a quoted field with an embedded newline to one row", () => {
+  let tsv = "joined\n\"line1\nline2\"\n";
+  let data = decodeTsv(tsv, 1, true);
+  expect(data).toStrictEqual([["joined"], ["line1\nline2"]]);
+});
+
+test("encodeTsv(quoted) quotes a value containing an embedded newline", () => {
+  let data = [["joined"], ["line1\nline2"]];
+  let tsv = encodeTsv(data, 1, true);
+  expect(tsv).toBe("joined\n\"line1\nline2\"");
+});
