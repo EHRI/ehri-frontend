@@ -220,6 +220,12 @@ class BaseXTabularTransformerSpec extends Specification {
         throwA[InvalidMappingError].like { case e => e.getMessage must contain("Unknown op: bogus") }
     }
 
+    "keep extra split values in the last target column" in {
+      val config = header + "\nsplit\tdates\tstart,end\t||"
+      val out = BaseXTabularTransformer().transform("dates\na||b||c\nd\n", config, Map("input.separator" -> "comma"))
+      out must_== "start,end\na,b||c\nd,\n"
+    }
+
     "name columns by position when the input has no header" in {
       val input = "1,Letters,a||b\n2,Photos,c\n"
       val opts = Map("input.separator" -> "comma", "input.header" -> "no")

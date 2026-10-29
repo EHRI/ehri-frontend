@@ -82,7 +82,11 @@ declare function local:produce-merge($record as element(record), $cols as xs:str
 (: split one input column into several fixed output columns :)
 declare function local:produce-split($record as element(record), $col as xs:string, $into as xs:string*, $sep as xs:string) as element(entry)* {
   let $parts := local:split-str(fn:string(local:entry($record, $col)), $sep)
-  for $i in 1 to fn:count($into) return <entry name="{$into[$i]}">{ $parts[$i] }</entry>
+  let $n := fn:count($into)
+  (: any parts beyond the number of target columns are kept in the last one :)
+  for $i in 1 to $n
+  let $value := if ($i eq $n) then fn:string-join($parts[position() ge $n], $sep) else $parts[$i]
+  return <entry name="{$into[$i]}">{ $value }</entry>
 };
 
 (: compute one output column from an expression over the input record :)

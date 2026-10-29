@@ -157,7 +157,8 @@ export default {
           joined (blank values skipped) into <code>to</code> with <code>expr</code> as the separator
           (defaults to <code>array.separator</code>). <code>split</code>: <code>columns</code> is
           the one source column, <code>to</code> a comma-separated list of new column names, and
-          <code>expr</code> the separator. Each output column must come from a single row &mdash;
+          <code>expr</code> the separator; any extra values are kept, separated, in the last column.
+          Each output column must come from a single row &mdash;
           combining several source columns into one? List them all in that one <code>merge</code>
           row's <code>columns</code> cell, not as separate rows; two rows targeting the same
           <code>to</code> will fail with an error rather than silently combining.
