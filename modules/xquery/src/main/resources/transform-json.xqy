@@ -129,7 +129,9 @@ declare variable $mapping as xs:string external;
 declare variable $input as xs:string external;
 declare variable $libURI as xs:anyURI external;
 
-let $source := fn:parse-json($input)
+(: parse numbers as decimals rather than doubles, so that e.g. identifiers keep all :)
+(: their digits, and are not converted to strings in exponent form (1.2345678E7) :)
+let $source := fn:parse-json($input, map { "number-format": "decimal" })
 let $configuration := mapping:parse-tsv($mapping)
 let $root-records := $configuration/csv/record[target-path = "/"]
 (: If the root is a single record whose target-node is the "[]" marker, the output :)

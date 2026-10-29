@@ -70,6 +70,16 @@ class BaseXXQueryJsonTransformerSpec extends Specification {
       }
     }
 
+    "keep numbers exact, without exponents" in {
+      val payload = """{"id": 12345678, "big": 12345678901234567890, "dec": 1.5}"""
+      val map = "target-path\ttarget-node\ttype\tsource-node\tvalue\n" +
+        "/\tidentifier\tvalue\t.\tfn:string(?id)\n/\tbig\tvalue\t.\t?big\n/\tdec\tvalue\t.\t?dec\n"
+      val out = BaseXXQueryJsonTransformer().transform(payload, map, Map.empty)
+      out must contain("\"identifier\": \"12345678\"")
+      out must contain("\"big\": 12345678901234567890")
+      out must contain("\"dec\": 1.5")
+    }
+
     "keep false and zero values, but drop empty ones" in {
       val payload = """{"public": false, "count": 0, "blank": "", "none": {}}"""
       val map = "target-path\ttarget-node\ttype\tsource-node\tvalue\n" +
