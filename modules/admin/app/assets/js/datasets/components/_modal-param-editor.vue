@@ -6,7 +6,7 @@ import ModalAlert from './_modal-alert';
 import PanelCodeView from './_panel-code-view';
 
 import _isObject from 'lodash/isObject';
-import {FileValidationError} from "../types";
+import {XmlValidationError} from "../types";
 
 export default {
   components: {PanelCodeView, ModalWindow, ModalAlert},
@@ -17,7 +17,7 @@ export default {
   data: function () {
     return {
       data: JSON.stringify(this.jsonObject, null, 2),
-      errors: [] as FileValidationError[],
+      errors: [] as XmlValidationError[],
     }
   },
   computed: {

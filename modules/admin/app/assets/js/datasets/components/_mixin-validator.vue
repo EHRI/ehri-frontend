@@ -36,7 +36,10 @@ export default {
           if (res.errors.length > 0) {
             this.println(red(decodeURI(res.key)));
             res.errors.forEach(err => {
-              this.println("    " + err.line + "/" + err.pos + " - " + err.error);
+              // XML errors are line/pos-located; tabular/JSON field errors
+              // are located by field name instead.
+              let location = !_isUndefined(err.line) ? (err.line + "/" + err.pos) : err.field;
+              this.println("    " + location + " - " + err.error);
             })
           }
         });
@@ -60,3 +63,4 @@ export default {
   }
 }
 </script>
+

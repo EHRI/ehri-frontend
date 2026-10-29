@@ -6,7 +6,7 @@ import {basicSetup, EditorView} from "codemirror";
 import {xml} from "@codemirror/lang-xml";
 import {json} from "@codemirror/lang-json";
 import {setValidationErrors, validationExtension} from "../codemirror-error-ext";
-import {FileValidationError} from "../types";
+import {XmlValidationError} from "../types";
 
 export default {
   props: {
@@ -24,7 +24,7 @@ export default {
       default: false,
     },
     errors: {
-      type: Array as FileValidationError[] | null,
+      type: Array as XmlValidationError[] | null,
       default: null
     }
   },

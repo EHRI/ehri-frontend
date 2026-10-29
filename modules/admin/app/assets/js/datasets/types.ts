@@ -166,11 +166,19 @@ export interface CopyResult {
   url: string
 }
 
-export interface FileValidationError {
+export interface XmlValidationError {
   line: number,
   pos: number,
   error: string,
 }
+
+export interface FieldValidationError {
+  field: string,
+  kind: string,
+  error: string,
+}
+
+export type FileValidationError = XmlValidationError | FieldValidationError;
 
 export interface ValidationResult {
   key: string,
