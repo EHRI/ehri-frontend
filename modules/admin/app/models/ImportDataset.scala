@@ -20,7 +20,14 @@ case class ImportDataset(
   status: ImportDataset.Status.Value = ImportDataset.Status.Active,
   notes: Option[String] = None,
   created: Instant,
-)
+) {
+  /**
+    * The dataset's media type: its content type without any parameters
+    * such as a charset, e.g. "text/csv" for "text/csv; charset=windows-1252".
+    */
+  def mediaType: Option[String] =
+    contentType.map(_.split(';').head.trim.toLowerCase).filter(_.nonEmpty)
+}
 
 object ImportDataset {
   object Src extends Enumeration with StorableEnum {
