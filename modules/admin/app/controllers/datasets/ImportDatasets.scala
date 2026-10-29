@@ -21,7 +21,15 @@ import scala.concurrent.Future
 import scala.util.control.NonFatal
 
 
-case class RepositoryDatasets(repoId: String, name: String, altNames: String, logoUrl: String, sets: Seq[ImportDataset])
+case class RepositoryDatasets(
+  repoId: String,
+  name: String,
+  altNames: String,
+  logoUrl: String,
+  sets: Seq[ImportDataset],
+  countryCode: Option[String] = None,
+  countryName: Option[String] = None,
+)
 object RepositoryDatasets {
   implicit val _format: Format[RepositoryDatasets] = Json.format[RepositoryDatasets]
 }
@@ -201,7 +209,9 @@ case class ImportDatasets @Inject()(
           r.toStringLang,
           r.allNames.mkString(", "),
           r.data.logoUrl.getOrElse(defaultLogo),
-          allSets.getOrElse(r.id, Seq.empty)
+          allSets.getOrElse(r.id, Seq.empty),
+          r.country.map(_.id),
+          r.country.map(_.toStringLang),
         )
       }.sortBy(_.name)
     } yield Ok(Json.toJson(combined))

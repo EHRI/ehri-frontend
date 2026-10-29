@@ -122,6 +122,8 @@ export interface RepositoryDatasets {
   altNames: string,
   logoUrl: string,
   sets: ImportDataset[],
+  countryCode?: string,
+  countryName?: string,
 }
 
 

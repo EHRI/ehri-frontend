@@ -39,9 +39,24 @@ export default {
       function filter(info) {
         return !f || (info.name.toLowerCase().includes(f)
             || info.repoId.includes(f)
-            || info.altNames.toLowerCase().includes(f));
+            || info.altNames.toLowerCase().includes(f)
+            || (info.countryName || "").toLowerCase().includes(f));
       }
       return this.datasetInfo.filter(filter);
+    },
+    // The filtered institutions grouped by country, in country name order,
+    // with any institutions without a country last.
+    groupedInfo: function() {
+      let groups = new Map();
+      for (let info of this.filteredInfo) {
+        let key = info.countryCode || "";
+        if (!groups.has(key)) {
+          groups.set(key, {code: key, name: info.countryName || "Other", items: []});
+        }
+        groups.get(key).items.push(info);
+      }
+      return Array.from(groups.values()).sort((a, b) =>
+          Number(a.code === "") - Number(b.code === "") || a.name.localeCompare(b.name));
     }
   },
   created() {
@@ -66,19 +81,27 @@ export default {
       <div class="panel-placeholder" v-else-if="loaded && datasetInfo.length === 0">
           There are no institutions with datasets that you can manage.
       </div>
-      <div v-else
-           v-for="info in filteredInfo"
-           v-bind:key="info.repoId"
-           v-on:click="goTo(info.repoId)"
-           class="dashboard-institution-item" v-bind:id="'repo-id-' + info.repoId">
-        <img v-bind:src="info.logoUrl" v-bind:alt="info.name" class="item-icon"/>
-        <h3 class="item-heading">{{ info.name }}</h3>
-        <div class="item-meta">
+      <section v-else
+               v-for="group in groupedInfo"
+               v-bind:key="group.code"
+               class="dashboard-country">
+        <h2 class="dashboard-country-heading">
+          {{ group.name }}
+          <span class="badge badge-light">{{ group.items.length }}</span>
+        </h2>
+        <div v-for="info in group.items"
+             v-bind:key="info.repoId"
+             v-on:click="goTo(info.repoId)"
+             class="dashboard-institution-item" v-bind:id="'repo-id-' + info.repoId">
+          <img v-bind:src="info.logoUrl" v-bind:alt="info.name" class="item-icon"/>
+          <h3 class="item-heading">{{ info.name }}</h3>
+          <div class="item-meta">
+          </div>
+          <div class="badge badge-success item-badge">
+            {{ info.sets.length + " Dataset" + (info.sets.length > 1 ? 's' : '') }}
+          </div>
         </div>
-        <div class="badge badge-success item-badge">
-          {{ info.sets.length + " Dataset" + (info.sets.length > 1 ? 's' : '') }}
-        </div>
-      </div>
+      </section>
     </div>
   </div>
 </template>

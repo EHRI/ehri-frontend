@@ -1110,6 +1110,21 @@ $active-table-row: #e7f1ff;
 
 .dashboard-institution-item {
   @extend %dataset-manager-list-item;
+
+  // Logos vary in size, so show them at a fixed height
+  .item-icon {
+    height: 4rem;
+    width: auto;
+    max-width: 8rem;
+    object-fit: contain;
+  }
+}
+
+.dashboard-country-heading {
+  font-size: $font-size-lg;
+  margin: $margin-sm 0 $margin-xs;
+  padding-bottom: $margin-xs;
+  border-bottom: 1px solid $gray-300;
 }
 
 // Timeline
