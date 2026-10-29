@@ -16,14 +16,14 @@ case class MockEadValidatorService @Inject() (@Named("dam") storage: FileStorage
 
   private val validator = RelaxNGEadValidator()
 
-  override def validateEad(path: Path): Future[Seq[XmlValidationError]] = validator.validateEad(path)
+  override def validateEad(path: Path, schema: EadSchema.Value): Future[Seq[XmlValidationError]] = validator.validateEad(path, schema)
 
-  override def validateEad(uri: Uri): Future[Seq[XmlValidationError]] = {
+  override def validateEad(uri: Uri, schema: EadSchema.Value): Future[Seq[XmlValidationError]] = {
     storage.fromUri(URI.create(uri.toString())).flatMap {
-      case Some((_, src)) => validator.validateEad(src)
+      case Some((_, src)) => validator.validateEad(src, schema)
       case _ => throw new RuntimeException(s"Can't get bytes for URL: $uri in '${storage.name}'")
     }
   }
 
-  override def validateEad(src: Source[ByteString, _]): Future[Seq[XmlValidationError]] = validator.validateEad(src)
+  override def validateEad(src: Source[ByteString, _], schema: EadSchema.Value): Future[Seq[XmlValidationError]] = validator.validateEad(src, schema)
 }

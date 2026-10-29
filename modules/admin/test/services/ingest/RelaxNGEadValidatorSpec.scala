@@ -5,7 +5,8 @@ import java.nio.file.Paths
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.http.scaladsl.model.Uri
 import org.apache.pekko.stream.Materializer
-import org.apache.pekko.stream.scaladsl.FileIO
+import org.apache.pekko.stream.scaladsl.{FileIO, Source}
+import org.apache.pekko.util.ByteString
 import com.google.common.io.Resources
 import play.api.test.PlaySpecification
 
@@ -60,6 +61,33 @@ class RelaxNGEadValidatorSpec extends PlaySpecification {
       errs2.head.line must_== 8
       errs2.head.pos must_== 80
       errs2.head.error must contain("value of attribute \"countrycode\" is invalid")
+    }
+
+    "default to the EAD 2002 schema" in {
+      val validator = RelaxNGEadValidator()
+
+      val file = Paths.get(Resources.getResource("valid-ead.xml").toURI)
+      val errs = await(validator.validateEad(file))
+      errs must_== Seq.empty[XmlValidationError]
+    }
+
+    "validate against the EAD3 schema when requested" in {
+      val validator = RelaxNGEadValidator()
+
+      // Not a valid EAD3 document, but enough to prove the ead3 schema was
+      // actually loaded and applied (a load failure would throw, not report
+      // validation errors).
+      val src = Source.single(ByteString("<foo/>"))
+      val errs = await(validator.validateEad(src, EadSchema.Ead3))
+      errs must not(beEmpty)
+    }
+
+    "validate against the EAD4 schema when requested" in {
+      val validator = RelaxNGEadValidator()
+
+      val src = Source.single(ByteString("<foo/>"))
+      val errs = await(validator.validateEad(src, EadSchema.Ead4))
+      errs must not(beEmpty)
     }
   }
 }
