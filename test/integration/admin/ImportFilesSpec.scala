@@ -256,6 +256,23 @@ class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
       errors.flatMap(e => (e \ "line").asOpt[Int]) must beEmpty
     }
 
+    "decode files using the charset of the dataset's content type" in new ITestApp {
+      val dsId = "csv_ds_cp1252"
+      // a Windows-1252 encoded header, with an (unexpected) accented field name
+      val csvPayload = ByteString("objectIdentifier,languageCode,name,Titré\n1,eng,Letters,x\n".getBytes("windows-1252"))
+
+      await(createDataset(dsId, "text/csv; charset=windows-1252"))
+      await(putFile(testFileName, payload = csvPayload, ds = dsId))
+      val tag = DigestUtils.md5Hex(csvPayload.toArray)
+
+      val r = FakeRequest(repoDataRoutes.validateFiles(repoId, dsId, fileStage))
+        .withUser(privilegedUser)
+        .callWith(Json.obj(tag -> testFileName))
+
+      val errors = (contentAsJson(r) \ 0 \ "errors").as[Seq[JsObject]].map(e => (e \ "error").as[String])
+      errors must_== Seq("Unexpected field 'Titré'")
+    }
+
     "validate a JSON dataset by its objects' field names, not EAD" in new ITestApp {
       val dsId = "json_ds"
       await(createDataset(dsId, "application/json"))
