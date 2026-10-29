@@ -66,9 +66,11 @@ export default {
         return;
       }
 
-      // Check if we have previously validated this file
+      // Check if we have previously validated this file. Only results for files
+      // validated here (i.e. XML) are shown, since other files' validation errors
+      // (e.g. JSON or CSV field errors) aren't located at lines of the file.
       if (this.validationResults[this.previewing.eTag]) {
-        this.errors = this.validationResults[this.previewing.eTag];
+        this.errors = this.canValidate() ? this.validationResults[this.previewing.eTag] : null;
       } else {
         if (this.canValidate()) {
           console.log("Validating", this.previewing.key)
