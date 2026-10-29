@@ -43,7 +43,10 @@ declare function local:eval-row(
   if ($expr) then
     (: resolve duplicate column names to the FIRST entry, for consistency with the other ops below :)
     let $row := map:merge(
-      for $e in $record/entry return map:entry($e/@name/fn:string(), $e/fn:string()),
+      (: columns named by position (with no input header) are looked up by number, e.g. ?1 :)
+      for $e in $record/entry
+      let $key := if ($e/@position) then xs:integer($e/@position) else $e/@name/fn:string()
+      return map:entry($key, $e/fn:string()),
       map { "duplicates": "use-first" })
     return
       if (fn:exists($libURI) and fn:contains($expr, "xtra")) then
@@ -171,7 +174,16 @@ let $out-sep := (map:get($options, "output.separator"), $in-sep)[1]
 let $out-header := if ((map:get($options, "output.header"), $in-header)[1] = ("no", "false")) then "no" else "yes"
 let $arr-sep := (map:get($options, "array.separator"), "||")[1]
 
-let $grid := csv:parse($input, map { "separator": $in-sep, "header": $in-header, "format": "attributes" })/csv
+let $parsed := csv:parse($input, map { "separator": $in-sep, "header": $in-header, "format": "attributes" })/csv
+(: without an input header, columns are named by their position: 1, 2, 3... :)
+let $grid :=
+  if ($in-header = "yes") then $parsed
+  else <csv>{
+    for $r in $parsed/record
+    return <record>{
+      for $e at $i in $r/entry return <entry name="{$i}" position="{$i}">{ $e/node() }</entry>
+    }</record>
+  }</csv>
 let $ops := mapping:parse-tsv($config)/csv/record
 let $known := ("select", "merge", "split", "derive", "filter")
 let $unknown := $ops[fn:normalize-space(op) != "" and fn:not(fn:normalize-space(op) = $known)]
@@ -197,7 +209,7 @@ return
         (: so report it - typically a typo, or a header that doesn't match :)
         let $input-cols := fn:distinct-values($grid/record/entry/@name ! fn:string(.))
         let $missing :=
-          if ($in-header = "yes" and fn:exists($grid/record))
+          if (fn:exists($grid/record))
           then (
             for $op in $ops[fn:normalize-space(op) = ("select", "merge", "split")]
             for $col in local:cols($op/columns)

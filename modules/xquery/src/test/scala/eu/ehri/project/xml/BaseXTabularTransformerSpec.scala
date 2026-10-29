@@ -220,6 +220,23 @@ class BaseXTabularTransformerSpec extends Specification {
         throwA[InvalidMappingError].like { case e => e.getMessage must contain("Unknown op: bogus") }
     }
 
+    "name columns by position when the input has no header" in {
+      val input = "1,Letters,a||b\n2,Photos,c\n"
+      val opts = Map("input.separator" -> "comma", "input.header" -> "no")
+      def run(rows: String, extra: Map[String, String] = Map.empty) =
+        BaseXTabularTransformer().transform(input, header + rows, opts ++ extra)
+
+      run("\nselect\t2\t\t") must_== "Letters\nPhotos\n"
+      run("\nmerge\t1,2\tboth\t; ") must_== "1; Letters\n2; Photos\n"
+      run("\nsplit\t3\tx,y\t||") must_== "a,b\nc,\n"
+      run("\nderive\t\tupper\tupper-case(?2)") must_== "LETTERS\nPHOTOS\n"
+      run("\nselect\t2\t\t\nfilter\t\t\t?1 = '1'") must_== "Letters\n"
+      run("\nselect\t2\ttitle\t", Map("output.header" -> "yes")) must_== "title\nLetters\nPhotos\n"
+      run("\nselect\t4\t\t") must throwA[InvalidMappingError].like { case e =>
+        e.getMessage must contain("Column '4' in a 'select' row is not in the input. Input columns: 1, 2, 3")
+      }
+    }
+
     "report a source column that is not in the input" in {
       val config = header + "\nselect\tTitel\tname\t"
       BaseXTabularTransformer().transform("id,Title\np1,Letters\n", config, Map("input.separator" -> "comma")) must

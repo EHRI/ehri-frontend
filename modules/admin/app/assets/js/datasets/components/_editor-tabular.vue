@@ -167,7 +167,8 @@ export default {
           Set via the <strong>Parameters</strong> panel (with defaults):
           <code>input.separator</code> (<code>comma</code>),
           <code>output.separator</code> (= input),
-          <code>input.header</code> (<code>yes</code>),
+          <code>input.header</code> (<code>yes</code>; if <code>no</code>, columns are named by
+          position: <code>1</code>, <code>2</code>&hellip;, or <code>?1</code> in expressions),
           <code>output.header</code> (= input),
           <code>array.separator</code> (<code>||</code>).
           Separators may be <code>comma</code>, <code>semicolon</code>, <code>tab</code>, or a single character.
