@@ -2,7 +2,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebar(Messages("repository.logo.edit"), breadcrumbs = views.html.admin.repository.breadcrumbs(item)) {
+@views.html.admin.layout.rightSidebarWithType(Messages("repository.logo.edit"), item.isA, breadcrumbs = views.html.admin.repository.breadcrumbs(item)) {
     @helper.form(action = action, attrs._enctype -> "multipart/form-data") {
         @formHelpers.csrfToken()
         @formHelpers.globalErrors(f)
@@ -19,4 +19,17 @@
             defaultLogMessage = Messages("repository.logo.update.logMessage"))
     }
 } {
+    @views.html.admin.common.sidebarActions { user =>
+        @views.html.admin.common.sidebarAction(item.data.logoUrl.isDefined, danger = true) {
+            @helper.form(action = controllers.institutions.routes.Repositories.deleteLogoImagePost(item.id)) {
+                @formHelpers.csrfToken()
+                <input type="hidden" name="@services.data.Constants.LOG_MESSAGE_PARAM" value="@Messages("repository.logo.delete.logMessage")">
+                <button type="submit" class="btn btn-link text-danger p-0 border-0 align-baseline"
+                        onclick="return confirm('@Messages("repository.logo.delete.confirm")')">
+                    <i class="fa fa-fw fa-trash-o"></i>
+                    @Messages("repository.logo.delete")
+                </button>
+            }
+        }
+    }
 }

@@ -2,11 +2,16 @@ package integration.admin
 
 import helpers._
 import models._
+import org.apache.commons.io.FileUtils
+import play.api.Application
 import play.api.test.FakeRequest
+import services.storage.FileStorage
+
+import java.nio.charset.StandardCharsets
 import services.data.{DataUser, AuthenticatedUser}
 
 
-class RepositoryViewsSpec extends IntegrationTestRunner {
+class RepositoryViewsSpec extends IntegrationTestRunner with FakeMultipartUpload {
   import mockdata.{privilegedUser, unprivilegedUser}
 
   private val repoRoutes = controllers.institutions.routes.Repositories
@@ -16,6 +21,19 @@ class RepositoryViewsSpec extends IntegrationTestRunner {
   val multipleItemsHeader = "Displaying items"
   val oneItemHeader = "One item found"
   val noItemsHeader = "No items found"
+
+  private def files(implicit app: Application): FileStorage = app.injector.instanceOf[FileStorage]
+
+  private def uploadLogo(id: String, svg: String)(implicit app: Application) = {
+    val file = java.io.File.createTempFile("logo", ".svg")
+    file.deleteOnExit()
+    FileUtils.write(file, svg, StandardCharsets.UTF_8)
+    FakeRequest(repoRoutes.updateLogoImagePost(id))
+      .withFileUpload("image", file, "image/svg+xml")
+      .withUser(privilegedUser)
+      .withCsrf
+      .call()
+  }
 
   "Repository views" should {
 
@@ -177,6 +195,37 @@ class RepositoryViewsSpec extends IntegrationTestRunner {
       // we should have 5 delete events for the items, plus an update event for the repo...
       indexEventBuffer.size must beGreaterThan(5)
       indexEventBuffer.takeRight(6).sorted must_== Seq("c1", "c2", "c3", "c4", "nl-r1-m19", "r1")
+    }
+
+    "allow uploading an SVG logo, unchanged" in new ITestApp {
+      val svg = """<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="10" height="10"/></svg>"""
+      val result = uploadLogo("r1", svg)
+      status(result) must equalTo(SEE_OTHER)
+
+      implicit val apiUser: DataUser = AuthenticatedUser(privilegedUser.id)
+      val logoUrl = await(dataApi.get[Repository]("r1")).data.logoUrl
+      logoUrl must beSome(endWith(".svg"))
+      val path = s"$hostInstance/images/Repository/" + logoUrl.get.split("/").last
+      await(files.get(path)) must beSome.like { case (meta, _) =>
+        meta.contentType must beSome("image/svg+xml")
+      }
+    }
+
+    "allow removing a logo" in new ITestApp {
+      await(uploadLogo("r1", """<svg xmlns="http://www.w3.org/2000/svg"/>"""))
+      implicit val apiUser: DataUser = AuthenticatedUser(privilegedUser.id)
+      await(dataApi.get[Repository]("r1")).data.logoUrl must beSome
+
+      // the logo page offers to remove it
+      val page = FakeRequest(repoRoutes.updateLogoImage("r1")).withUser(privilegedUser).call()
+      contentAsString(page) must contain(repoRoutes.deleteLogoImagePost("r1").url)
+
+      val result = FakeRequest(repoRoutes.deleteLogoImagePost("r1"))
+        .withUser(privilegedUser)
+        .withCsrf
+        .call()
+      status(result) must equalTo(SEE_OTHER)
+      await(dataApi.get[Repository]("r1")).data.logoUrl must beNone
     }
   }
 }

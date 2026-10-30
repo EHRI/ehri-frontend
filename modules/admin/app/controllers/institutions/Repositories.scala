@@ -8,7 +8,7 @@ import forms._
 import models.{ContentTypes, EntityType, _}
 import play.api.i18n.Messages
 import play.api.libs.Files.TemporaryFile
-import play.api.libs.json.Json
+import play.api.libs.json.{JsNull, Json}
 import play.api.mvc._
 import services.data.DataHelpers
 import services.ingest.{EadValidator, IngestService}
@@ -337,7 +337,7 @@ case class Repositories @Inject()(
       case Left(MaxSizeExceeded(_)) => onError("errors.imageTooLarge", EntityTooLarge)
       case Right(multipartForm) =>
         (for {
-          url <- convertAndUploadFile(multipartForm.file("image"), request.item)
+          url <- convertAndUploadFile(multipartForm.file("image"), request.item, allowSvg = true)
           _ <- userDataApi.patch[Repository](request.item.id, Json.obj(RepositoryF.LOGO_URL -> url), logMsg = getLogMessage)
         } yield Redirect(repositoryRoutes.get(id))
           .flashing("success" -> "item.update.confirmation")
@@ -345,6 +345,14 @@ case class Repositories @Inject()(
           case _: UnrecognizedType => onError("errors.badFileType")
           case _: ResolutionTooHigh => onError("errors.imageResolutionTooLarge")
         }
+    }
+  }
+
+  // NB: this only removes the logo from the institution, leaving the image file
+  // in storage, since older versions of the institution may still refer to it.
+  def deleteLogoImagePost(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+    userDataApi.patch[Repository](id, Json.obj(RepositoryF.LOGO_URL -> JsNull), logMsg = getLogMessage).map { _ =>
+      Redirect(repositoryRoutes.get(id)).flashing("success" -> "item.update.confirmation")
     }
   }
 
