@@ -94,7 +94,7 @@ case class ConvertConfigs @Inject()(
             logger.error(s"No eTag found when converting file: $path")
             downloadAndConvertFile(meta, mappings, contentType)
         }
-        data.map(Ok(_).as("text/xml"))
+        data.map(Ok(_).as(TransformationType.outputContentType(mappings.map(_._1))))
 
       case None => immediate(NotFound(path))
     }

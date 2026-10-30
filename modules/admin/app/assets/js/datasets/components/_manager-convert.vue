@@ -19,6 +19,7 @@ import {DatasetManagerApi} from '../api';
 import _takeWhile from 'lodash/takeWhile';
 import _find from 'lodash/find';
 import {DataTransformation, ImportDataset} from "../types";
+import PanelFilePreview from "./_panel-file-preview.vue";
 
 let initialConvertState = function (config) {
   return {
@@ -40,6 +41,7 @@ let initialConvertState = function (config) {
 
 export default {
   components: {
+    PanelFilePreview,
     Draggable,
     FilePicker,
     ModalParamEditor,
@@ -436,6 +438,7 @@ export default {
           <div class="status-panel" v-show="tab === 'preview'">
             <panel-convert-preview
                 v-bind:dataset-id="dataset.id"
+                v-bind:content-type="dataset.contentType"
                 v-bind:file-stage="previewStage"
                 v-bind:mappings="convertState"
                 v-bind:trigger="JSON.stringify({

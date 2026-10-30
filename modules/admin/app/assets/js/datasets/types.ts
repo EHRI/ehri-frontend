@@ -77,7 +77,7 @@ export interface JobMonitor {
   url: string,
 }
 
-export type TransformationType = 'xquery' | 'xslt';
+export type TransformationType = 'xquery' | 'json' | 'tabular' | 'xslt';
 
 export interface DataTransformationInfo {
   id: string,
@@ -166,11 +166,19 @@ export interface CopyResult {
   url: string
 }
 
-export interface FileValidationError {
+export interface XmlValidationError {
   line: number,
   pos: number,
   error: string,
 }
+
+export interface FieldValidationError {
+  field: string,
+  kind: string,
+  error: string,
+}
+
+export type FileValidationError = XmlValidationError | FieldValidationError;
 
 export interface ValidationResult {
   key: string,

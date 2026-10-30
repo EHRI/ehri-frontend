@@ -1,5 +1,6 @@
 package controllers.datasets
 
+import eu.ehri.project.xml.XQueryTabularHeaderReader
 import org.apache.pekko.http.scaladsl.model.Uri
 import org.apache.pekko.stream.Materializer
 import org.apache.pekko.stream.scaladsl.{Sink, Source}
@@ -10,7 +11,7 @@ import controllers.generic._
 import models._
 import play.api.cache.AsyncCacheApi
 import play.api.http.{ContentTypes, HeaderNames}
-import play.api.libs.json.{Format, Json, Writes}
+import play.api.libs.json.{Format, JsArray, JsObject, Json, Writes}
 import play.api.libs.streams.Accumulator
 import play.api.libs.ws.WSClient
 import play.api.mvc._
@@ -18,11 +19,13 @@ import services.data.DataHelpers
 import services.datasets.ImportDatasetService
 import services.ingest._
 import services.storage.FileStorage
+import services.transformation.utils.getUtf8Transcoder
 
 import java.net.URI
 import javax.inject._
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 
 case class FileToUpload(name: String, `type`: String, size: Long, meta: Map[String, String] = Map.empty)
@@ -31,7 +34,7 @@ object FileToUpload {
   implicit val _json: Format[FileToUpload] = Json.format[FileToUpload]
 }
 
-case class ValidationResult(key: String, eTag: Option[String], errors: Seq[XmlValidationError])
+case class ValidationResult(key: String, eTag: Option[String], errors: Seq[FileValidationError])
 
 object ValidationResult {
   implicit val _json: Writes[ValidationResult] = Json.writes[ValidationResult]
@@ -44,6 +47,8 @@ case class ImportFiles @Inject()(
   dataHelpers: DataHelpers,
   @Named("dam") storage: FileStorage,
   eadValidator: EadValidator,
+  fieldValidator: FieldValidator,
+  headerReader: XQueryTabularHeaderReader,
   ingestService: IngestService,
   importLogService: ImportLogService,
   asyncCache: AsyncCacheApi,
@@ -169,6 +174,63 @@ case class ImportFiles @Inject()(
       .map ( num => Ok(Json.obj("deleted" -> num)))
   }
 
+  // Report file-level problems as data, not a failed Future, so one bad file
+  // doesn't fail the whole batch.
+  private def fileError(msg: String): Seq[FileValidationError] = Seq(FieldValidationError("(file)", "error", msg))
+
+  // Read a file as text. As when converting, the dataset's content type (which
+  // may specify a charset) takes precedence over the stored file's.
+  private def readText(key: String, contentType: Option[String]): Future[Option[String]] =
+    storage.get(key).flatMap {
+      case Some((meta, src)) =>
+        val transcoder = getUtf8Transcoder(contentType.orElse(meta.contentType))
+        val utf8src = transcoder.map(tc => src.via(tc)).getOrElse(src)
+        utf8src.runFold(ByteString.empty)(_ ++ _).map(bytes => Some(bytes.utf8String))
+      case None => Future.successful(None)
+    }
+
+  private def validateTabularFile(key: String, separator: String, contentType: Option[String]): Future[Seq[FileValidationError]] =
+    readText(key, contentType).map {
+      case Some(text) =>
+        try {
+          val headerJson = headerReader.readHeader(text, Map("input.separator" -> separator))
+          val header = Json.parse(headerJson).as[Seq[String]]
+          fieldValidator.validateFields(header)
+        } catch {
+          case NonFatal(e) => fileError(s"Unable to read header row: ${e.getMessage}")
+        }
+      case None => fileError("File not found")
+    }
+
+  // A JSON file is an object, or an array of objects, whose keys are the same
+  // field names as the header of a CSV file. For an array, identical errors in
+  // several objects are reported once, with the (1-based) numbers of the records.
+  private def validateJsonFile(key: String, contentType: Option[String]): Future[Seq[FileValidationError]] = {
+    val expected = "Expected a JSON object or an array of objects"
+
+    def withRecords(error: FieldValidationError, records: Seq[Int]): FieldValidationError = {
+      val shown = records.take(5).mkString(", ")
+      val more = if (records.size > 5) s" and ${records.size - 5} more" else ""
+      error.copy(error = s"${error.error} (record${if (records.size > 1) "s" else ""} $shown$more)")
+    }
+
+    readText(key, contentType).map {
+      case Some(text) =>
+        try Json.parse(text) match {
+          case obj: JsObject => fieldValidator.validateFields(obj.keys.toSeq)
+          case JsArray(items) if items.forall(_.isInstanceOf[JsObject]) =>
+            val errors = items.zipWithIndex.flatMap { case (obj, i) =>
+              fieldValidator.validateFields(obj.as[JsObject].keys.toSeq).map(_ -> (i + 1))
+            }
+            errors.map(_._1).distinct.map(e => withRecords(e, errors.collect { case (`e`, n) => n }.toSeq)).toSeq
+          case _ => fileError(expected)
+        } catch {
+          case NonFatal(e) => fileError(s"Invalid JSON: ${e.getMessage}")
+        }
+      case None => fileError("File not found")
+    }
+  }
+
   def validateFiles(id: String, ds: String, stage: FileStage.Value): Action[Map[String, String]] = WithItemPermissionAction(id, PermissionType.Update).async(apiJson[Map[String, String]]) { implicit request =>
     // Input is a map of eTag -> key
     // Convert the map to a sequence and reverse key/value
@@ -178,15 +240,19 @@ case class ImportFiles @Inject()(
         .map(f => f.key -> f.eTag)
     else Source(request.body.map{ case (t, k) => (pre + k) -> Some(t)}.toList)
 
-    val results: Future[Seq[ValidationResult]] = src
-      .mapAsync(3) { case (key, tag) =>
-        val url = storage.uri(key).toString
-        eadValidator.validateEad(Uri(url)).map(errs =>
-          ValidationResult(key.replace(pre, ""), tag, errs))
+    // Validate according to the dataset's media type, as used to choose how
+    // its data is ingested. Datasets without one are treated as EAD/XML.
+    datasets.find(id, ds).flatMap { datasetOpt =>
+      val validate: String => Future[Seq[FileValidationError]] = datasetOpt.flatMap(_.mediaType) match {
+        case Some("text/csv") => validateTabularFile(_, "comma", datasetOpt.flatMap(_.contentType))
+        case Some("application/json") => validateJsonFile(_, datasetOpt.flatMap(_.contentType))
+        case _ => key => eadValidator.validateEad(Uri(storage.uri(key).toString))
       }
-      .runWith(Sink.seq)
-
-    results.map(out => Ok(Json.toJson(out))).recover {
+      val results: Future[Seq[ValidationResult]] = src.mapAsync(3) { case (key, tag) =>
+        validate(key).map(errs => ValidationResult(key.replace(pre, ""), tag, errs))
+      }.runWith(Sink.seq)
+      results.map(out => Ok(Json.toJson(out)))
+    }.recover {
       case e => BadRequest(Json.obj("error" -> e.getMessage))
     }
   }

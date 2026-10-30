@@ -5,6 +5,8 @@ import {nextTick} from 'vue';
 import ModalWindow from './_modal-window';
 import PanelCodeView from './_panel-code-view';
 import EditorXquery from './_editor-xquery';
+import EditorXqueryJson from './_editor-xquery-json';
+import EditorTabular from './_editor-tabular';
 import EditorJson from './_editor-json';
 import FilePicker from './_file-picker';
 import DragHandle from './_drag-handle';
@@ -24,6 +26,8 @@ export default {
   components: {
     ModalWindow,
     EditorXquery,
+    EditorXqueryJson,
+    EditorTabular,
     EditorJson,
     FilePicker,
     DragHandle,
@@ -254,6 +258,8 @@ export default {
               <label for="transformation-type">Type</label>
               <select id="transformation-type" v-model="data.bodyType">
                 <option v-bind:value="'xquery'">XQuery</option>
+                <option v-bind:value="'json'">JSON</option>
+                <option v-bind:value="'tabular'">Tabular</option>
                 <option v-bind:value="'xslt'">XSLT</option>
               </select>
               <label for="transformation-scope">Scope</label>
@@ -326,6 +332,8 @@ export default {
             </div>
             <div id="transformation-editor-map-input">
               <editor-xquery v-if="data.bodyType === 'xquery'" v-model="data.body"/>
+              <editor-xquery-json v-else-if="data.bodyType === 'json'" v-model="data.body"/>
+              <editor-tabular v-else-if="data.bodyType === 'tabular'" v-model="data.body"/>
               <panel-code-view v-else v-model="data.body" v-bind:content-type="'text/xml'" v-bind:errors="null" />
             </div>
             <div v-if="data.hasParams" id="transformation-editor-map-parameters">

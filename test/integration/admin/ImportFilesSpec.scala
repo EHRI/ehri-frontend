@@ -6,7 +6,7 @@ import helpers._
 import models.{FileStage, _}
 import org.apache.commons.codec.digest.DigestUtils
 import play.api.http.{ContentTypes, HeaderNames, MimeTypes, Writeable}
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 import play.api.libs.ws.WSResponse
 import play.api.mvc.{AnyContentAsEmpty, Headers, Request, Result}
 import play.api.test.FakeRequest
@@ -74,6 +74,22 @@ class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
     val uri = data("presignedUrl")
     ws.url(uri).withHttpHeaders(CONTENT_TYPE -> ContentTypes.XML).put(payload)
   }
+
+  // ImportDatasetInfo's Reads doesn't honour Scala default values, so these
+  // must all be given explicitly.
+  private def createDataset(dsId: String, contentType: String)(implicit app: play.api.Application): Future[Result] =
+    FakeRequest(controllers.datasets.routes.ImportDatasets.create(repoId))
+      .withUser(privilegedUser)
+      .callWith(Json.obj(
+        "id" -> dsId,
+        "name" -> dsId,
+        "src" -> "upload",
+        "contentType" -> contentType,
+        "sync" -> false,
+        "nest" -> false,
+        "setHierarchy" -> false,
+        "status" -> "active"
+      ))
 
   "Import Files API" should {
 
@@ -200,6 +216,109 @@ class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
            }]
           }]"""
       )
+    }
+
+    "validate a tabular dataset by field names, not EAD" in new ITestApp {
+      val dsId = "csv_ds"
+      // a recognised but non-required field, to isolate the missing-field errors
+      val csvPayload = ByteString("scopeAndContent\nSome content.\n")
+
+      await(createDataset(dsId, "text/csv"))
+      await(putFile(testFileName, payload = csvPayload, ds = dsId))
+      val tag = DigestUtils.md5Hex(csvPayload.utf8String)
+
+      val r = FakeRequest(repoDataRoutes.validateFiles(repoId, dsId, fileStage))
+        .withUser(privilegedUser)
+        .callWith(Json.obj(tag -> testFileName))
+
+      val errors = (contentAsJson(r) \ 0 \ "errors").as[Seq[JsObject]]
+      // field-shaped errors, not the EAD validator's line/pos shape
+      errors.map(e => (e \ "field").as[String]) must containTheSameElementsAs(
+        Seq("objectIdentifier", "languageCode", "name"))
+      errors.map(e => (e \ "kind").as[String]).distinct must_== Seq("missing")
+    }
+
+    "treat a charset-suffixed CSV content type as tabular" in new ITestApp {
+      val dsId = "csv_ds_charset"
+      val csvPayload = ByteString("id,title\n1,Letters\n")
+
+      await(createDataset(dsId, "text/csv; charset=utf-8"))
+      await(putFile(testFileName, payload = csvPayload, ds = dsId))
+      val tag = DigestUtils.md5Hex(csvPayload.utf8String)
+
+      val r = FakeRequest(repoDataRoutes.validateFiles(repoId, dsId, fileStage))
+        .withUser(privilegedUser)
+        .callWith(Json.obj(tag -> testFileName))
+
+      // Field-validated as tabular (unexpected 'id'/'title' fields), not as EAD
+      val errors = (contentAsJson(r) \ 0 \ "errors").as[Seq[JsObject]]
+      errors.map(e => (e \ "field").asOpt[String]) must contain(Some("id"))
+      errors.flatMap(e => (e \ "line").asOpt[Int]) must beEmpty
+    }
+
+    "decode files using the charset of the dataset's content type" in new ITestApp {
+      val dsId = "csv_ds_cp1252"
+      // a Windows-1252 encoded header, with an (unexpected) accented field name
+      val csvPayload = ByteString("objectIdentifier,languageCode,name,Titré\n1,eng,Letters,x\n".getBytes("windows-1252"))
+
+      await(createDataset(dsId, "text/csv; charset=windows-1252"))
+      await(putFile(testFileName, payload = csvPayload, ds = dsId))
+      val tag = DigestUtils.md5Hex(csvPayload.toArray)
+
+      val r = FakeRequest(repoDataRoutes.validateFiles(repoId, dsId, fileStage))
+        .withUser(privilegedUser)
+        .callWith(Json.obj(tag -> testFileName))
+
+      val errors = (contentAsJson(r) \ 0 \ "errors").as[Seq[JsObject]].map(e => (e \ "error").as[String])
+      errors must_== Seq("Unexpected field 'Titré'")
+    }
+
+    "validate a JSON dataset by its objects' field names, not EAD" in new ITestApp {
+      val dsId = "json_ds"
+      await(createDataset(dsId, "application/json"))
+
+      val files = Map(
+        "valid.json" -> """{"objectIdentifier": "1", "languageCode": "eng", "name": "Letters"}""",
+        "fields.json" -> """{"objectIdentifier": "1", "languageCode": "eng", "Titel": "Letters"}""",
+        "array.json" -> ("""[{"objectIdentifier": "1", "languageCode": "eng", "name": "A"},""" +
+          """{"objectIdentifier": "2", "languageCode": "eng"},""" +
+          """{"objectIdentifier": "3", "languageCode": "eng", "name": "C"},""" +
+          """{"objectIdentifier": "4", "languageCode": "eng"}]"""),
+        "valid-array.json" -> """[{"objectIdentifier": "1", "languageCode": "eng", "name": "A"}]""",
+        "mixed-array.json" -> """[{"objectIdentifier": "1"}, "not an object"]""",
+        "string.json" -> "\"just a string\"",
+        "invalid.json" -> """{"objectIdentifier": """,
+      ).map { case (name, json) => name -> ByteString(json) }
+      files.foreach { case (name, payload) => await(putFile(name, payload = payload, ds = dsId)) }
+
+      val r = FakeRequest(repoDataRoutes.validateFiles(repoId, dsId, fileStage))
+        .withUser(privilegedUser)
+        .callWith(Json.toJson(files.map { case (name, payload) => DigestUtils.md5Hex(payload.utf8String) -> name }))
+
+      val errors = contentAsJson(r).as[Seq[JsObject]]
+        .map(o => (o \ "key").as[String] -> (o \ "errors").as[Seq[JsObject]].map(e => (e \ "error").as[String]))
+        .toMap
+      errors("valid.json") must beEmpty
+      errors("fields.json") must containTheSameElementsAs(Seq(
+        "Required field 'name' is missing", "Unexpected field 'Titel'"))
+      errors("array.json") must_== Seq("Required field 'name' is missing (records 2, 4)")
+      errors("valid-array.json") must beEmpty
+      errors("mixed-array.json") must_== Seq("Expected a JSON object or an array of objects")
+      errors("string.json") must_== Seq("Expected a JSON object or an array of objects")
+      errors("invalid.json") must contain(startWith("Invalid JSON"))
+    }
+
+    "report a missing file as an error rather than a silent pass, for a tabular dataset" in new ITestApp {
+      val dsId = "csv_ds_missing"
+
+      await(createDataset(dsId, "text/csv"))
+
+      val r = FakeRequest(repoDataRoutes.validateFiles(repoId, dsId, fileStage))
+        .withUser(privilegedUser)
+        .callWith(Json.obj("nonexistent-tag" -> "nonexistent.csv"))
+
+      val errors = (contentAsJson(r) \ 0 \ "errors").as[Seq[JsObject]]
+      errors must not(beEmpty)
     }
 
     "give JSON errors for invalid payloads" in new ITestApp {

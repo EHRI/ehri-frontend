@@ -48,6 +48,9 @@ function apiCall<T>(endpoint: {url: string, method: any}, data?: object): Promis
   }).then(r => r.data);
 }
 
+// Quote-unaware by default, since config cells often contain literal `"`
+// (e.g. XQuery string literals). Pass quoted=true for actual tabular data,
+// which BaseX quotes on output regardless of separator.
 let tsvOpts = {
   delimiter: "\t",
   quoteChar: '',
@@ -55,6 +58,8 @@ let tsvOpts = {
   header: false,
   skipEmptyLines: true
 };
+
+let tsvDataOpts = {...tsvOpts, quoteChar: '"', escapeChar: '"'};
 
 let csvOpts = {
   delimiter: ",",
@@ -64,13 +69,13 @@ let csvOpts = {
   skipEmptyLines: true
 }
 
-function decodeTsv(tsv: string, expectedColumns: number): string[][] {
-  return Papa.parse<string[]>(tsv, tsvOpts as ParseConfig)
+function decodeTsv(tsv: string, expectedColumns: number, quoted: boolean = false): string[][] {
+  return Papa.parse<string[]>(tsv, (quoted ? tsvDataOpts : tsvOpts) as ParseConfig)
       .data;
 }
 
-function encodeTsv(data: string[][], expectedColumns: number): string {
-  return Papa.unparse(data, {...tsvOpts, newline: "\n"} as UnparseConfig);
+function encodeTsv(data: string[][], expectedColumns: number, quoted: boolean = false): string {
+  return Papa.unparse(data, {...(quoted ? tsvDataOpts : tsvOpts), newline: "\n"} as UnparseConfig);
 }
 
 function decodeCsv(csv: string, expectedColumns: number): string[][] {
