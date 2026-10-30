@@ -150,6 +150,19 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
       contentAsString(result) must contain(message("errors.badFileType"))
     }
 
+    "not allow uploading SVG files as profile image" in new ITestApp {
+      val tmpFile = java.io.File.createTempFile("anImage", ".svg")
+      FileUtils.write(tmpFile, "<svg xmlns=\"http://www.w3.org/2000/svg\"/>", StandardCharsets.UTF_8)
+      tmpFile.deleteOnExit()
+      val result = FakeRequest(profileRoutes.updateProfileImagePost())
+        .withFileUpload("image", tmpFile, "image/svg+xml")
+        .withUser(privilegedUser)
+        .withCsrf
+        .call()
+      status(result) must equalTo(BAD_REQUEST)
+      contentAsString(result) must contain(message("errors.badFileType"))
+    }
+
     "allow uploading image files as profile image" in new ITestApp {
       val file = getProfileImage
       val stamp = FileStorage.fingerprint(file)

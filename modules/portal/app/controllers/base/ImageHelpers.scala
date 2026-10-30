@@ -32,29 +32,42 @@ trait ImageHelpers {
     case _: UnsupportedOperationException => throw UnrecognizedType()
   }
 
+  private def isSvg(file: MultipartFormData.FilePart[TemporaryFile]): Boolean =
+    file.contentType.contains("image/svg+xml") || file.filename.toLowerCase.endsWith(".svg")
+
   /**
     * Given an image file, convert it to a thumbnail of the size specified
     * in config and upload it to file storage, returning the URI.
     *
-    * @param fileOpt an uploaded file
-    * @param item    an entity represented by the image
+    * SVG images, if allowed, are uploaded as-is, since they need no resizing.
+    * NB: they are not sanitised, so should only be accepted from trusted users
+    * and displayed via `img` elements (in which their scripts do not run.)
+    *
+    * @param fileOpt  an uploaded file
+    * @param item     an entity represented by the image
+    * @param allowSvg whether to accept SVG images
     * @return the URI of the uploaded thumbnail
     * @throws UnrecognizedType  if the file is not an image
     * @throws ResolutionTooHigh if the image dimensions are too large
     */
-  protected def convertAndUploadFile(fileOpt: Option[MultipartFormData.FilePart[TemporaryFile]], item: Model)(implicit request: RequestHeader, ec: ExecutionContext): Future[Option[URI]] = {
+  protected def convertAndUploadFile(fileOpt: Option[MultipartFormData.FilePart[TemporaryFile]], item: Model, allowSvg: Boolean = false)(implicit request: RequestHeader, ec: ExecutionContext): Future[Option[URI]] = {
+    def storeName(file: File, extension: String): String = {
+      val instance = config.getOptional[String]("storage.instance").getOrElse(request.host)
+      s"$instance/images/${item.isA}/${item.id}_${FileStorage.fingerprint(file)}$extension"
+    }
+
     fileOpt match {
+      case Some(file) if allowSvg && isSvg(file) =>
+        fileStorage.putFile(storeName(file.ref.toFile, ".svg"), file.ref.toFile,
+          contentType = Some("image/svg+xml"), public = true).map(Some(_))
       case Some(file) => try {
         validateImageFile(file.ref.toFile, file.filename, file.contentType)
-        val instance = config.getOptional[String]("storage.instance").getOrElse(request.host)
-        val stamp = FileStorage.fingerprint(file.ref.toFile)
         val extension = file.filename.substring(file.filename.lastIndexOf(".")).toLowerCase
-        val storeName = s"$instance/images/${item.isA}/${item.id}_$stamp$extension"
         val temp = File.createTempFile(item.id, extension)
         val width = config.get[Int]("ehri.portal.profile.thumbWidth")
         val height = config.get[Int]("ehri.portal.profile.thumbHeight")
         Thumbnails.of(file.ref.toFile).size(width, height).toFile(temp)
-        val url: Future[URI] = fileStorage.putFile(storeName, temp, public = true)
+        val url: Future[URI] = fileStorage.putFile(storeName(file.ref.toFile, extension), temp, public = true)
         url.onComplete { _ => temp.delete() }
         url.map(Some(_))
       } catch {
