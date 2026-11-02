@@ -213,6 +213,8 @@ mail.confirmEmailHeading=Potwierdź swój adres e-mail
 mail.confirmEmailMessage=Z tym adresem e-mail utworzono konto EHRI. Aby potwierdzić adres i aktywować konto, przejdź pod adres:
 mail.confirmEmailIgnore=Jeśli nie utworzyłeś tego konta, zignoruj tę wiadomość: konto nie zostanie zweryfikowane \
     i nikt nie będzie mógł go użyć, aby podszywać się pod Ciebie.
+mail.confirmEmailAddressMessage=Potwierdź ten adres e-mail dla swojego konta EHRI, przechodząc pod adres:
+mail.confirmEmailAddressIgnore=Jeśli nie prosiłeś o użycie tego adresu e-mail z kontem EHRI, zignoruj tę wiadomość.
 mail.confirmEmailFooter=Ten link jest ważny przez 1 tydzień. – zespół EHRI
 mail.unverifiedEmailWarning=Niezweryfikowane konto
 mail.unverifiedEmailWarningMessage=Adres e-mail powiązany z Twoim kontem nie został jeszcze zweryfikowany.

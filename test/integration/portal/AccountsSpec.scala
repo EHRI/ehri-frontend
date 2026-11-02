@@ -144,7 +144,7 @@ class AccountsSpec extends IntegrationTestRunner {
       val resetToken = UUID.randomUUID().toString
       await(mockAccounts.createToken(privilegedUser.id, UUID.fromString(signupToken), isSignUp = true))
       await(mockAccounts.createToken(privilegedUser.id, UUID.fromString(resetToken), isSignUp = false))
-      val r = changeEmail("new@example.com")
+      val r = changeEmail("New@Example.com")
       status(r) must equalTo(SEE_OTHER)
       redirectLocation(r) must beSome(
         controllers.portal.users.routes.UserProfiles.updateProfile().url)
@@ -153,6 +153,7 @@ class AccountsSpec extends IntegrationTestRunner {
       account.email must_== "new@example.com"
       account.verified must beFalse
       mailBuffer.last.to must contain("new@example.com")
+      mailBuffer.last.bodyText must beSome(contain(message("mail.confirmEmailAddressMessage")))
       await(mockAccounts.findByToken(signupToken, isSignUp = true)) must beNone
       await(mockAccounts.findByToken(resetToken)) must beNone
     }
@@ -320,6 +321,7 @@ class AccountsSpec extends IntegrationTestRunner {
       }
       mailBuffer.size must equalTo(numSentMails + 1)
       mailBuffer.last.to must contain("new-microsoft-user@example.com")
+      mailBuffer.last.bodyText must beSome(contain(message("mail.confirmEmailMessage")))
     }
 
     "log in a new unverified account even if the validation email can't be sent" in new ITestApp(

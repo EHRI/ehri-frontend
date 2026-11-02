@@ -1,9 +1,9 @@
-@(token: java.util.UUID)(implicit req: RequestHeader, conf: AppConfig, messages: Messages)
+@(token: java.util.UUID, newAccount: Boolean)(implicit req: RequestHeader, conf: AppConfig, messages: Messages)
 
 @views.html.layout.mailLayout(Messages("mail.confirmEmailHeading")) {
 
     <p>
-        @Messages("mail.confirmEmailMessage")
+        @Messages(if (newAccount) "mail.confirmEmailMessage" else "mail.confirmEmailAddressMessage")
     </p>
 
     <p>
@@ -13,7 +13,7 @@
     </p>
 
     <p>
-        @Messages("mail.confirmEmailIgnore")
+        @Messages(if (newAccount) "mail.confirmEmailIgnore" else "mail.confirmEmailAddressIgnore")
     </p>
 
     <p>

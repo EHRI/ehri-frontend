@@ -145,7 +145,7 @@ case class Accounts @Inject()(
                     allowMessaging = data.allowMessaging,
                     password = Some(HashedPassword.fromPlain(data.password))
                   ))
-                  _ <- sendValidationEmail(account)
+                  _ <- sendValidationEmail(account, newAccount = true)
                   result <- doLogin(account)
                     .map(_.flashing("success" -> "signup.confirmation"))
                 } yield result).recoverWith {
@@ -451,18 +451,9 @@ case class Accounts @Inject()(
           accounts.findByEmail(email).flatMap {
             case Some(account) =>
               val uuid = UUID.randomUUID()
-              (for {
-                p <- userDataApi.get[UserProfile](account.id)
-                _ <- accounts.createToken(account.id, uuid, isSignUp = false)
-                _ = sendResetEmail(p.data.name, account.email, uuid)
-              } yield resp).recover {
-                // If the account exists but the profile doesn't, we have to handle it
-                // relatively gracefully via an error message. This should only happen
-                // if something has gone wrong in the backend.
-                case e: ItemNotFound =>
-                  logger.error(s"Error sending password reset email for user ${account.id} [missing profile]: $e")
-                  Redirect(accountRoutes.forgotPassword())
-                  .flashing("danger" -> "login.error.passwordResetNoAccount")
+              accounts.createToken(account.id, uuid, isSignUp = false).map { _ =>
+                sendResetEmail(account.email, uuid)
+                resp
               }
             // Note: to avoid leaking email data we send the same response whether or not the email
             // exists on the system.
@@ -540,8 +531,8 @@ case class Accounts @Inject()(
 
               case _ =>
                 for {
-                  updated <- accounts.changeEmail(acc.id, newEmail)
-                  _ <- sendValidationEmail(updated)
+                  updated <- accounts.changeEmail(acc.id, newEmail.toLowerCase)
+                  _ <- sendValidationEmail(updated, newAccount = false)
                 } yield {
                   logger.info(s"Email change: ${acc.id}")
                   Redirect(controllers.portal.users.routes.UserProfiles.updateProfile())
@@ -569,7 +560,7 @@ case class Accounts @Inject()(
   def resendVerificationPost(): Action[AnyContent] = WithUserAction.async { implicit request =>
     request.user.account match {
       case Some(account) =>
-        sendValidationEmail(account).map { _ =>
+        sendValidationEmail(account, newAccount = false).map { _ =>
           val redirect = request.headers.get(HttpHeaders.REFERER)
             .getOrElse(portalRoutes.index().url)
           Redirect(redirect).flashing("success" -> "mail.emailConfirmationResent")
@@ -672,7 +663,7 @@ case class Accounts @Inject()(
             for {
               newAccount <- createNewProfile(userData)
               _ <- accounts.oAuth2.addAssociation(newAccount.id, userData.providerId, provider.name)
-              _ <- if (newAccount.verified) immediate(()) else sendValidationEmail(newAccount)
+              _ <- if (newAccount.verified) immediate(()) else sendValidationEmail(newAccount, newAccount = true)
             } yield newAccount -> true
         }
       }
@@ -698,7 +689,7 @@ case class Accounts @Inject()(
     }
   }
 
-  private def sendResetEmail(name: String, emailAddress: String, uuid: UUID)(implicit request: RequestHeader): String = {
+  private def sendResetEmail(emailAddress: String, uuid: UUID)(implicit request: RequestHeader): String = {
     val email = Email(
       subject = Messages("mail.forgotPasswordMailHeading"),
       to = Seq(emailAddress),
@@ -709,14 +700,14 @@ case class Accounts @Inject()(
   }
 
   // NB: send failures are logged, not propagated
-  private def sendValidationEmail(account: Account)(implicit request: RequestHeader): Future[Unit] = {
+  private def sendValidationEmail(account: Account, newAccount: Boolean)(implicit request: RequestHeader): Future[Unit] = {
     val uuid = UUID.randomUUID()
     accounts.createToken(account.id, uuid, isSignUp = true).map { _ =>
       try mailer.send(Email(
         subject = Messages("mail.confirmEmailHeading"),
         from = s"EHRI Email Validation <${config.get[String]("ehri.portal.emails.help")}>",
         to = Seq(account.email),
-        bodyText = Some(views.txt.account.mail.confirmEmail(uuid).body)
+        bodyText = Some(views.txt.account.mail.confirmEmail(uuid, newAccount).body)
       )) catch {
         case NonFatal(e) => logger.error(s"Unable to send validation email for account: ${account.id}", e)
       }
