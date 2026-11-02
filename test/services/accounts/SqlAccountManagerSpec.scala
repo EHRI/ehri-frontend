@@ -88,12 +88,17 @@ class SqlAccountManagerSpec extends IntegrationTestRunner {
 
     "verify accounts via token" in new DBTestApp("user-fixtures.sql") {
       val uuid = UUID.randomUUID()
-      await(accounts.createToken(mockdata.unverifiedUser.id, uuid, isSignUp = false))
+      await(accounts.createToken(mockdata.unverifiedUser.id, uuid, isSignUp = true))
       mockdata.unverifiedUser.verified must beFalse
-      await(accounts.verify(mockdata.unverifiedUser, uuid.toString)) must beSome
-      await(accounts.findById(mockdata.unprivilegedUser.id)) must beSome.which { check =>
-        check.verified must beTrue
-      }
+      await(accounts.verify(uuid.toString)) must beSome.which(_.verified must beTrue)
+      // Tokens can only be used once
+      await(accounts.verify(uuid.toString)) must beNone
+    }
+
+    "not verify accounts with a password reset token" in new DBTestApp("user-fixtures.sql") {
+      val uuid = UUID.randomUUID()
+      await(accounts.createToken(mockdata.unverifiedUser.id, uuid, isSignUp = false))
+      await(accounts.verify(uuid.toString)) must beNone
     }
 
     "find all accounts with pagination" in new DBTestApp("user-fixtures.sql") {
@@ -167,18 +172,51 @@ class SqlAccountManagerSpec extends IntegrationTestRunner {
 
     "reset the password of a verified account, keeping its OAuth2 logins" in new DBTestApp("user-fixtures.sql") {
       val id = mockdata.privilegedUser.id
-      val account = await(accounts.resetPassword(id, HashedPassword.fromPlain("n3wpassw0rd")))
-      account.password.exists(_.check("n3wpassw0rd")) must beTrue
+      val token = UUID.randomUUID()
+      await(accounts.createToken(id, token, isSignUp = false))
+      await(accounts.resetPassword(token.toString, HashedPassword.fromPlain("n3wpassw0rd"))) must beSome.which { account =>
+        account.password.exists(_.check("n3wpassw0rd")) must beTrue
+      }
       await(accounts.oAuth2.findForAccount(id)) must not(beEmpty)
     }
 
     "claim an unverified account when resetting its password" in new DBTestApp("user-fixtures.sql") {
       val id = mockdata.unverifiedUser.id
+      val token = UUID.randomUUID()
+      await(accounts.createToken(id, token, isSignUp = false))
       await(accounts.oAuth2.addAssociation(id, "4321", "microsoft"))
-      val account = await(accounts.resetPassword(id, HashedPassword.fromPlain("n3wpassw0rd")))
-      account.verified must beTrue
-      account.password.exists(_.check("n3wpassw0rd")) must beTrue
+      await(accounts.resetPassword(token.toString, HashedPassword.fromPlain("n3wpassw0rd"))) must beSome.which { account =>
+        account.verified must beTrue
+        account.password.exists(_.check("n3wpassw0rd")) must beTrue
+      }
       await(accounts.oAuth2.findForAccount(id)) must beEmpty
+    }
+
+    "only allow a password reset token to be used once" in new DBTestApp("user-fixtures.sql") {
+      val token = UUID.randomUUID()
+      await(accounts.createToken(mockdata.privilegedUser.id, token, isSignUp = false))
+      await(accounts.resetPassword(token.toString, HashedPassword.fromPlain("n3wpassw0rd"))) must beSome
+      await(accounts.resetPassword(token.toString, HashedPassword.fromPlain("an0th3rpass"))) must beNone
+    }
+
+    "not reset a password with a sign up token" in new DBTestApp("user-fixtures.sql") {
+      val token = UUID.randomUUID()
+      await(accounts.createToken(mockdata.privilegedUser.id, token, isSignUp = true))
+      await(accounts.resetPassword(token.toString, HashedPassword.fromPlain("n3wpassw0rd"))) must beNone
+    }
+
+    "set individual account fields without changing others" in new DBTestApp("user-fixtures.sql") {
+      val id = mockdata.unverifiedUser.id
+      val withPassword = await(accounts.setPassword(id, HashedPassword.fromPlain("n3wpassw0rd")))
+      withPassword.password.exists(_.check("n3wpassw0rd")) must beTrue
+      withPassword.verified must beFalse
+      val withMessaging = await(accounts.setAllowMessaging(id, allowMessaging = false))
+      withMessaging.allowMessaging must beFalse
+      withMessaging.password.exists(_.check("n3wpassw0rd")) must beTrue
+      val withFlags = await(accounts.setAdminFlags(id, active = true, staff = true, verified = true))
+      withFlags.verified must beTrue
+      withFlags.staff must beTrue
+      withFlags.password.exists(_.check("n3wpassw0rd")) must beTrue
     }
 
     "change an account's email, unverifying it and expiring its tokens" in new DBTestApp("user-fixtures.sql") {

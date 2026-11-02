@@ -10,6 +10,7 @@ import anorm._
 import auth._
 import javax.inject._
 import models.Account
+import play.api.Logger
 import play.api.db.Database
 import utils.PageParams
 
@@ -20,6 +21,8 @@ import scala.concurrent.{ExecutionContext, Future}
 case class SqlAccountManager @Inject()(db: Database, actorSystem: ActorSystem) extends AccountManager {
 
   import SqlAccountManager._
+
+  private val logger = Logger(getClass)
 
   override protected implicit def executionContext: ExecutionContext =
     actorSystem.dispatchers.lookup("contexts.simple-db-lookups")
@@ -67,13 +70,11 @@ case class SqlAccountManager @Inject()(db: Database, actorSystem: ActorSystem) e
     }
   }
 
-  override def verify(account: Account, token: String): Future[Option[Account]] = Future {
+  override def verify(token: String): Future[Option[Account]] = Future {
     db.withTransaction { implicit conn =>
-      SQL"DELETE FROM token WHERE token = $token".execute()
-      SQL"""UPDATE users
-            SET verified = ${true}
-            WHERE id = ${account.id}
-            RETURNING *""".as(userParser.singleOpt)
+      useToken(token, isSignUp = true).map { id =>
+        SQL"UPDATE users SET verified = ${true} WHERE id = $id RETURNING *".as(userParser.single)
+      }
     }
   }
 
@@ -160,18 +161,46 @@ case class SqlAccountManager @Inject()(db: Database, actorSystem: ActorSystem) e
     }
   }
 
-  override def resetPassword(id: String, password: HashedPassword): Future[Account] = Future {
+  override def resetPassword(token: String, password: HashedPassword): Future[Option[Account]] = Future {
     db.withTransaction { implicit conn =>
-      val account = getById(id).getOrElse(throw new NoSuchElementException(id))
-      if (!account.verified) claim(id, Some(password)) else {
-        deleteTokens(id)
-        SQL"""UPDATE users
-              SET password = $password, is_legacy = ${false}
-              WHERE id = $id
-              RETURNING *""".as(userParser.single)
+      useToken(token, isSignUp = false).flatMap(getById).map { account =>
+        if (!account.verified) {
+          logger.warn(s"Claiming unverified account via password reset: ${account.id}")
+          claim(account.id, Some(password))
+        } else {
+          deleteTokens(account.id)
+          updatePassword(account.id, password)
+        }
       }
     }
   }
+
+  override def setPassword(id: String, password: HashedPassword): Future[Account] = Future {
+    db.withConnection { implicit conn =>
+      updatePassword(id, password)
+    }
+  }
+
+  override def setAdminFlags(id: String, active: Boolean, staff: Boolean, verified: Boolean): Future[Account] = Future {
+    db.withConnection { implicit conn =>
+      SQL"""UPDATE users
+            SET active = $active, staff = $staff, verified = $verified
+            WHERE id = $id
+            RETURNING *""".as(userParser.single)
+    }
+  }
+
+  override def setAllowMessaging(id: String, allowMessaging: Boolean): Future[Account] = Future {
+    db.withConnection { implicit conn =>
+      SQL"UPDATE users SET allow_messaging = $allowMessaging WHERE id = $id RETURNING *".as(userParser.single)
+    }
+  }
+
+  private def updatePassword(id: String, password: HashedPassword)(implicit conn: Connection): Account =
+    SQL"""UPDATE users
+          SET password = $password, is_legacy = ${false}
+          WHERE id = $id
+          RETURNING *""".as(userParser.single)
 
   override def changeEmail(id: String, email: String): Future[Account] = Future {
     db.withTransaction { implicit conn =>
@@ -182,6 +211,12 @@ case class SqlAccountManager @Inject()(db: Database, actorSystem: ActorSystem) e
             RETURNING *""".as(userParser.single)
     }
   }
+
+  // Delete a valid token, returning its account ID, so it can only be used once
+  private def useToken(token: String, isSignUp: Boolean)(implicit conn: Connection): Option[String] =
+    SQL"""DELETE FROM token
+          WHERE token = $token AND is_sign_up = $isSignUp AND expires > NOW()
+          RETURNING id""".as(str("id").singleOpt)
 
   private def deleteTokens(id: String)(implicit conn: Connection): Unit =
     SQL"DELETE FROM token WHERE id = $id".executeUpdate()

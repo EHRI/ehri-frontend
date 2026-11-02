@@ -74,8 +74,14 @@ case class MockAccountManager @Inject()(executionContext: ExecutionContext) exte
   override def setLoggedIn(account: Account): Future[Account] =
     immediate(updateWith(account.copy(lastLogin = Some(ZonedDateTime.now()))))
 
-  override def verify(account: Account, token: String): Future[Option[Account]] =
-    immediate(Some(updateWith(account.copy(verified = true))))
+  override def verify(token: String): Future[Option[Account]] =
+    immediate(useToken(token, isSignUp = true).map(id => updateWith(mockdata.accountFixtures(id).copy(verified = true))))
+
+  private def useToken(token: String, isSignUp: Boolean): Option[String] =
+    mockdata.tokenFixtures.find(t => t._1 == token && t._3 == isSignUp).map { t =>
+      mockdata.tokenFixtures -= t
+      t._2
+    }
 
   override def createToken(id: String, token: UUID, isSignUp: Boolean): Future[Unit] =
     immediate(mockdata.tokenFixtures += ((token.toString, id, isSignUp)))
@@ -106,13 +112,24 @@ case class MockAccountManager @Inject()(executionContext: ExecutionContext) exte
     oAuth2.addAssociation(id, providerId, provider).map(_ => updated)(executionContext)
   }
 
-  override def resetPassword(id: String, password: HashedPassword): Future[Account] = immediate {
-    val account = mockdata.accountFixtures(id)
-    if (!account.verified) claim(id, Some(password)) else {
-      mockdata.tokenFixtures.filterInPlace(_._2 != id)
-      updateWith(account.copy(password = Some(password), isLegacy = false))
+  override def resetPassword(token: String, password: HashedPassword): Future[Option[Account]] = immediate {
+    useToken(token, isSignUp = false).map { id =>
+      val account = mockdata.accountFixtures(id)
+      if (!account.verified) claim(id, Some(password)) else {
+        mockdata.tokenFixtures.filterInPlace(_._2 != id)
+        updateWith(account.copy(password = Some(password), isLegacy = false))
+      }
     }
   }
+
+  override def setPassword(id: String, password: HashedPassword): Future[Account] =
+    immediate(updateWith(mockdata.accountFixtures(id).copy(password = Some(password), isLegacy = false)))
+
+  override def setAdminFlags(id: String, active: Boolean, staff: Boolean, verified: Boolean): Future[Account] =
+    immediate(updateWith(mockdata.accountFixtures(id).copy(active = active, staff = staff, verified = verified)))
+
+  override def setAllowMessaging(id: String, allowMessaging: Boolean): Future[Account] =
+    immediate(updateWith(mockdata.accountFixtures(id).copy(allowMessaging = allowMessaging)))
 
   override def changeEmail(id: String, email: String): Future[Account] = immediate {
     mockdata.tokenFixtures.filterInPlace(_._2 != id)

@@ -300,6 +300,22 @@ class AccountsSpec extends IntegrationTestRunner {
       mockdata.oauth2AssociationFixtures.filter(_.id == privilegedUser.id).map(_.provider) must equalTo(Seq("google"))
     }
 
+    "claim an unverified account when an existing login's email becomes verified" in new ITestApp {
+      val unverified = privilegedUser.copy(verified = false,
+        password = Some(HashedPassword.fromPlain("other-persons-password")))
+      mockdata.accountFixtures += privilegedUser.id -> unverified
+      mockdata.oauth2AssociationFixtures ++= Seq(
+        models.OAuth2Association(privilegedUser.id, "123456789", "google", Some(unverified)),
+        models.OAuth2Association(privilegedUser.id, "55555", "microsoft", Some(unverified)))
+      val login = oauth2Login("google")
+      status(login) must equalTo(SEE_OTHER)
+      await(mockAccounts.findById(privilegedUser.id)) must beSome.which { account =>
+        account.verified must beTrue
+        account.password must beNone
+      }
+      mockdata.oauth2AssociationFixtures.filter(_.id == privilegedUser.id).map(_.provider) must equalTo(Seq("google"))
+    }
+
     "not link an unverified email to an existing account" in new ITestApp {
       // The Microsoft test data has the same email as an existing account
       val login = oauth2Login(MicrosoftOAuth2Provider(app.configuration).name)

@@ -187,12 +187,9 @@ case class Accounts @Inject()(
         accountRoutes.confirmEmailPost()))
       ),
       token =>
-        accounts.findByToken(token, isSignUp = true).flatMap {
-          case Some(account) => for {
-            _ <- accounts.verify(account, token)
-            result <- doLogin(account)
-              .map(_.flashing("success" -> "signup.validation.confirmation"))
-          } yield result
+        accounts.verify(token).flatMap {
+          case Some(account) =>
+            doLogin(account).map(_.flashing("success" -> "signup.validation.confirmation"))
           case None =>
             immediate(BadRequest(views.html.account.confirmEmail(
               confirmEmailForm.withGlobalError("signup.validation.badToken"),
@@ -260,10 +257,7 @@ case class Accounts @Inject()(
             // we need to re-save this and untag them as legacy.
             if (account.isLegacy) {
               logger.info(s"Updating legacy account for user: ${account.id}")
-              accounts.update(account = account.copy(
-                password = Some(HashedPassword.fromPlain(pw)),
-                isLegacy = false
-              )).flatMap(doLogin)
+              accounts.setPassword(account.id, HashedPassword.fromPlain(pw)).flatMap(doLogin)
             } else {
               logger.info(s"User logged in via password: ${account.id}")
               doLogin(account)
@@ -484,10 +478,7 @@ case class Accounts @Inject()(
       data => {
         val (current, newPw, _) = data
         accounts.authenticateById(request.user.id, current).flatMap {
-          case Some(acc) => accounts.update(acc.copy(
-            password = Some(HashedPassword.fromPlain(newPw)),
-            isLegacy = false
-          )).map { _ =>
+          case Some(acc) => accounts.setPassword(acc.id, HashedPassword.fromPlain(newPw)).map { _ =>
             logger.info(s"Password change: ${acc.id}")
             Redirect(controllers.portal.users.routes.UserProfiles.updateProfile())
               .flashing("success" -> "login.password.change.confirmation")
@@ -575,14 +566,9 @@ case class Accounts @Inject()(
       errForm => immediate(BadRequest(views.html.account.resetPassword(errForm,
         accountRoutes.resetPasswordPost(token)))),
       { case (pw, _) =>
-        accounts.findByToken(token).flatMap {
+        accounts.resetPassword(token, HashedPassword.fromPlain(pw)).flatMap {
           case Some(account) =>
-            if (!account.verified) logger.warn(s"Claiming unverified account via password reset: ${account.id}")
-            for {
-              updated <- accounts.resetPassword(account.id, HashedPassword.fromPlain(pw))
-              request <- doLogin(updated)
-                .map(_.flashing("success" -> "login.password.reset.confirmation"))
-            } yield request
+            doLogin(account).map(_.flashing("success" -> "login.password.reset.confirmation"))
           case None => immediate(BadRequest(views.html.account.resetPassword(
             boundForm.withGlobalError("login.error.badResetToken"),
             accountRoutes.resetPasswordPost(token))))
@@ -634,7 +620,7 @@ case class Accounts @Inject()(
         logger.info(s"Found existing association for ${userData.name} -> ${provider.name}")
         for {
           updated <- if (!account.verified && userData.emailVerified && account.email.equalsIgnoreCase(userData.email))
-            accounts.update(account.copy(verified = true)) else immediate(account)
+            accounts.claimWithOAuth2(account.id, userData.providerId, provider.name) else immediate(account)
           _ <- updateUserInfo(updated, userData)
         } yield updated -> false
       } getOrElse {

@@ -263,8 +263,7 @@ case class UserProfiles @Inject()(
           data => accountOpt match {
             case Some(account) => for {
               _ <- userDataApi.patch[UserProfile](id, Json.toJson(data).as[JsObject])
-              _ <- accounts.update(account.copy(
-                active = data.active, staff = data.staff, verified = data.verified))
+              _ <- accounts.setAdminFlags(account.id, data.active, data.staff, data.verified)
             } yield Redirect(userRoutes.search())
                 .flashing("success" -> Messages("item.update.confirmation", request.item.toStringLang))
             case None => for {

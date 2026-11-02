@@ -100,13 +100,12 @@ trait AccountManager {
   def setLoggedIn(account: Account): Future[Account]
 
   /**
-    * Set the account verified and delete the verification token.
+    * Use a sign up token to verify an account, deleting the token.
     *
-    * @param account the account to update
-    * @param token   the verification token
-    * @return the updated account, if the token was found
+    * @param token the sign up token
+    * @return the updated account, or None if the token was not valid
     */
-  def verify(account: Account, token: String): Future[Option[Account]]
+  def verify(token: String): Future[Option[Account]]
 
   /**
     * Create a new account.
@@ -160,15 +159,44 @@ trait AccountManager {
   def claimWithOAuth2(id: String, providerId: String, provider: String): Future[Account]
 
   /**
-    * Set an account's password and expire its tokens. If the account
-    * is unverified it is verified and its OAuth2 logins removed, as
-    * with `claimWithOAuth2`.
+    * Use a password reset token to set an account's password, expiring
+    * its tokens. If the account is unverified it is verified and its
+    * OAuth2 logins removed, as with `claimWithOAuth2`.
+    *
+    * @param token    the password reset token
+    * @param password the new password
+    * @return the updated account, or None if the token was not valid
+    */
+  def resetPassword(token: String, password: HashedPassword): Future[Option[Account]]
+
+  /**
+    * Set an account's password.
     *
     * @param id       the account ID
     * @param password the new password
     * @return the updated account
     */
-  def resetPassword(id: String, password: HashedPassword): Future[Account]
+  def setPassword(id: String, password: HashedPassword): Future[Account]
+
+  /**
+    * Set an account's admin-controlled flags.
+    *
+    * @param id       the account ID
+    * @param active   whether the account is active
+    * @param staff    whether the account is staff
+    * @param verified whether the account is verified
+    * @return the updated account
+    */
+  def setAdminFlags(id: String, active: Boolean, staff: Boolean, verified: Boolean): Future[Account]
+
+  /**
+    * Set whether an account allows messaging.
+    *
+    * @param id             the account ID
+    * @param allowMessaging whether messaging is allowed
+    * @return the updated account
+    */
+  def setAllowMessaging(id: String, allowMessaging: Boolean): Future[Account]
 
   /**
     * Change an account's email, marking it unverified and

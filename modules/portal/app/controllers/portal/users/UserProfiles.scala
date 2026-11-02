@@ -221,9 +221,9 @@ case class UserProfiles @Inject()(
     AccountPreferences.form.bindFromRequest().fold(
       errForm => immediate(BadRequest(views.html.userProfile.editProfile(
             ProfileData.form, imageForm, errForm))),
-      accountPrefs => accounts.findById(request.user.id).flatMap {
+      accountPrefs => request.user.account match {
         case Some(account) =>
-          accounts.update(account.copy(allowMessaging = accountPrefs.allowMessaging)).map { _ =>
+          accounts.setAllowMessaging(account.id, accountPrefs.allowMessaging).map { _ =>
             Redirect(profileRoutes.updateProfile())
               .flashing("success" -> "profile.preferences.updated")
           }
