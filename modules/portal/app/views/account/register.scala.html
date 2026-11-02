@@ -1,17 +1,8 @@
-@(registerForm: Form[SignupData], registerAction: Call, recaptchaKey: String, openIdForm: Form[String], oauthConfig: auth.oauth2.OAuth2Config)(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, flash: Flash, messages: Messages,prefs: SessionPrefs)
+@(registerForm: Form[SignupData], registerAction: Call, recaptchaKey: String, oauthConfig: auth.oauth2.OAuth2Config)(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, flash: Flash, messages: Messages,prefs: SessionPrefs)
 
 @implicitField = @{ views.html.helper.FieldConstructor(views.html.helpers.fieldTemplateSignUp.f) }
 
 @extraScripts = {
-    <script>
-        jQuery(function($) {
-            // Openid
-            $(".show-more").on("click", function(e) {
-                e.preventDefault();
-                $(".more-login-options").slideToggle();
-            })
-        });
-    </script>
     @views.html.common.passwordValidationScripts()
 }
 
@@ -36,7 +27,6 @@
         <h4 class="or-oauth"><span>Or</span></h4>
 
         @views.html.account.oauth2Form(
-            openIdForm,
             oauthConfig,
             isLogin = false,
             oauth2Call = name => controllers.portal.account.routes.Accounts.oauth2Register(name)

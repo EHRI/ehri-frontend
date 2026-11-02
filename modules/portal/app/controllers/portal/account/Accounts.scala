@@ -16,14 +16,12 @@ import play.api.http.{HeaderNames, HttpVerbs}
 import play.api.i18n.Messages
 import play.api.libs.json.{JsNull, JsObject, JsString, Json}
 import play.api.libs.mailer.{Email, MailerClient}
-import play.api.libs.openid.OpenIdClient
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import services.RateLimitChecker
 import services.data.{AnonymousUser, AuthenticatedUser, ItemNotFound}
 import services.oauth2.OAuth2Service
 
-import java.net.ConnectException
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future.{successful => immediate}
@@ -38,7 +36,6 @@ case class Accounts @Inject()(
   mailer: MailerClient,
   oAuth2Flow: OAuth2Service,
   ws: WSClient,
-  openId: OpenIdClient,
   oauth2Providers: OAuth2Config,
   accountForms: AccountForms,
   rateLimits: RateLimitChecker,
@@ -60,17 +57,6 @@ case class Accounts @Inject()(
   // The max time an OAuth2 flow can be in progress before it times out. The user will
   // then have to begin the flow anew.
   private val oauth2SessionTimeout = config.get[Duration]("ehri.oauth2.sessionExpiration")
-
-
-  private val openIDAttributes = Seq(
-    "email" -> "http://schema.openid.net/contact/email",
-    "axemail" -> "http://axschema.org/contact/email",
-    "axname" -> "http://axschema.org/namePerson",
-    "name" -> "http://openid.netdr/schema/media/spokenname",
-    "firstname" -> "http://openid.net/schema/namePerson/first",
-    "lastname" -> "http://openid.net/schema/namePerson/last",
-    "friendly" -> "http://openid.net/schema/namePerson/friendly"
-  )
 
 
   /**
@@ -115,7 +101,6 @@ case class Accounts @Inject()(
           form,
           accountRoutes.signupPost(),
           recaptchaKey,
-          openidForm,
           oauth2Providers
         )
       )
@@ -221,65 +206,6 @@ case class Accounts @Inject()(
     )
   }
 
-  def openIDCallback: Action[AnyContent] = NotReadOnlyAction.async { implicit request =>
-    implicit val userOpt: Option[UserProfile] = None
-
-    openId.verifiedId(request).flatMap { info =>
-      // check if there's a user with the right id
-      accounts.openId.findByUrl(info.id).flatMap {
-        case Some(assoc) =>
-          logger.info(s"User '${assoc.user.get.id}' logged in via OpenId")
-          doLogin(assoc.user.get)
-        case None =>
-          val email = extractOpenIDEmail(info.attributes)
-            .getOrElse(sys.error("Unable to retrieve email info via OpenID"))
-
-          val data = Map("name" -> extractOpenIDName(info.attributes)
-            .getOrElse(sys.error("Unable to retrieve name info via OpenID")))
-
-          accounts.findByEmail(email).flatMap {
-            // We already have an account...
-            case Some(account) =>
-              logger.info(s"User '${account.id}' created OpenID association")
-              accounts.openId.addAssociation(account.id, info.id)
-              doLogin(account)
-            // We don't have an account and signup is disabled...
-            case None if config.get[Boolean]("ehri.signup.disabled") =>
-              immediate(Forbidden(views.html.account.login(
-                passwordLoginForm,
-                recaptchaKey,
-                openidForm.withGlobalError("signup.disabled"),
-                oauth2Providers
-              )))
-            // We don't have an account: create the user...
-            case None =>
-              implicit val apiUser: AnonymousUser.type = AnonymousUser
-              for {
-                up <- userDataApi.createNewUserProfile[UserProfile](
-                  data, groups = conf.defaultPortalGroups)
-                account <- accounts.create(Account(
-                  id = up.id,
-                  email = email.toLowerCase,
-                  verified = true,
-                  allowMessaging = conf.canMessage
-                ))
-                _ <- accounts.openId.addAssociation(account.id, info.id)
-                r <- doLogin(account)
-              } yield r
-          }
-      }
-    } recover {
-      case t: Throwable => BadRequest(
-        views.html.account.login(
-          passwordLoginForm,
-          recaptchaKey,
-          openidForm.withGlobalError("error.openId", t.getMessage),
-          oauth2Providers
-        )
-      )
-    }
-  }
-
   def signup: Action[AnyContent] = (NotReadOnlyAction andThen OptionalAccountLoginAction).apply { implicit request =>
     logger.debug(s"Signup, session is ${request.session.data}")
     implicit val userOpt: Option[UserProfile] = None
@@ -296,7 +222,6 @@ case class Accounts @Inject()(
             signupForm,
             accountRoutes.signupPost(),
             recaptchaKey,
-            openidForm,
             oauth2Providers
           )
         )
@@ -311,48 +236,7 @@ case class Accounts @Inject()(
         .removingFromSession(ACCESS_URI)
         .flashing("warning" -> Messages("login.alreadyLoggedIn", user.email))
       case None =>
-        Ok(views.html.account.login(passwordLoginForm, recaptchaKey, openidForm, oauth2Providers))
-    }
-  }
-
-  def openIDLoginPost(isLogin: Boolean = true): Action[AnyContent] = NotReadOnlyAction.async { implicit request =>
-    def badForm(f: Form[String], status: Status = BadRequest): Result = {
-      implicit val userOpt: Option[UserProfile] = None
-      status(
-        if (isLogin) views.html.account.login(
-          passwordLoginForm,
-          recaptchaKey,
-          f,
-          oauth2Providers
-        ) else views.html.account.register(
-          signupForm,
-          accountRoutes.signupPost(),
-          recaptchaKey,
-          f,
-          oauth2Providers
-        )
-      )
-    }
-
-    try {
-      val boundForm: Form[String] = openidForm.bindFromRequest()
-      boundForm.fold(
-        error => immediate(badForm(error)),
-        openidUrl => openId
-          .redirectURL(openidUrl, accountRoutes.openIDCallback().absoluteURL(conf.https),
-            openIDAttributes)
-          .map(url => Redirect(url))
-          .recover {
-            case t: ConnectException =>
-              logger.warn(s"OpenID Login connect exception: $t")
-              badForm(boundForm.withGlobalError(Messages("error.openId.url", openidUrl)))
-            case t =>
-              logger.warn(s"OpenID Login argument exception: $t")
-              badForm(boundForm.withGlobalError(Messages("error.openId.url", openidUrl)))
-          }
-      )
-    } catch {
-      case _: Throwable => immediate(badForm(openidForm.withGlobalError(Messages("error.openId"))))
+        Ok(views.html.account.login(passwordLoginForm, recaptchaKey, oauth2Providers))
     }
   }
 
@@ -362,7 +246,6 @@ case class Accounts @Inject()(
         views.html.account.login(
           f,
           recaptchaKey,
-          openidForm,
           oauth2Providers
         )
       )
@@ -725,17 +608,6 @@ case class Accounts @Inject()(
   //
 
   private case class SignupDisabled() extends Exception("Signup disabled")
-
-  private def extractOpenIDEmail(attrs: Map[String, String]): Option[String] =
-    attrs.get("email").orElse(attrs.get("axemail"))
-
-  private def extractOpenIDName(attrs: Map[String, String]): Option[String] = {
-    val fullName = for {
-      fn <- attrs.get("firstname")
-      ln <- attrs.get("lastname")
-    } yield s"$fn $ln"
-    attrs.get("name").orElse(attrs.get("fullname")).orElse(fullName)
-  }
 
   private def doLogin(account: Account)(implicit request: RequestHeader): Future[Result] =
     accounts.setLoggedIn(account).flatMap(_ => gotoLoginSucceeded(account.id))

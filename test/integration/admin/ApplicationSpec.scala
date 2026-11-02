@@ -157,13 +157,6 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
       status(home) must equalTo(OK)
     }
 
-    "allow access to the openid callback url, and return a bad request" in new ITestApp {
-      val home = FakeRequest(accountRoutes.openIDCallback())
-        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
-        .call()
-      status(home) must equalTo(BAD_REQUEST)
-    }
-    
     "give a capture error submitting a forgot password form" in new ITestApp(Map("recaptcha.skip" -> false)) {
       val data: Map[String,Seq[String]] = Map(
         "email" -> Seq("test@example.com"),

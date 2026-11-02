@@ -253,8 +253,6 @@ login.alreadyLoggedIn=Již jste přihlášen jako {0}
 login.loginWith=Přihlásit se pomocí {0}
 login.signupWith=Registrovat se pomocí {0}
 login.signup.submit=Registrovat
-login.openid.submit=Přihlásit se pomocí OpenID
-login.openid=OpenID
 login.email=Email
 login.email.change=Změnit email
 login.email.new=Nová emailová adresa
@@ -275,7 +273,6 @@ login.password.forgot=Zapomenuté heslo?
 login.password.reset.text=Zapomněli jste heslo? Zadejte email, který jste použili při registraci, a my vám zašleme odkaz, který můžete použít k jeho obnovení.
 login.password.reset.noPasswordMatching=Nenalezen odpovídající účet {0}
 login.password.reset.submit=Zaslat link pro obnovení
-login.openid.urlPlaceholder=adejte svou OpenID URL
 login.disabled=Přihlášení v současné době není umožněno. Zkuste to prosím později.
 login.oauth.info=Pokud již máte účet na jedné z těchto stránek, můžete se do EHRI přihlásit kliknutím na logo:
 login.password.info=Pokud již máte účet EHRI, zadejte svůj email a heslo:
@@ -421,8 +418,6 @@ error.unknownUser=Neznámý uživatel
 error.emailNotFound=Tento email nebyl v systému nalezen
 error.badRecaptcha=Kontrola Recaptcha (která ověřuje, že jste člověk, ne automatický spamovací stroj) nezískala správnou odpověď. Tip: text můžete obnovovat, dokud nezískáte něco čitelnějšího.
 error.rateLimit=Překročeno maximální množství pokusů. Vyčkejte, prosím, {0} minut a poté to zkuste znovu.
-error.openId=Při přihlašování pomocí OpenID došlo k problému. Může to být způsobeno tím, že váš poskytovatel nepodporuje výměnu atributů.
-error.openId.url=Od daného poskytovatele OpenID nepřišla žádná odpověď: {0}. Zkontrolujte, zda je URL adresa poskytovatele zadána správně.
 error.userEmailAlreadyRegistered=Uživatel s tímto emailem je již registrován: {0}
 
 #

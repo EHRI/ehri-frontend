@@ -4,7 +4,7 @@ import java.time.ZonedDateTime
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
-import models.{Account, OAuth2Association, OpenIDAssociation}
+import models.{Account, OAuth2Association}
 import utils.PageParams
 
 import scala.concurrent.Future.{successful => immediate}
@@ -40,21 +40,6 @@ case class MockAccountManager @Inject()(executionContext: ExecutionContext) exte
 
     def findForAccount(id: String): Future[Seq[OAuth2Association]] =
       immediate(mockdata.oauth2AssociationFixtures.filter(_.id == id).toSeq)
-  }
-
-  override def openId: OpenIdAssociationManager = new OpenIdAssociationManager {
-
-    def addAssociation(id: String, assoc: String): Future[Option[OpenIDAssociation]] =
-      immediate {
-        val oid = OpenIDAssociation(id, url = assoc, user = mockdata.accountFixtures.get(id))
-        mockdata.openIdAssociationFixtures += oid
-        Some(oid)
-      }
-
-    def findByUrl(url: String): Future[Option[OpenIDAssociation]] =
-      immediate(mockdata.openIdAssociationFixtures.find(_.url == url))
-
-    def findAll: Future[Seq[OpenIDAssociation]] = immediate(mockdata.openIdAssociationFixtures.toSeq)
   }
 
   override def get(id: String): Future[Account] =

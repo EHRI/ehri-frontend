@@ -56,7 +56,6 @@ val coreDependencies = backendDependencies ++ Seq(
   jdbc,
   evolutions,
   filters,
-  openId,
 
   // Force Scala XML version
   "org.scala-lang.modules" %% "scala-xml" % "2.2.0",

@@ -17,7 +17,6 @@ trait AccountManager {
 
   def oAuth2: OAuth2AssociationManager
 
-  def openId: OpenIdAssociationManager
 
   protected implicit def executionContext: ExecutionContext
 
