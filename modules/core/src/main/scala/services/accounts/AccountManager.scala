@@ -2,6 +2,7 @@ package services.accounts
 
 import java.util.UUID
 
+import auth.HashedPassword
 import models.Account
 import utils.PageParams
 
@@ -146,4 +147,28 @@ trait AccountManager {
     * @param id an account id
     */
   def expireTokens(id: String): Future[Unit]
+
+  /**
+    * Claim an unverified account for the owner of its email, who has proven
+    * they own it via an OAuth2 login. The account's password, tokens and other
+    * OAuth2 logins are removed, since whoever created it with that email may
+    * not own it, and it is verified and associated with the new OAuth2 login.
+    *
+    * @param id         the account ID
+    * @param providerId the user's ID with the OAuth2 provider
+    * @param provider   the OAuth2 provider name
+    * @return the updated account
+    */
+  def claimWithOAuth2(id: String, providerId: String, provider: String): Future[Account]
+
+  /**
+    * Claim an unverified account for the owner of its email, who has proven
+    * they own it by resetting its password. As with `claimWithOAuth2` its
+    * tokens and OAuth2 logins are removed, and it is verified.
+    *
+    * @param id       the account ID
+    * @param password the new password
+    * @return the updated account
+    */
+  def claimWithPassword(id: String, password: HashedPassword): Future[Account]
 }

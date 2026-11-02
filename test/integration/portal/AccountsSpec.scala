@@ -1,7 +1,7 @@
 package integration.portal
 
 import auth.HashedPassword
-import auth.oauth2.providers.GoogleOAuth2Provider
+import auth.oauth2.providers.{GoogleOAuth2Provider, MicrosoftOAuth2Provider}
 import auth.sso.DiscourseSSO
 import forms.HoneyPotForm._
 import forms.TimeCheckForm._
@@ -11,6 +11,7 @@ import models.{Account, SignupData}
 import play.api.Application
 import play.api.cache.SyncCacheApi
 import play.api.i18n.MessagesApi
+import play.api.libs.json.Json
 import play.api.test.{FakeRequest, Injecting, WithApplication}
 
 import java.util.UUID
@@ -88,6 +89,26 @@ class AccountsSpec extends IntegrationTestRunner {
       redirectLocation(resetPost) must not(beSome(accountRoutes.login().url))
     }
 
+    "claim an unverified account when resetting its password" in new ITestApp {
+      // An unverified account with an OAuth2 login added by whoever created it
+      mockdata.oauth2AssociationFixtures += models.OAuth2Association(unverifiedUser.id, "55555", "microsoft", None)
+      val uuid = UUID.randomUUID()
+      await(mockAccounts.createToken(unverifiedUser.id, uuid, isSignUp = false))
+      val rstData: Map[String, Seq[String]] = Map(
+        "password" -> Seq("hellokitty"),
+        "confirm" -> Seq("hellokitty"),
+        CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
+      )
+      val resetPost = FakeRequest(accountRoutes.resetPasswordPost(uuid.toString))
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString).callWith(rstData)
+      status(resetPost) must equalTo(SEE_OTHER)
+      await(mockAccounts.findById(unverifiedUser.id)) must beSome.which { account =>
+        account.verified must beTrue
+        account.password.exists(_.check("hellokitty")) must beTrue
+      }
+      mockdata.oauth2AssociationFixtures.exists(_.id == unverifiedUser.id) must beFalse
+    }
+
     "allow user to login with password" in new ITestApp(
       specificConfig = Map(
         "recaptcha.skip" -> true,
@@ -125,7 +146,12 @@ class AccountsSpec extends IntegrationTestRunner {
       redirectLocation(r) must beSome(
         controllers.portal.users.routes.UserProfiles.updateProfile().url)
 
-      await(mockAccounts.get(privilegedUser.id)).email must_== "new@example.com"
+      await(mockAccounts.get(privilegedUser.id)) must beLike { case account =>
+        account.email must_== "new@example.com"
+        // The new address must be verified
+        account.verified must beFalse
+      }
+      mailBuffer.last.to must contain("new@example.com")
     }
 
     "disallow changing email address to one that already exists" in new ITestApp {
@@ -205,6 +231,19 @@ class AccountsSpec extends IntegrationTestRunner {
     }
   }
 
+  private def oauth2Login(provider: String)(implicit app: Application) = {
+    val singleUseKey = UUID.randomUUID().toString
+    val randomState = UUID.randomUUID().toString
+    cache.set(singleUseKey, randomState)
+    FakeRequest(accountRoutes.oauth2Login(provider, code = Some("blah"), state = Some(randomState)))
+      .withSession("sid" -> singleUseKey).call()
+  }
+
+  // A Google login with the (verified) email of an existing account
+  private val verifiedGoogleLogin = Map(
+    "test.oauth2.google.userData" -> Json.stringify(Json.obj("id" -> "987654321",
+      "email" -> mockdata.privilegedUser.email, "verified_email" -> true, "name" -> "Any Name")))
+
   "OAuth2" should {
     "allow user to log in" in new ITestApp {
       // Using the existing Google OAuth2 association
@@ -233,6 +272,53 @@ class AccountsSpec extends IntegrationTestRunner {
         .withSession("sid" -> singleUseKey).call()
       status(login) must equalTo(SEE_OTHER)
       flash(login).get("danger") must beSome(message("login.error.oauth2.badSessionId", "Google"))
+    }
+
+    "link a verified email to an existing account" in new ITestApp(verifiedGoogleLogin) {
+      val login = oauth2Login("google")
+      status(login) must equalTo(SEE_OTHER)
+      flash(login).get("danger") must beNone
+      mockdata.oauth2AssociationFixtures.exists(a =>
+        a.id == mockdata.privilegedUser.id && a.provider == "google" && a.providerId == "987654321") must beTrue
+    }
+
+    "remove other logins when linking a verified email to an unverified account" in new ITestApp(verifiedGoogleLogin) {
+      // An account created by someone else with the same email, which was never verified
+      mockdata.accountFixtures += privilegedUser.id -> privilegedUser.copy(verified = false,
+        password = Some(HashedPassword.fromPlain("other-persons-password")))
+      mockdata.oauth2AssociationFixtures += models.OAuth2Association(privilegedUser.id, "55555", "microsoft", None)
+      val login = oauth2Login("google")
+      status(login) must equalTo(SEE_OTHER)
+      flash(login).get("danger") must beNone
+      await(mockAccounts.findById(privilegedUser.id)) must beSome.which { account =>
+        account.verified must beTrue
+        account.password must beNone
+      }
+      mockdata.oauth2AssociationFixtures.filter(_.id == privilegedUser.id).map(_.provider) must equalTo(Seq("google"))
+    }
+
+    "not link an unverified email to an existing account" in new ITestApp {
+      // The Microsoft test data has the same email as an existing account
+      val login = oauth2Login(MicrosoftOAuth2Provider(app.configuration).name)
+      status(login) must equalTo(SEE_OTHER)
+      redirectLocation(login) must beSome(accountRoutes.login().url)
+      flash(login).get("danger") must beSome(message("login.error.oauth2.unverifiedEmail"))
+      mockdata.oauth2AssociationFixtures.exists(a =>
+        a.provider == "microsoft" && a.providerId == "123456789") must beFalse
+    }
+
+    "create an unverified account for an unverified new email" in new ITestApp(Map(
+        "test.oauth2.microsoft.userData" -> Json.stringify(Json.obj("sub" -> "55555",
+          "email" -> "new-microsoft-user@example.com", "name" -> "New User")))) {
+      val numSentMails = mailBuffer.size
+      val login = oauth2Login("microsoft")
+      status(login) must equalTo(SEE_OTHER)
+      flash(login).get("success") must beSome("signup.confirmation")
+      await(mockAccounts.findByEmail("new-microsoft-user@example.com")) must beSome.which { account =>
+        account.verified must beFalse
+      }
+      mailBuffer.size must equalTo(numSentMails + 1)
+      mailBuffer.last.to must contain("new-microsoft-user@example.com")
     }
 
     "error with bad provider" in new ITestApp {

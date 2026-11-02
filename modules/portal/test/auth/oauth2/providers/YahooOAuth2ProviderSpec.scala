@@ -29,6 +29,7 @@ class YahooOAuth2ProviderSpec extends PlaySpecification with ResourceUtils {
         d.name must equalTo("Jasmine Smith")
         d.email must equalTo("yqa_functest_15572415322065371@yahoo.com")
         d.providerId must equalTo("JEF4XR2CT55JPVEBVD7ZVT6A3A")
+        d.emailVerified must beTrue
       }
     }
   }

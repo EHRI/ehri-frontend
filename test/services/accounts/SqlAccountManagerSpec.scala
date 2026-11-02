@@ -164,5 +164,23 @@ class SqlAccountManagerSpec extends IntegrationTestRunner {
     "find all associations" in new DBTestApp("user-fixtures.sql") {
       await(accounts.oAuth2.findAll).size must equalTo(2)
     }
+
+    "claim an account with a new password, removing its OAuth2 logins" in new DBTestApp("user-fixtures.sql") {
+      val id = mockdata.privilegedUser.id
+      val account = await(accounts.claimWithPassword(id, HashedPassword.fromPlain("n3wpassw0rd")))
+      account.verified must beTrue
+      account.password.exists(_.check("n3wpassw0rd")) must beTrue
+      await(accounts.oAuth2.findForAccount(id)) must beEmpty
+    }
+
+    "claim an account, removing its other logins" in new DBTestApp("user-fixtures.sql") {
+      val id = mockdata.privilegedUser.id
+      await(accounts.createToken(id, UUID.randomUUID(), isSignUp = true))
+      val account = await(accounts.claimWithOAuth2(id, "4321", "microsoft"))
+      account.verified must beTrue
+      account.password must beNone
+      await(accounts.oAuth2.findForAccount(id)).map(_.provider) must equalTo(Seq("microsoft"))
+      await(accounts.oAuth2.findAll).size must equalTo(2)
+    }
   }
 }

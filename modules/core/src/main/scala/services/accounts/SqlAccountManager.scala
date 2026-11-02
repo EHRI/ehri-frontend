@@ -152,6 +152,30 @@ case class SqlAccountManager @Inject()(db: Database, actorSystem: ActorSystem) e
     ()
   }
 
+  override def claimWithOAuth2(id: String, providerId: String, provider: String): Future[Account] = Future {
+    db.withTransaction { implicit conn =>
+      val account = claim(id, password = None)
+      SQL"""INSERT INTO oauth2_association (id, provider_id, provider)
+            VALUES ($id, $providerId, $provider)""".executeUpdate()
+      account
+    }
+  }
+
+  override def claimWithPassword(id: String, password: HashedPassword): Future[Account] = Future {
+    db.withTransaction { implicit conn =>
+      claim(id, Some(password))
+    }
+  }
+
+  private def claim(id: String, password: Option[HashedPassword])(implicit conn: Connection): Account = {
+    SQL"DELETE FROM oauth2_association WHERE id = $id".executeUpdate()
+    SQL"DELETE FROM token WHERE id = $id".executeUpdate()
+    SQL"""UPDATE users
+          SET verified = ${true}, password = $password, is_legacy = ${false}
+          WHERE id = $id
+          RETURNING *""".as(userParser.single)
+  }
+
   override def findAll(params: PageParams = PageParams.empty, filters: AccountFilters = AccountFilters()): Future[Seq[Account]] =
     Future {
       db.withConnection { implicit conn =>

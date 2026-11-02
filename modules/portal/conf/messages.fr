@@ -186,6 +186,8 @@ login.error.badResetToken=L''URL indiquée pour la réinitialisation du mot de p
     Remarque : les liens de réinitialisation du mot de passe ne peuvent être utilisés qu''une seule fois.
 login.error.oauth2.info=Nous vous prions de nous excuser, mais il y a eu un problème lors de la création de votre compte via {0}. Veuillez essayer une autre \
     méthode d''inscription.
+login.error.oauth2.unverifiedEmail=Un compte existe déjà avec cette adresse e-mail, mais nous n''avons pas pu confirmer qu''il vous appartient via ce mode de connexion. \
+    Veuillez vous connecter avec votre adresse e-mail et votre mot de passe, ou réinitialiser votre mot de passe si vous n''en avez pas.
 login.password.current=Mot de passe actuel
 login.password.new=Nouveau mot de passe
 login.password.new.confirm=Confirmez le nouveau mot de passe
@@ -205,10 +207,13 @@ signup.validation.confirmation=Votre compte a été validé.
 mail.forgotPasswordMailHeading=Réinitialisation du mot de passe EHRI
 mail.forgotPasswordMessage=Pour réinitialiser votre mot de passe, veuillez suivre le lien ci-dessous. Remarque : ce lien ne peut être utilisé qu''une seule fois \
     pour réinitialiser votre mot de passe.
+mail.forgotPasswordIgnore=Si vous n''avez pas demandé à réinitialiser votre mot de passe, vous pouvez ignorer cet e-mail.
+mail.forgotPasswordFooter=Bien cordialement - l''équipe EHRI
 mail.confirmEmailHeading=Veuillez confirmer votre adresse e-mail
-mail.confirmEmailMessage=Veuillez confirmer votre adresse e-mail en visitant l''adresse suivante :
-mail.confirmEmailFooter=Ce lien sera valide pendant 1 semaine, après quoi votre compte sera \
-    désactivé.
+mail.confirmEmailMessage=Un compte EHRI a été créé avec cette adresse e-mail. Pour confirmer l''adresse et activer le compte, rendez-vous sur :
+mail.confirmEmailIgnore=Si vous n''avez pas créé ce compte, veuillez ignorer cet e-mail : le compte ne sera pas vérifié \
+    et personne ne pourra l''utiliser pour se faire passer pour vous.
+mail.confirmEmailFooter=Ce lien est valide pendant 1 semaine. – l''équipe EHRI
 mail.unverifiedEmailWarning=Compte non vérifié
 mail.unverifiedEmailWarningMessage=L''adresse e-mail associée à votre compte n''a pas encore été vérifiée.
 mail.unverifiedEmailResend=Pour renvoyer un e-mail de vérification,

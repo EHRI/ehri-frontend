@@ -3,4 +3,6 @@
 
 @controllers.portal.account.routes.Accounts.confirmEmail(token.toString).absoluteURL(conf.https)
 
+@Messages("mail.confirmEmailIgnore")
+
 @Messages("mail.confirmEmailFooter")

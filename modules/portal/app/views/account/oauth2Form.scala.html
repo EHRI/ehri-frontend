@@ -3,16 +3,14 @@
 @defining(if (isLogin) "login.loginWith" else "login.signupWith") { messagePrefix =>
     <div class="oauth-providers form-field">
         @oauth2Config.providers(isLogin).map { provider =>
-            @if(compact) {
-                <a href="@oauth2Call(provider.name)" class="btn btn-signin-@provider.name"
-                    title="@Messages(messagePrefix, provider.name.capitalize)"
-                    aria-label="@Messages(messagePrefix, provider.name.capitalize)">
-                    <span class="sr-only">@Messages(messagePrefix, provider.name.capitalize)</span>
-                </a>
-            } else {
-                <a href="@oauth2Call(provider.name)" class="btn btn-lg btn-signin-@provider.name"
-                    title="@Messages(messagePrefix, provider.name.capitalize)">
-                    @Messages(messagePrefix, Messages("login.oauth." + provider.name))
+            @defining(Messages(messagePrefix, provider.name.capitalize)) { label =>
+                <a href="@oauth2Call(provider.name)" class="btn @if(!compact){btn-lg} btn-signin-@provider.name"
+                    title="@label" @if(compact){aria-label="@label"}>
+                    @if(compact) {
+                        <span class="sr-only">@label</span>
+                    } else {
+                        @Messages(messagePrefix, Messages("login.oauth." + provider.name))
+                    }
                 </a>
             }
         }

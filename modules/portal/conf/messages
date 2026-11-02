@@ -338,6 +338,9 @@ login.error.oauth2.orcid.missingEmail=We were unable to retrieve your email addr
   set to public or limited in your ORCID profile.
 login.error.oauth2.orcid.missingGuid=We were unable to retrieve your ORCID identifier. Please ensure your ORCID profile is \
   set to public or limited.
+login.error.oauth2.unverifiedEmail=An account with this email address already exists, but we could not \
+  confirm that it belongs to you via this sign-in method. Please log in with your email and password instead, \
+  or reset your password if you do not have one.
 login.error.oauth2.badSessionId=We were unable to log you in via {0} this time. Please try again and if the error \
   persists try using a different browser window.
 login.error.badEmail=Email cannot be changed because it is invalid or already in use.
@@ -377,11 +380,13 @@ signup.validation.alreadyValidated=Your email address has already been validated
 #
 mail.forgotPasswordMailHeading=EHRI Password Reset
 mail.forgotPasswordMessage=To reset your password, please follow the link below. Note: this link can only be used to reset your password once.
+mail.forgotPasswordIgnore=If you did not ask to reset your password, you can ignore this email.
 mail.forgotPasswordFooter=Best wishes - the EHRI team
 mail.confirmEmailHeading=Please confirm your email address
-mail.confirmEmailMessage=Please confirm your email address by visiting the following address:
-mail.confirmEmailFooter=This link will be valid for 1 week, after which your account will\
-  be deactivated.
+mail.confirmEmailMessage=An EHRI Account has been created with this email address. To confirm the address and activate the account, visit:
+mail.confirmEmailIgnore=If you did not create this account, please ignore this email: the account will not be verified, \
+  and nobody will be able to use it to act as you.
+mail.confirmEmailFooter=This link is valid for 1 week. – the EHRI team
 mail.unverifiedEmailWarning=Unverified Account
 mail.unverifiedEmailWarningMessage=The email associated with your account has not yet been verified.
 mail.unverifiedEmailResend=To re-send a verification email

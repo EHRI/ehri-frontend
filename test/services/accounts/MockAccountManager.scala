@@ -4,6 +4,7 @@ import java.time.ZonedDateTime
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
+import auth.HashedPassword
 import models.{Account, OAuth2Association}
 import utils.PageParams
 
@@ -102,6 +103,20 @@ case class MockAccountManager @Inject()(executionContext: ExecutionContext) exte
       (t, i) <- mockdata.tokenFixtures.zipWithIndex if t._2 == id
     } yield i
     for (i <- (mockdata.tokenFixtures.size -1) to 0 by -1) if (indicesToDelete contains i) mockdata.tokenFixtures remove i
+  }
+
+  override def claimWithOAuth2(id: String, providerId: String, provider: String): Future[Account] = {
+    val updated = claim(id, password = None)
+    oAuth2.addAssociation(id, providerId, provider).map(_ => updated)(executionContext)
+  }
+
+  override def claimWithPassword(id: String, password: HashedPassword): Future[Account] =
+    immediate(claim(id, Some(password)))
+
+  private def claim(id: String, password: Option[HashedPassword]): Account = {
+    mockdata.oauth2AssociationFixtures.filterInPlace(_.id != id)
+    mockdata.tokenFixtures.filterInPlace(_._2 != id)
+    updateWith(mockdata.accountFixtures(id).copy(verified = true, password = password, isLegacy = false))
   }
 
   override def findAll(params: PageParams, filters: AccountFilters = AccountFilters()): Future[Seq[Account]] = immediate {

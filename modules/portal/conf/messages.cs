@@ -283,6 +283,7 @@ login.error.badUsernameOrPassword=Nesprávné uživatelské jméno nebo heslo.
 login.error.passwordsDoNotMatch=Heslo a potvrzující heslo se neshodují
 login.error.badResetToken=Adresa pro obnovu hesla je nesprávná, nebo vypršela její platnost. Poznámka: adresa pro obnovu hesla může být použita pouze jednou.
 login.error.oauth2.info=Omlouváme se, vyskytl se problém s vytvořením vašeho účtu prostřednictvím {0}. Prosím, zkuste jinou metodu registrace. 
+login.error.oauth2.unverifiedEmail=Účet s touto e-mailovou adresou již existuje, ale prostřednictvím této metody přihlášení jsme nemohli ověřit, že patří vám. Přihlaste se prosím svým e-mailem a heslem, nebo si heslo obnovte, pokud žádné nemáte.
 login.error.oauth2.badSessionId=Vyskytl se problém s přihlášením prostřednictvím {0}. Prosím, zkuste to znovu. Pokud problém přetrvá, zkuste se přihlásit v novém okně prohlížeče.
 login.error.badEmail=Email nemůže být změněn, protože je zadaný nesprávně, nebo je již používán.
 
@@ -310,10 +311,12 @@ signup.disabled=Přihlašování je na této stránce zakázáno. Používáte-l
 #
 mail.forgotPasswordMailHeading=Obnovit EHRI heslo
 mail.forgotPasswordMessage=Pro obnovu svého hesla klikněte na link níže. Poznámka: link pro obnovu hesla může být použit pouze jednou.
+mail.forgotPasswordIgnore=Pokud jste o obnovení hesla nežádali, můžete tento e-mail ignorovat.
 mail.forgotPasswordFooter=S pozdravem - tým EHRI
 mail.confirmEmailHeading=Prosím, potvrďte svoji emailovou adresu
-mail.confirmEmailMessage=Prosím, potvrďte svoji emailovou adresu kliknutím na následující odkaz:
-mail.confirmEmailFooter=Odkaz bude platný 1 týden, poté bude váš účet deaktivován.
+mail.confirmEmailMessage=S touto e-mailovou adresou byl vytvořen účet EHRI. Pro potvrzení adresy a aktivaci účtu navštivte:
+mail.confirmEmailIgnore=Pokud jste tento účet nevytvořili, tento e-mail prosím ignorujte: účet nebude ověřen a nikdo jej nebude moci použít, aby vystupoval vaším jménem.
+mail.confirmEmailFooter=Tento odkaz je platný 1 týden. – tým EHRI
 mail.unverifiedEmailWarning=Neověřený čet
 mail.unverifiedEmailWarningMessage=Email spojený s vaším účtem dosud nebyl ověřen.
 mail.unverifiedEmailResend=Znovu zaslat link pro ověření.
