@@ -1,12 +1,20 @@
-@(oauth2Config: auth.oauth2.OAuth2Config, isLogin: Boolean, oauth2Call: String => Call)(implicit messages: Messages)
+@(oauth2Config: auth.oauth2.OAuth2Config, isLogin: Boolean, oauth2Call: String => Call, compact: Boolean = false)(implicit messages: Messages)
 
 @defining(if (isLogin) "login.loginWith" else "login.signupWith") { messagePrefix =>
     <div class="oauth-providers form-field">
         @oauth2Config.providers(isLogin).map { provider =>
-            <a href="@oauth2Call(provider.name)" class="btn btn-lg btn-signin-@provider.name"
-                title="@Html(Messages(messagePrefix, provider.name.capitalize))">
-                @Messages(messagePrefix, Messages("login.oauth." + provider.name))
-            </a>
+            @if(compact) {
+                <a href="@oauth2Call(provider.name)" class="btn btn-signin-@provider.name"
+                    title="@Messages(messagePrefix, provider.name.capitalize)"
+                    aria-label="@Messages(messagePrefix, provider.name.capitalize)">
+                    <span class="sr-only">@Messages(messagePrefix, provider.name.capitalize)</span>
+                </a>
+            } else {
+                <a href="@oauth2Call(provider.name)" class="btn btn-lg btn-signin-@provider.name"
+                    title="@Messages(messagePrefix, provider.name.capitalize)">
+                    @Messages(messagePrefix, Messages("login.oauth." + provider.name))
+                </a>
+            }
         }
     </div>
 }
