@@ -8,7 +8,7 @@ body.guides {
   .container {
     // Backwards compatibility
     @include make-container();
-    @include make-container-max-widths();
+    @include container-max-widths();
   }
 
   header#top {
