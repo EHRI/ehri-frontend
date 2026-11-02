@@ -5,7 +5,6 @@ import com.google.inject.ImplementedBy
 import models.{DataTransformation, DataTransformationInfo}
 import play.api.http.{MimeTypes, Writeable}
 import play.api.libs.json.{JsObject, Json}
-import services.data.ItemNotFound
 
 import scala.concurrent.Future
 
@@ -38,7 +37,7 @@ trait DataTransformationService {
     *
     * @param repoId the repository ID
     * @param id     the transformation's id
-    * @return a transformation object, or a failed future with [[ItemNotFound]]
+    * @return a transformation object, or a failed future with [[services.data.ItemNotFound]]
     *         if it does not exist or belongs to another repository
     */
   def get(repoId: String, id: String): Future[DataTransformation]
@@ -49,7 +48,7 @@ trait DataTransformationService {
     * @param repoId the repository ID
     * @param ids    the sequence of transformation ids
     * @return an ordered sequence of transformations, or a failed future with
-    *         [[ItemNotFound]] if any do not exist or belong to another repository
+    *         [[services.data.ItemNotFound]] if any do not exist or belong to another repository
     */
   def get(repoId: String, ids: Seq[String]): Future[Seq[DataTransformation]]
 

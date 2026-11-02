@@ -6,11 +6,10 @@ import play.api.libs.functional.syntax._
 import eu.ehri.project.definitions.Ontology
 import models.Description.CreationProcess
 
-import java.net.URL
+import java.net.{URI, URL}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
-import play.api.mvc.RequestHeader
 import services.data.Constants
 import utils.EnumUtils
 
@@ -146,8 +145,8 @@ case class DocumentaryUnit(
 
   def url: Option[URL] = (for {
     desc <- descriptions
-    url <- desc.externalLink(this)
-  } yield new URL(url)).headOption
+    url <- desc.externalLink(this) if forms.isValidUrl(url)
+  } yield URI.create(url).toURL).headOption
 
   def createdManually: Boolean = descriptions.exists(_.creationProcess == CreationProcess.Manual)
 }

@@ -2,7 +2,7 @@ import models.Entity
 import play.api.data.Form
 import play.api.data.Forms.{nonEmptyText, seq, single}
 
-import java.net.{MalformedURLException, URL}
+import java.net.{MalformedURLException, URI}
 
 /**
   * Form-related utilities
@@ -14,10 +14,10 @@ package object forms {
     * Check if a string is a valid URL.
     */
   val isValidUrl: String => Boolean = s => try {
-    new URL(s)
+    URI.create(s).toURL
     true
   } catch {
-    case _: MalformedURLException => false
+    case _: MalformedURLException | _: IllegalArgumentException => false
   }
 
   import play.api.data.format.Formatter

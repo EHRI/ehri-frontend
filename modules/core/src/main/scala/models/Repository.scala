@@ -9,7 +9,7 @@ import models.json._
 import play.api.libs.functional.syntax._
 import eu.ehri.project.definitions.Ontology
 
-import java.net.URL
+import java.net.{URI, URL}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages
@@ -96,7 +96,7 @@ case class Repository(
     desc <- descriptions
     address <- desc.addresses
     url <- address.url if forms.isValidUrl(url)
-  } yield url).headOption.map(new URL(_))
+  } yield url).headOption.map(URI.create(_).toURL)
 
   def emails: Seq[String] = for {
     desc <- descriptions

@@ -129,13 +129,14 @@ case class S3CompatibleFileStorage(
   }(ec)
 
   override def get(path: String, versionId: Option[String] = None): Future[Option[(FileMeta, Source[ByteString, _])]] = {
-    S3.download(name, path, versionId = versionId)
+    S3.getObjectMetadata(name, path, versionId = versionId)
       .withAttributes(S3Attributes.settings(s3Settings))
       .runWith(Sink.headOption).map(_.flatten)
-      .map {
-        case Some((src, meta)) => Some(infoToMeta(path, meta) -> src)
-        case _ => None
-      }
+      .map(_.map { meta =>
+        val src = S3.getObject(name, path, versionId = versionId)
+          .withAttributes(S3Attributes.settings(s3Settings))
+        infoToMeta(path, meta) -> src
+      })
   }
 
   override def putBytes(path: String, src: Source[ByteString, _], contentType: Option[String] = None,
@@ -223,7 +224,8 @@ case class S3CompatibleFileStorage(
 
   override def copyFile(path: String, toPath: String): Future[URI] = {
     val request = CopyObjectRequest.builder()
-      .copySource(s"$name/$path")
+      .sourceBucket(name)
+      .sourceKey(path)
       .destinationBucket(name)
       .destinationKey(toPath)
       .build()

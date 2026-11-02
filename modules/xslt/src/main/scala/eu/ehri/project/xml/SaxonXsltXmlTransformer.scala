@@ -14,7 +14,7 @@ import play.api.libs.json._
 import java.io.{StringReader, StringWriter}
 import javax.inject.Inject
 import javax.xml.transform.stream.StreamSource
-import javax.xml.transform.{ErrorListener, Result, TransformerConfigurationException, TransformerException}
+import javax.xml.transform.{ErrorListener, TransformerConfigurationException, TransformerException}
 
 object SaxonXsltXmlTransformer {
 
@@ -72,11 +72,6 @@ object SaxonXsltXmlTransformer {
     })
     setUnparsedTextURIResolver((uri: java.net.URI, _: String, _: Configuration) => throw denied(uri.toString))
     setCollectionFinder((_: XPathContext, uri: String) => throw denied(uri))
-    setOutputURIResolver(new OutputURIResolver {
-      override def newInstance(): OutputURIResolver = this
-      override def resolve(href: String, base: String): Result = throw denied(href)
-      override def close(result: Result): Unit = ()
-    })
     setConfigurationProperty(Feature.ENVIRONMENT_VARIABLE_RESOLVER, new EnvironmentVariableResolver {
       override def getAvailableEnvironmentVariables: java.util.Set[String] = java.util.Collections.emptySet()
       override def getEnvironmentVariable(name: String): String = null
@@ -123,6 +118,7 @@ case class SaxonXsltXmlTransformer @Inject()() extends XsltXmlTransformer {
         out.setOutputProperty(Serializer.Property.INDENT, "yes")
 
         val transformer = stylesheet.load30()
+        transformer.setResultDocumentHandler((uri: java.net.URI) => throw denied(uri.toString))
         transformer.setErrorListener(new ErrorListener {
           override def warning(exception: TransformerException): Unit = logger.warn(exception.getMessage)
           override def error(exception: TransformerException): Unit = logger.error(exception.getMessage)
