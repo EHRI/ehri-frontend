@@ -154,10 +154,10 @@ val commonSettings = Seq(
   // out of space during the memory intensive integration
   // tests. Additionally, set the path to the test config
   // file as an env var.
-  Test / javaOptions ++= Seq(
+  Test / javaOptions := (if ((Test / fork).value) (Test / javaOptions).value ++ Seq(
     s"-Dconfig.file=${(LocalRootProject / baseDirectory).value / "conf" / "test.conf"}",
     s"-Dlogger.file=${(LocalRootProject / baseDirectory).value / "conf" / "logback-play-dev.xml"}"
-  ),
+  ) else Seq.empty),
 
   // Show warnings and deprecations
   ThisBuild / scalacOptions ++= Seq(
@@ -168,6 +168,7 @@ val commonSettings = Seq(
     "-deprecation",
     "-Wconf:cat=unused-imports&site=.*views.html.*:s", // Silence import warnings in Play html files
     "-Wconf:cat=unused-imports&site=.*views.txt.*:s", // Silence import warnings in Play txt files
+    "-Wconf:cat=unused-imports&src=routes/.*:s", // Silence import warnings in Play routes files
   ),
 
   resolvers ++= additionalResolvers,
@@ -458,14 +459,14 @@ lazy val main = Project(appName, file("."))
 
     // Publishing
     publishTo := {
-      val repo = "https://dev.ehri-project.eu/artifactory/"
+      val repo = "https://dev.ehri-project.eu/reposilite/"
       if (isSnapshot.value)
-        Some("EHRI Snapshots" at repo + "libs-snapshot-local")
+        Some("EHRI Snapshots Publish" at repo + "libs-snapshot-local")
       else
-        Some("EHRI Releases"  at repo + "libs-release-local")
+        Some("EHRI Releases Publish" at repo + "libs-release-local")
     },
     // If publication fails, check release credentials in ~/.sbt/.credentials
-    credentials += Credentials(Path.userHome / ".sbt" / ".credentials"),
+    credentials ++= Some(Path.userHome / ".sbt" / ".credentials").filter(_.exists).map(Credentials(_)),
   )
   .dependsOn(portal % "test->test;compile->compile", admin, guides, api, solr)
   .aggregate(backend, core, admin, portal, guides, api, solr, xquery, xslt)
