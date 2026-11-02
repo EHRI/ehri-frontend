@@ -1,6 +1,7 @@
 package guice
 
 import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.Http
 import org.apache.pekko.stream.Materializer
 import com.google.inject.AbstractModule
 import com.google.inject.name.Names
@@ -8,6 +9,7 @@ import views.AppConfig
 import data.markdown.{CommonmarkMarkdownRenderer, RawMarkdownRenderer, SanitisingMarkdownRenderer}
 import lifecycle.{GeocodingItemLifecycle, ItemLifecycle}
 import models.AddressF
+import play.api.inject.ApplicationLifecycle
 import play.api.libs.concurrent.PekkoGuiceSupport
 import services.RateLimitChecker
 import services.cypher.{CypherQueryService, CypherService, SqlCypherQueryService, WsCypherService}
@@ -31,6 +33,12 @@ private class PortalStorageProvider @Inject()(config: play.api.Configuration)(im
 private class DamStorageProvider @Inject()(config: play.api.Configuration)(implicit as: ActorSystem, mat: Materializer, ec: ExecutionContext) extends Provider[FileStorage] {
   override def get(): FileStorage =
     S3CompatibleFileStorage(config.get[com.typesafe.config.Config]("storage.dam"))
+}
+
+// Close the HTTP connection pools used by the S3 client before the actor
+// system terminates, since otherwise they log errors at shutdown.
+private class ConnectionPoolShutdown @Inject()(lifecycle: ApplicationLifecycle)(implicit as: ActorSystem) {
+  lifecycle.addStopHook(() => Http().shutdownAllConnectionPools())
 }
 
 private class AwsGeocodingServiceProvider @Inject()(config: play.api.Configuration, ec: ExecutionContext) extends Provider[GeocodingService] {
@@ -60,6 +68,7 @@ class AppModule extends AbstractModule with PekkoGuiceSupport {
     bind(classOf[CypherService]).to(classOf[WsCypherService])
     bind(classOf[ItemLifecycle]).to(classOf[GeocodingItemLifecycle])
     bind(classOf[GeocodingService]).toProvider(classOf[AwsGeocodingServiceProvider])
+    bind(classOf[ConnectionPoolShutdown]).asEagerSingleton()
     bindActor[EventForwarder]("event-forwarder")
     bindActor[ApplicationEventServiceMediator]("event-store-mediator")
   }
