@@ -8,7 +8,7 @@ legend {
 
   .testing-banner-content {
     @include make-container();
-    @include make-container-max-widths();
+    @include container-max-widths();
   }
 }
 
@@ -525,7 +525,7 @@ body.spa-app {
 
 .app-content-inner {
   @include make-container();
-  @include make-container-max-widths();
+  @include container-max-widths();
   @extend %expanding-column;
   margin-top: $margin-md;
 }

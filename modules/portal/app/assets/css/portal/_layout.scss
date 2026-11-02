@@ -12,7 +12,7 @@ body {
 
 .main-content {
   @include make-container();
-  @include make-container-max-widths();
+  @include container-max-widths();
 }
 
 // Main page right sidebar layouts
@@ -84,7 +84,7 @@ body {
   > ol {
     @extend .breadcrumb;
     @include make-container();
-    @include make-container-max-widths();
+    @include container-max-widths();
     > li {
       @extend .breadcrumb-item;
     }
@@ -94,7 +94,7 @@ body {
 // Homepage
 #welcome-container {
   @include make-container();
-  @include make-container-max-widths();
+  @include container-max-widths();
 }
 
 // Navbar
@@ -115,7 +115,7 @@ ul.dropdown-menu {
 
   #footer-content {
     @include make-container();
-    @include make-container-max-widths();
+    @include container-max-widths();
   }
 }
 

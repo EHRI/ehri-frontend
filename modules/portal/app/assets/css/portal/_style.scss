@@ -115,7 +115,7 @@ figure {
 #navbar-primary {
   @extend .navbar, .navbar-dark;
   @include make-container();
-  @include make-container-max-widths;
+  @include container-max-widths();
 }
 
 #navbar-top {
@@ -2233,7 +2233,7 @@ section:last-child {
 
 .flash .flash-content {
   @include make-container();
-  @include make-container-max-widths();
+  @include container-max-widths();
 }
 
 // External page styling
