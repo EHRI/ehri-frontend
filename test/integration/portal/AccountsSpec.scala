@@ -272,6 +272,7 @@ class AccountsSpec extends IntegrationTestRunner {
         .withSession("sid" -> singleUseKey).call()
       status(login) must equalTo(SEE_OTHER)
       flash(login).get("danger") must beSome(message("login.error.oauth2.badSessionId", "Google"))
+      session(login).get("sid") must beNone
     }
 
     "link a verified email to an existing account" in new ITestApp(verifiedGoogleLogin) {

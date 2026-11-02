@@ -370,7 +370,7 @@ case class Accounts @Inject()(
             }
           case _ =>
             authenticationFailed(request).map { res =>
-              res.removingFromSession(sessionId)
+              res.removingFromSession(sessionKey)
                 .flashing("danger" -> Messages("login.error.oauth2.badSessionId", provider.name.capitalize))
             }
         }
