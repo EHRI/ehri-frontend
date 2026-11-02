@@ -144,28 +144,6 @@ class SqlAccountManagerSpec extends IntegrationTestRunner {
   }
 
 
-  "openid assoc" should {
-    "find accounts by openid_url and allow adding another" in new DBTestApp("user-fixtures.sql") {
-      val assocOpt = await(accounts.openId.findByUrl(mockdata.yahooOpenId.url))
-      assocOpt must beSome.which { assoc =>
-        assoc.user must beSome.which { user =>
-          user.email must beEqualTo(mockdata.moderator.email)
-
-          val assoc2Opt = await(accounts.openId.addAssociation(user.id, "another-test-url"))
-          assoc2Opt must beSome.which { assoc2 =>
-            assoc2.user must beSome.which { u =>
-              u must equalTo(user)
-            }
-          }
-        }
-      }
-    }
-
-    "find all associations" in new DBTestApp("user-fixtures.sql") {
-      await(accounts.openId.findAll).size must equalTo(1)
-    }
-  }
-
   "oauth2 assoc" should {
     "find accounts by oauth2 provider info and allow adding another" in new DBTestApp("user-fixtures.sql") {
       val assocOpt = await(accounts.oAuth2.findByProviderInfo(mockdata.googleOAuthAssoc.providerId, mockdata.googleOAuthAssoc.provider))

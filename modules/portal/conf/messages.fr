@@ -160,8 +160,6 @@ login.alreadyLoggedIn=Vous êtes déjà connecté(e) en tant que {0}
 login.loginWith=Vous connecter avec {0}
 login.signupWith=Vous inscrire avec {0}
 login.signup.submit=S''inscrire
-login.openid.submit=Vous connecter avec OpenID
-login.openid=OpenID
 login.email=E-mail
 login.password=Mot de passe
 login.password.confirm=Confirmer le mot de passe
@@ -176,7 +174,6 @@ login.password.reset.text=Mot de passe oublié ? Saisissez l''adresse e-mail que
     et nous vous enverrons un lien pour le réinitialiser.
 login.password.reset.noPasswordMatching=Aucun compte ne correspond à {0}
 login.password.reset.submit=Envoyer le lien de réinitialisation
-login.openid.urlPlaceholder=Indiquez l''URL de votre OpenID
 login.disabled=La fonction de connexion est actuellement désactivée. Veuillez réessayer plus tard.
 login.oauth.info=Si vous avez déjà un compte sur l''un de ces sites, vous pouvez cliquer sur le logo pour vous connecter à EHRI :
 login.password.info=Si vous avez déjà créé un compte auprès d''EHRI, saisissez votre adresse e-mail et votre mot de passe ici :
@@ -283,10 +280,6 @@ error.emailNotFound=Cette adresse e-mail est introuvable dans notre système.
 error.badRecaptcha=Le code de vérification Recaptcha (destiné à s''assurer que vous êtes une personne et non une machine automatisée) ne \
     correspond pas. Astuce : vous pouvez changer le code de vérification jusqu''à ce que vous obteniez quelque chose de plus lisible.
 error.rateLimit=Nombre maximum de tentatives dépassé. Veuillez patienter {0} minutes avant d''essayer à nouveau.
-error.openId=Il y a eu un problème pour vous connecter avec OpenID.\
-    Cela peut s''expliquer par le fait que votre fournisseur ne prend pas en charge les échanges d''attribut.
-error.openId.url=Il n''y a pas eu de réponse du fournisseur OpenID indiqué : {0}.\
-    Veuillez-vous assurer que l''adresse URL du fournisseur est correcte.
 error.userEmailAlreadyRegistered=Un utilisateur ayant cette adresse e-mail est déjà inscrit : {0}
 search.submit=Chercher
 search.clear=Effacer la recherche

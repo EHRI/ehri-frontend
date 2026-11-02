@@ -26,8 +26,6 @@ case class SqlAccountManager @Inject()(db: Database, actorSystem: ActorSystem) e
 
   override def oAuth2: OAuth2AssociationManager = SqlOAuth2AssociationManager(db)
 
-  override def openId: OpenIdAssociationManager = SqlOpenIdAssociationManager(db)
-
 
   override def setLoggedIn(account: Account): Future[Account] = Future {
     db.withTransaction { implicit conn =>

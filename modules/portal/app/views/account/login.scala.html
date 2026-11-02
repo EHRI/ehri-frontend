@@ -1,20 +1,8 @@
-@(pwForm: Form[(String,String)], recaptchaKey: String, openIdForm: Form[String], oauthConfig: auth.oauth2.OAuth2Config)(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, flash: Flash, messages: Messages,prefs: SessionPrefs)
+@(pwForm: Form[(String,String)], recaptchaKey: String, oauthConfig: auth.oauth2.OAuth2Config)(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, flash: Flash, messages: Messages,prefs: SessionPrefs)
 
 @implicitField = @{ views.html.helper.FieldConstructor(views.html.helpers.fieldTemplateSignUp.f) }
 
-@extraScripts = {
-    <script>
-        jQuery(function($) {
-            // Openid
-            $(".show-more").on("click", function(e) {
-                e.preventDefault();
-                $(".more-login-options").slideToggle();
-            })
-        });
-    </script>
-}
-
-@views.html.layout.loginLayout(Messages("login.title"), cls = "login", scripts = extraScripts) {
+@views.html.layout.loginLayout(Messages("login.title"), cls = "login") {
     @views.html.common.itemHeader(Messages("login"))
     <p>@Html(Messages("login.signup.prompt",
         Html(s"<a href='${controllers.portal.account.routes.Accounts.signup()}'>${Messages("login.signup.prompt.text")}</a>")))</p>
@@ -25,7 +13,6 @@
         <h4 class="or-oauth"><span>Or</span></h4>
 
         @views.html.account.oauth2Form(
-            openIdForm,
             oauthConfig,
             isLogin = true,
             oauth2Call = name => controllers.portal.account.routes.Accounts.oauth2Login(name)

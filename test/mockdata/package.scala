@@ -1,4 +1,4 @@
-import models.{Account, Group, GroupF, OAuth2Association, OpenIDAssociation, UserProfile, UserProfileF}
+import models.{Account, Group, GroupF, OAuth2Association, UserProfile, UserProfileF}
 import play.twirl.api.Html
 
 package object mockdata {
@@ -11,7 +11,6 @@ package object mockdata {
 
   val googleOAuthAssoc = OAuth2Association("mike", "123456789", "google", Some(privilegedUser))
   val facebookOAuthAssoc = OAuth2Association("reto", "123456789", "facebook", Some(unprivilegedUser))
-  val yahooOpenId = OpenIDAssociation("linda", "https://yahoo.com/openid", Some(moderator))
 
   val externalPages = Map(
     "faq" -> ("Faq", Html(""), Html("<h1>FAQ</h1>"))
@@ -27,7 +26,6 @@ package object mockdata {
   )
 
   val oAuth2Associations = List(googleOAuthAssoc, facebookOAuthAssoc)
-  val openIDAssociations = List(yahooOpenId)
 
   // Mock user who belongs to admin
   val adminUserProfile = UserProfile(
@@ -43,7 +41,4 @@ package object mockdata {
 
   val oauth2AssociationFixtures: collection.mutable.ListBuffer[OAuth2Association] =
     collection.mutable.ListBuffer.empty[OAuth2Association]
-
-  val openIdAssociationFixtures: collection.mutable.ListBuffer[OpenIDAssociation] =
-    collection.mutable.ListBuffer.empty[OpenIDAssociation]
 }

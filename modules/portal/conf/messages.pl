@@ -160,8 +160,6 @@ login.alreadyLoggedIn=Jesteś już zalogowany jako {0}
 login.loginWith=Zaloguj się, korzystając z {0}
 login.signupWith=Zarejestruj się, korzystając z {0}
 login.signup.submit=Rejestracja
-login.openid.submit=Zaloguj się, korzystając z OpenID
-login.openid=OpenID
 login.email=E-mail
 login.password=Hasło
 login.password.confirm=Potwierdź hasło
@@ -176,7 +174,6 @@ login.password.reset.text=Nie pamiętasz hasła? Wpisz poniżej adres e-mail uż
     a my wyślemy Ci link, który pozwoli Ci zresetować hasło.
 login.password.reset.noPasswordMatching=Nie znaleziono konta pasującego do danych {0}
 login.password.reset.submit=Wyślij link do resetowania hasła
-login.openid.urlPlaceholder=Wpisz swój adres URL OpenID
 login.disabled=Logowanie jest obecnie wyłączone. Spróbuj ponownie później.
 login.oauth.info=Jeśli masz już konto w jednej z tych witryn, możesz kliknąć logo, aby zalogować się do EHRI:
 login.password.info=Jeśli wcześniej utworzyłeś konto w EHRI, wpisz tutaj swój adres e-mail i hasło:
@@ -283,10 +280,6 @@ error.emailNotFound=Adres e-mail nie został odnaleziony w naszym systemie.
 error.badRecaptcha=Weryfikacja reCAPTCHA (przeznaczona do sprawdzenia, czy użytkownik jest człowiekiem, a nie automatem rozsyłającym spam) nie \
       zwróciła właściwej odpowiedzi. Wskazówka: można odświeżać tekst kodu, aż pojawi się bardziej czytelny fragment.
 error.rateLimit=Maksymalna liczba prób została przekroczona. Przed ponowną próbą odczekaj {0} minut.
-error.openId=Wystąpił problem podczas logowania przy użyciu OpenID.\
-    Może to być spowodowane tym, że Twój dostawca nie obsługuje wymiany atrybutów.
-error.openId.url=Nie było odpowiedzi od podanego dostawcy OpenID: {0}.\
-    Sprawdź, czy adres URL dostawcy jest prawidłowy.
 error.userEmailAlreadyRegistered=Użytkownik o tym adresie e-mail jest już zarejestrowany: {0}
 search.submit=Szukaj
 search.clear=Wyczyść wyszukiwanie

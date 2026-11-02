@@ -289,8 +289,6 @@ login.alreadyLoggedIn=You are already signed in as {0}
 login.loginWith=Sign in with {0}
 login.signupWith=Register with {0}
 login.signup.submit=Register
-login.openid.submit=Sign In With OpenID
-login.openid=OpenID
 login.email=Email
 login.email.change=Change Email
 login.email.new=New email address
@@ -313,14 +311,12 @@ login.password.reset.text=Forgotten your password? Enter the email you used to s
   and we''ll send you a link you can use to reset it.
 login.password.reset.noPasswordMatching=No account matches {0}
 login.password.reset.submit=Send Reset Link
-login.openid.urlPlaceholder=Enter your OpenID URL
 login.disabled=Login is currently disabled. Please try again later.
 login.oauth.info=If you already have an account on one of these sites you can click the logo to log in to EHRI:
 login.oauth.google=Google
 login.oauth.facebook=Facebook
 login.oauth.yahoo=Yahoo
 login.oauth.microsoft=Microsoft
-login.oauth.openid=OpenID
 login.oauth.orcid=ORCID
 login.oauth.linkedin=LinkedIn
 login.password.info=If you''ve previously created an account with EHRI, enter your email and password here:
@@ -492,10 +488,6 @@ error.emailNotFound=That email was not found on our system.
 error.badRecaptcha=The Recaptcha check (intended to ensure you are a human and not an automated spamming machine) did not\
     get the right response. Tip: you can keep refreshing the challenge text until you get something more readable.
 error.rateLimit=Maximum number of attempts exceeded. Please wait {0} minutes before trying again.
-error.openId=There was a problem logging you in with OpenID.\
-  This may because your provider deoes not support attribute exchange.
-error.openId.url=There was no response from the given openid provider: {0}.\
-  Please ensure the provider URL is correct.
 error.userEmailAlreadyRegistered=A user with that email is already registered: {0}
 
 #

@@ -1040,14 +1040,6 @@ body.home {
   background-position: 0.5rem center;
 }
 
-.btn-signin-openid {
-  @include button-variant(#FFF, #DDD);
-  @extend %button-signin;
-  background-image: url(/v/img/openid-signin-icon.svg);
-  background-size: 1.7rem;
-  background-position: 1rem 0.5rem;
-}
-
 .btn-signin-orcid {
   @include button-variant(#FFF, #DDD);
   @extend %button-signin;
@@ -1074,14 +1066,6 @@ body.home {
   span {
     background:#fff;
     padding: 0 $margin-sm;
-  }
-}
-
-.more-login-options {
-  display: none;
-
-  &.errors {
-    display: block;
   }
 }
 

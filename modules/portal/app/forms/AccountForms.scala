@@ -16,10 +16,6 @@ case class AccountForms @Inject() (config: Configuration, conf: AppConfig, oAuth
   import HoneyPotForm._
   import TimeCheckForm._
 
-  val openidForm: Form[String] = Form(single(
-    "openid_identifier" -> nonEmptyText
-  ).verifying("errors.invalidUrl", forms.isValidUrl))
-
   val passwordLoginForm: Form[(String, String)] = Form(
     tuple(
       EMAIL -> email,
