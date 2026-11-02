@@ -149,10 +149,8 @@ trait AccountManager {
   def expireTokens(id: String): Future[Unit]
 
   /**
-    * Claim an unverified account for the owner of its email, who has proven
-    * they own it via an OAuth2 login. The account's password, tokens and other
-    * OAuth2 logins are removed, since whoever created it with that email may
-    * not own it, and it is verified and associated with the new OAuth2 login.
+    * Verify an account, removing its password, tokens and OAuth2 logins,
+    * and add the given OAuth2 login.
     *
     * @param id         the account ID
     * @param providerId the user's ID with the OAuth2 provider
@@ -162,13 +160,23 @@ trait AccountManager {
   def claimWithOAuth2(id: String, providerId: String, provider: String): Future[Account]
 
   /**
-    * Claim an unverified account for the owner of its email, who has proven
-    * they own it by resetting its password. As with `claimWithOAuth2` its
-    * tokens and OAuth2 logins are removed, and it is verified.
+    * Set an account's password and expire its tokens. If the account
+    * is unverified it is verified and its OAuth2 logins removed, as
+    * with `claimWithOAuth2`.
     *
     * @param id       the account ID
     * @param password the new password
     * @return the updated account
     */
-  def claimWithPassword(id: String, password: HashedPassword): Future[Account]
+  def resetPassword(id: String, password: HashedPassword): Future[Account]
+
+  /**
+    * Change an account's email, marking it unverified and
+    * expiring its tokens.
+    *
+    * @param id    the account ID
+    * @param email the new email
+    * @return the updated account
+    */
+  def changeEmail(id: String, email: String): Future[Account]
 }

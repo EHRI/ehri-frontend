@@ -98,20 +98,26 @@ case class MockAccountManager @Inject()(executionContext: ExecutionContext) exte
     true
   }
 
-  override def expireTokens(id: String): Future[Unit] = immediate {
-    val indicesToDelete = for {
-      (t, i) <- mockdata.tokenFixtures.zipWithIndex if t._2 == id
-    } yield i
-    for (i <- (mockdata.tokenFixtures.size -1) to 0 by -1) if (indicesToDelete contains i) mockdata.tokenFixtures remove i
-  }
+  override def expireTokens(id: String): Future[Unit] =
+    immediate(mockdata.tokenFixtures.filterInPlace(_._2 != id))
 
   override def claimWithOAuth2(id: String, providerId: String, provider: String): Future[Account] = {
     val updated = claim(id, password = None)
     oAuth2.addAssociation(id, providerId, provider).map(_ => updated)(executionContext)
   }
 
-  override def claimWithPassword(id: String, password: HashedPassword): Future[Account] =
-    immediate(claim(id, Some(password)))
+  override def resetPassword(id: String, password: HashedPassword): Future[Account] = immediate {
+    val account = mockdata.accountFixtures(id)
+    if (!account.verified) claim(id, Some(password)) else {
+      mockdata.tokenFixtures.filterInPlace(_._2 != id)
+      updateWith(account.copy(password = Some(password), isLegacy = false))
+    }
+  }
+
+  override def changeEmail(id: String, email: String): Future[Account] = immediate {
+    mockdata.tokenFixtures.filterInPlace(_._2 != id)
+    updateWith(mockdata.accountFixtures(id).copy(email = email, verified = false))
+  }
 
   private def claim(id: String, password: Option[HashedPassword]): Account = {
     mockdata.oauth2AssociationFixtures.filterInPlace(_.id != id)

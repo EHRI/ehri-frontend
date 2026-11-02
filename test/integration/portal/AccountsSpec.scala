@@ -25,6 +25,14 @@ class AccountsSpec extends IntegrationTestRunner {
 
   private implicit def cache(implicit app: Application): SyncCacheApi = app.injector.instanceOf[SyncCacheApi]
 
+  private def changeEmail(email: String)(implicit app: Application) = {
+    await(mockAccounts.update(privilegedUser.copy(password = Some(HashedPassword.fromPlain("letmein")))))
+    FakeRequest(accountRoutes.changeEmailPost())
+      .withUser(privilegedUser)
+      .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
+      .callWith(Map(SignupData.EMAIL -> Seq(email), SignupData.PASSWORD -> Seq("letmein")))
+  }
+
   "Account views" should {
     "redirect to index page on log out" in new ITestApp {
       val logout = FakeRequest(accountRoutes.logout()).withUser(privilegedUser).call()
@@ -90,7 +98,6 @@ class AccountsSpec extends IntegrationTestRunner {
     }
 
     "claim an unverified account when resetting its password" in new ITestApp {
-      // An unverified account with an OAuth2 login added by whoever created it
       mockdata.oauth2AssociationFixtures += models.OAuth2Association(unverifiedUser.id, "55555", "microsoft", None)
       val uuid = UUID.randomUUID()
       await(mockAccounts.createToken(unverifiedUser.id, uuid, isSignUp = false))
@@ -133,38 +140,31 @@ class AccountsSpec extends IntegrationTestRunner {
     }
 
     "allow users to change their email address" in new ITestApp {
-      await(mockAccounts.update(privilegedUser
-        .copy(password = Some(HashedPassword.fromPlain("letmein")))))
-      val data: Map[String, Seq[String]] = Map(
-        SignupData.EMAIL -> Seq("new@example.com"),
-        SignupData.PASSWORD -> Seq("letmein"))
-      val r = FakeRequest(accountRoutes.changeEmailPost())
-        .withUser(privilegedUser)
-        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
-        .callWith(data)
+      val signupToken = UUID.randomUUID().toString
+      val resetToken = UUID.randomUUID().toString
+      await(mockAccounts.createToken(privilegedUser.id, UUID.fromString(signupToken), isSignUp = true))
+      await(mockAccounts.createToken(privilegedUser.id, UUID.fromString(resetToken), isSignUp = false))
+      val r = changeEmail("new@example.com")
       status(r) must equalTo(SEE_OTHER)
       redirectLocation(r) must beSome(
         controllers.portal.users.routes.UserProfiles.updateProfile().url)
 
-      await(mockAccounts.get(privilegedUser.id)) must beLike { case account =>
-        account.email must_== "new@example.com"
-        // The new address must be verified
-        account.verified must beFalse
-      }
+      val account = await(mockAccounts.get(privilegedUser.id))
+      account.email must_== "new@example.com"
+      account.verified must beFalse
       mailBuffer.last.to must contain("new@example.com")
+      await(mockAccounts.findByToken(signupToken, isSignUp = true)) must beNone
+      await(mockAccounts.findByToken(resetToken)) must beNone
+    }
+
+    "change email address even if the validation email can't be sent" in new ITestApp {
+      val newEmail = "new@" + utils.MockBufferedMailer.failureDomain
+      status(changeEmail(newEmail)) must equalTo(SEE_OTHER)
+      await(mockAccounts.get(privilegedUser.id)).email must_== newEmail
     }
 
     "disallow changing email address to one that already exists" in new ITestApp {
-      await(mockAccounts.update(privilegedUser
-        .copy(password = Some(HashedPassword.fromPlain("letmein")))))
-      val data: Map[String, Seq[String]] = Map(
-        SignupData.EMAIL -> Seq("example2@example.com"),
-        SignupData.PASSWORD -> Seq("letmein"))
-      val r = FakeRequest(accountRoutes.changeEmailPost())
-        .withUser(privilegedUser)
-        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
-        .callWith(data)
-      status(r) must equalTo(BAD_REQUEST)
+      status(changeEmail("example2@example.com")) must equalTo(BAD_REQUEST)
    }
 
     "allow users to change their passwords" in new ITestApp {
@@ -239,7 +239,9 @@ class AccountsSpec extends IntegrationTestRunner {
       .withSession("sid" -> singleUseKey).call()
   }
 
-  // A Google login with the (verified) email of an existing account
+  private def microsoftLogin(id: String, email: String) = Map(
+    "test.oauth2.microsoft.userData" -> Json.stringify(Json.obj("sub" -> id, "email" -> email, "name" -> "New User")))
+
   private val verifiedGoogleLogin = Map(
     "test.oauth2.google.userData" -> Json.stringify(Json.obj("id" -> "987654321",
       "email" -> mockdata.privilegedUser.email, "verified_email" -> true, "name" -> "Any Name")))
@@ -284,7 +286,6 @@ class AccountsSpec extends IntegrationTestRunner {
     }
 
     "remove other logins when linking a verified email to an unverified account" in new ITestApp(verifiedGoogleLogin) {
-      // An account created by someone else with the same email, which was never verified
       mockdata.accountFixtures += privilegedUser.id -> privilegedUser.copy(verified = false,
         password = Some(HashedPassword.fromPlain("other-persons-password")))
       mockdata.oauth2AssociationFixtures += models.OAuth2Association(privilegedUser.id, "55555", "microsoft", None)
@@ -308,9 +309,8 @@ class AccountsSpec extends IntegrationTestRunner {
         a.provider == "microsoft" && a.providerId == "123456789") must beFalse
     }
 
-    "create an unverified account for an unverified new email" in new ITestApp(Map(
-        "test.oauth2.microsoft.userData" -> Json.stringify(Json.obj("sub" -> "55555",
-          "email" -> "new-microsoft-user@example.com", "name" -> "New User")))) {
+    "create an unverified account for an unverified new email" in new ITestApp(
+        microsoftLogin("55555", "new-microsoft-user@example.com")) {
       val numSentMails = mailBuffer.size
       val login = oauth2Login("microsoft")
       status(login) must equalTo(SEE_OTHER)
@@ -320,6 +320,15 @@ class AccountsSpec extends IntegrationTestRunner {
       }
       mailBuffer.size must equalTo(numSentMails + 1)
       mailBuffer.last.to must contain("new-microsoft-user@example.com")
+    }
+
+    "log in a new unverified account even if the validation email can't be sent" in new ITestApp(
+        microsoftLogin("66666", "new-user@" + utils.MockBufferedMailer.failureDomain)) {
+      val login = oauth2Login("microsoft")
+      status(login) must equalTo(SEE_OTHER)
+      flash(login).get("danger") must beNone
+      mockdata.oauth2AssociationFixtures.exists(a =>
+        a.provider == "microsoft" && a.providerId == "66666") must beTrue
     }
 
     "error with bad provider" in new ITestApp {

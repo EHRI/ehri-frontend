@@ -165,12 +165,30 @@ class SqlAccountManagerSpec extends IntegrationTestRunner {
       await(accounts.oAuth2.findAll).size must equalTo(2)
     }
 
-    "claim an account with a new password, removing its OAuth2 logins" in new DBTestApp("user-fixtures.sql") {
+    "reset the password of a verified account, keeping its OAuth2 logins" in new DBTestApp("user-fixtures.sql") {
       val id = mockdata.privilegedUser.id
-      val account = await(accounts.claimWithPassword(id, HashedPassword.fromPlain("n3wpassw0rd")))
+      val account = await(accounts.resetPassword(id, HashedPassword.fromPlain("n3wpassw0rd")))
+      account.password.exists(_.check("n3wpassw0rd")) must beTrue
+      await(accounts.oAuth2.findForAccount(id)) must not(beEmpty)
+    }
+
+    "claim an unverified account when resetting its password" in new DBTestApp("user-fixtures.sql") {
+      val id = mockdata.unverifiedUser.id
+      await(accounts.oAuth2.addAssociation(id, "4321", "microsoft"))
+      val account = await(accounts.resetPassword(id, HashedPassword.fromPlain("n3wpassw0rd")))
       account.verified must beTrue
       account.password.exists(_.check("n3wpassw0rd")) must beTrue
       await(accounts.oAuth2.findForAccount(id)) must beEmpty
+    }
+
+    "change an account's email, unverifying it and expiring its tokens" in new DBTestApp("user-fixtures.sql") {
+      val id = mockdata.privilegedUser.id
+      val token = UUID.randomUUID()
+      await(accounts.createToken(id, token, isSignUp = true))
+      val account = await(accounts.changeEmail(id, "new@example.com"))
+      account.email must equalTo("new@example.com")
+      account.verified must beFalse
+      await(accounts.findByToken(token.toString, isSignUp = true)) must beNone
     }
 
     "claim an account, removing its other logins" in new DBTestApp("user-fixtures.sql") {

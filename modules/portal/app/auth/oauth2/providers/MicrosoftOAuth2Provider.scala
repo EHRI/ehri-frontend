@@ -30,9 +30,7 @@ case class MicrosoftOAuth2Provider(config: play.api.Configuration) extends OAuth
         email = email,
         name = name,
         imageUrl = None,
-        // The email of a work or school account is set by the account's
-        // organisation, which does not have to own the domain, so it is
-        // not proof the user owns the address.
+        // Work/school account emails are set by the organisation, so unverified
         emailVerified = false
       )
     } catch {

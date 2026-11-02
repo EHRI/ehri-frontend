@@ -27,6 +27,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.duration.{Duration, FiniteDuration}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 
 @Singleton
@@ -538,10 +539,8 @@ case class Accounts @Inject()(
                 immediate(Redirect(controllers.portal.users.routes.UserProfiles.updateProfile()))
 
               case _ =>
-                // The new address has to be verified before the account can be trusted
-                // to belong to its owner, e.g. when matching OAuth2 logins by email.
                 for {
-                  updated <- accounts.update(acc.copy(email = newEmail, verified = false))
+                  updated <- accounts.changeEmail(acc.id, newEmail)
                   _ <- sendValidationEmail(updated)
                 } yield {
                   logger.info(s"Email change: ${acc.id}")
@@ -587,18 +586,9 @@ case class Accounts @Inject()(
       { case (pw, _) =>
         accounts.findByToken(token).flatMap {
           case Some(account) =>
-            val password = HashedPassword.fromPlain(pw)
-            val updatedF = if (account.verified) for {
-              _ <- accounts.expireTokens(account.id)
-              updated <- accounts.update(account.copy(password = Some(password), isLegacy = false))
-            } yield updated else {
-              // Resetting the password proves they own the email, so remove logins
-              // added by whoever created the account, who may not own it.
-              logger.warn(s"Claiming unverified account via password reset: ${account.id}")
-              accounts.claimWithPassword(account.id, password)
-            }
+            if (!account.verified) logger.warn(s"Claiming unverified account via password reset: ${account.id}")
             for {
-              updated <- updatedF
+              updated <- accounts.resetPassword(account.id, HashedPassword.fromPlain(pw))
               request <- doLogin(updated)
                 .map(_.flashing("success" -> "login.password.reset.confirmation"))
             } yield request
@@ -646,20 +636,14 @@ case class Accounts @Inject()(
     } yield account
   }
 
-  /**
-    * Find the account for an OAuth2 login, or create one, returning the account
-    * and whether it is new. Logins are matched to existing accounts via their
-    * association with the provider, or otherwise by email, but only when the
-    * provider has verified the email, since otherwise anyone could take over
-    * an account by using a provider account with the same email.
-    */
+  // Only match existing accounts by email if the provider verified it
   private def getOrCreateAccount(provider: OAuth2Provider, userData: UserData)(implicit request: RequestHeader): Future[(Account, Boolean)] = {
     accounts.oAuth2.findByProviderInfo(userData.providerId, provider.name).flatMap { assocOpt =>
       assocOpt.flatMap(_.user).map { account =>
         logger.info(s"Found existing association for ${userData.name} -> ${provider.name}")
         for {
-          updated <- if (account.verified || !userData.emailVerified || !account.email.equalsIgnoreCase(userData.email)) immediate(account)
-            else accounts.update(account.copy(verified = true))
+          updated <- if (!account.verified && userData.emailVerified && account.email.equalsIgnoreCase(userData.email))
+            accounts.update(account.copy(verified = true)) else immediate(account)
           _ <- updateUserInfo(updated, userData)
         } yield updated -> false
       } getOrElse {
@@ -669,7 +653,6 @@ case class Accounts @Inject()(
             val linked = if (account.verified) {
               accounts.oAuth2.addAssociation(account.id, userData.providerId, provider.name).map(_ => account)
             } else {
-              // Whoever created this account may not own the email, so remove their logins
               logger.warn(s"Claiming unverified account via ${provider.name}: ${account.id}")
               accounts.claimWithOAuth2(account.id, userData.providerId, provider.name)
             }
@@ -725,15 +708,18 @@ case class Accounts @Inject()(
     mailer.send(email)
   }
 
+  // NB: send failures are logged, not propagated
   private def sendValidationEmail(account: Account)(implicit request: RequestHeader): Future[Unit] = {
     val uuid = UUID.randomUUID()
     accounts.createToken(account.id, uuid, isSignUp = true).map { _ =>
-      mailer.send(Email(
+      try mailer.send(Email(
         subject = Messages("mail.confirmEmailHeading"),
         from = s"EHRI Email Validation <${config.get[String]("ehri.portal.emails.help")}>",
         to = Seq(account.email),
         bodyText = Some(views.txt.account.mail.confirmEmail(uuid).body)
-      ))
+      )) catch {
+        case NonFatal(e) => logger.error(s"Unable to send validation email for account: ${account.id}", e)
+      }
       ()
     }
   }

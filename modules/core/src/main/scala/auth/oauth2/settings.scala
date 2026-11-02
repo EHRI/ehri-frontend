@@ -36,11 +36,7 @@ object OAuth2Constants {
 class OAuth2Error(msg: String) extends AuthenticationError(msg)
 
 /**
-  * User data from an OAuth2 provider.
-  *
-  * @param emailVerified whether the provider asserts that the user owns
-  *                      the email address. Only verified emails can be
-  *                      used to match existing accounts.
+  * @param emailVerified whether the provider asserts the user owns the email
   */
 case class UserData(
   providerId: String,

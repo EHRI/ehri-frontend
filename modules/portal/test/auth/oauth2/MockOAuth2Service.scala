@@ -9,11 +9,7 @@ import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import scala.io.Source
 
-/**
-  * Mock OAuth2 flow which returns data from test resources. A provider's
-  * user data can be given instead with the `test.oauth2.{provider}.userData`
-  * config value.
-  */
+/** User data can be overridden via `test.oauth2.{provider}.userData`. */
 case class MockOAuth2Service @Inject()(config: Configuration) extends OAuth2Service {
 
   private def resourceAsString(name: String): String = Source.fromInputStream(getClass
