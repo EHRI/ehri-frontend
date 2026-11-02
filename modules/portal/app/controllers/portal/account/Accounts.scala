@@ -236,7 +236,7 @@ case class Accounts @Inject()(
         .removingFromSession(ACCESS_URI)
         .flashing("warning" -> Messages("login.alreadyLoggedIn", user.email))
       case None =>
-        Ok(views.html.account.login(passwordLoginForm, recaptchaKey, oauth2Providers))
+        Ok(views.html.account.login(passwordLoginForm, oauth2Providers))
     }
   }
 
@@ -245,7 +245,6 @@ case class Accounts @Inject()(
       status(
         views.html.account.login(
           f,
-          recaptchaKey,
           oauth2Providers
         )
       )
