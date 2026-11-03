@@ -67,6 +67,13 @@ case class SqlOAuth2AssociationManager @Inject()(db: Database)(implicit executio
     }
   }
 
+  def removeAssociations(id: String): Future[Unit] = Future {
+    db.withConnection { implicit connection =>
+      SQL"DELETE FROM oauth2_association WHERE id = $id".executeUpdate()
+    }
+    ()
+  }
+
   private def getForAccount(id: String)(implicit conn: Connection): Seq[OAuth2Association] = {
     SQL"""
       SELECT

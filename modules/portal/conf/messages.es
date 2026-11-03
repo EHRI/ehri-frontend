@@ -308,6 +308,7 @@ login.error.oauth2.info=Le pedimos disculpas pero ha habido un error al intentar
 login.error.oauth2.orcid.missingEmail=No hemos sido capaces de obtener su dirección de correo electrónico desde ORCID. Por favor, asegúrese que su dirección de correo electrónico está establecida como pública o limitada en su perfi ORCID.
 login.error.oauth2.orcid.missingGuid=No hemos sido capaces de obtener identificador ORCID. Por favor, asegúrese que su perfil ORCID está establecido como público o limitado.
 login.error.oauth2.unverifiedEmail=Ya existe una cuenta con esta dirección de correo electrónico, pero no hemos podido confirmar que le pertenece mediante este método de inicio de sesión. Por favor, inicie sesión con su correo electrónico y contraseña, o restablezca su contraseña si no tiene una.
+login.oauth2.passwordRemoved=Su cuenta está ahora vinculada a {0}. Como la dirección de correo electrónico de la cuenta no había sido confirmada, su contraseña ha sido eliminada por seguridad. Use "Olvidé mi contraseña" si desea iniciar sesión con una contraseña.
 login.error.oauth2.badSessionId=Esta vez no ha sido posible iniciar la sesión usando {0}. Por favor inténtelo de nuevo y si el error persiste, intente usar una ventana diferente en su navegador.
 login.error.badEmail=La dirección de correo electrónico no se puede cambiar porque es inválida o ya está en uso.
 

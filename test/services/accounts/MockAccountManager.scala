@@ -40,6 +40,9 @@ case class MockAccountManager @Inject()(executionContext: ExecutionContext) exte
 
     def findForAccount(id: String): Future[Seq[OAuth2Association]] =
       immediate(mockdata.oauth2AssociationFixtures.filter(_.id == id).toSeq)
+
+    def removeAssociations(id: String): Future[Unit] =
+      immediate(mockdata.oauth2AssociationFixtures.filterInPlace(_.id != id))
   }
 
   override def get(id: String): Future[Account] =

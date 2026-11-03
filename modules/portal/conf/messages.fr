@@ -188,6 +188,8 @@ login.error.oauth2.info=Nous vous prions de nous excuser, mais il y a eu un prob
     méthode d''inscription.
 login.error.oauth2.unverifiedEmail=Un compte existe déjà avec cette adresse e-mail, mais nous n''avons pas pu confirmer qu''il vous appartient via ce mode de connexion. \
     Veuillez vous connecter avec votre adresse e-mail et votre mot de passe, ou réinitialiser votre mot de passe si vous n''en avez pas.
+login.oauth2.passwordRemoved=Votre compte est désormais lié à {0}. L''adresse e-mail du compte n''ayant pas été confirmée, son mot de passe a été supprimé par sécurité. \
+    Utilisez « Mot de passe oublié » si vous souhaitez vous connecter avec un mot de passe.
 login.password.current=Mot de passe actuel
 login.password.new=Nouveau mot de passe
 login.password.new.confirm=Confirmez le nouveau mot de passe
