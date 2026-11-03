@@ -25,6 +25,14 @@ class ApiV1QuickSpec extends PlaySpecification with TestConfiguration {
         JsString(app.configuration.get[String]("ehri.api.v1.version")))
     }
 
+    "allow cross-origin requests, but without credentials" in new ITestApp {
+      val idx = FakeRequest(apiHomeRoutes.index())
+        .withHeaders(ACCEPT -> ContentTypes.JSON, ORIGIN -> "https://other.example").call()
+      status(idx) must_== OK
+      header(ACCESS_CONTROL_ALLOW_ORIGIN, idx) must beSome
+      header(ACCESS_CONTROL_ALLOW_CREDENTIALS, idx) must beNone
+    }
+
     "report status" in new ITestApp {
       val idx = FakeRequest(apiHomeRoutes.index())
         .withHeaders(ACCEPT -> ContentTypes.JSON).call()
