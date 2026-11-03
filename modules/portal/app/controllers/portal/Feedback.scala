@@ -4,13 +4,15 @@ import controllers.AppComponents
 import controllers.portal.base.PortalController
 import forms.{HoneyPotForm, TimeCheckForm}
 import play.api.Application
-import play.api.libs.mailer.{Email, MailerClient}
+import play.api.libs.mailer.Email
 import play.api.mvc._
 import services.cypher.CypherService
 import services.feedback.FeedbackService
+import services.mail.MailerService
 import utils.PageParams
 
 import javax.inject._
+import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 
 
@@ -20,7 +22,7 @@ case class Feedback @Inject()(
   appComponents: AppComponents,
   app: Application,
   feedbackService: FeedbackService,
-  mailer: MailerClient,
+  mailerService: MailerService,
   cypher: CypherService
 ) extends PortalController {
 
@@ -51,7 +53,7 @@ case class Feedback @Inject()(
     } yield ct) orElse defaultOpt).getOrElse(Seq.empty)
   }
 
-  private def sendMessageEmail(feedback: models.Feedback)(implicit request: RequestHeader): Unit = {
+  private def sendMessageEmail(feedback: models.Feedback)(implicit request: RequestHeader): Future[Boolean] = {
     val text = feedback.text.map { msg =>
       s"""
         |From: ${feedback.name.getOrElse("Anonymous")} (${feedback.email.getOrElse("no email given")})
@@ -61,15 +63,14 @@ case class Feedback @Inject()(
     }.getOrElse("No message provided")
     val recipients = getCopyMail(feedback.`type`)
     logger.debug(s"Sending feedback email to ${recipients.size} recipient(s)")
-    val email = Email(
+    if (recipients.isEmpty) immediate(false) else mailerService.send(Email(
       subject = "EHRI Portal Feedback" + feedback.name.map(n => s" from $n").getOrElse(""),
       to = recipients,
       from = s"EHRI User <${config.get[String]("ehri.portal.emails.messages")}>",
       replyTo = feedback.email.toSeq,
       bodyText = Some(text),
       bodyHtml = Some(markdown.renderUntrustedMarkdown(text))
-    )
-    mailer.send(email)
+    ))
   }
 
   def feedback: Action[AnyContent] = OptionalUserAction { implicit request =>
@@ -96,8 +97,10 @@ case class Feedback @Inject()(
         }.getOrElse(feedback)
           .copy(context = Some(models.FeedbackContext.fromRequest),
             mode = Some(app.mode))
-        feedbackService.create(moreFeedback).map { id =>
-          sendMessageEmail(moreFeedback)
+        for {
+          id <- feedbackService.create(moreFeedback)
+          _ <- sendMessageEmail(moreFeedback)
+        } yield {
           if (isAjax) Ok(id)
           else Redirect(controllers.portal.routes.Portal.index())
             .flashing("success" -> "feedback.thanks.message")

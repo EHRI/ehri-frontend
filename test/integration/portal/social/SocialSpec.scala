@@ -46,6 +46,7 @@ class SocialSpec extends IntegrationTestRunner {
       status(postMsg) must equalTo(SEE_OTHER)
       mailBuffer.size must beEqualTo(numSentMails + 1)
       mailBuffer.last.bodyText.getOrElse("") must contain("World")
+      mailBuffer.last.to.map(new jakarta.mail.internet.InternetAddress(_, true).getAddress) must equalTo(Seq(unprivilegedUser.email))
     }
 
     "allow messaging users with copy to self" in new ITestApp {

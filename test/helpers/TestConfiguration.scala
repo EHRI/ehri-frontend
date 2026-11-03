@@ -17,6 +17,7 @@ import play.api.i18n.{Lang, MessagesApi}
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceApplicationLoader, GuiceableModule}
 import play.api.libs.json.{Json, Writes}
 import play.api.libs.mailer.{Email, MailerClient}
+import services.mail.MailerService
 import play.api.libs.ws.WSClient
 import play.api.mvc.request.{Cell, RequestAttrKey}
 import play.api.mvc.{AnyContentAsFormUrlEncoded, Request, Session}
@@ -35,7 +36,7 @@ import services.ingest.{EadValidator, MockEadValidatorService}
 import services.oauth2.OAuth2Service
 import services.redirects.{MockMovedPageLookup, MovedPageLookup}
 import services.search._
-import utils.MockBufferedMailer
+import utils.{MockBufferedMailer, MockMailerService}
 
 import java.nio.file.Paths
 import scala.collection.mutable
@@ -109,6 +110,7 @@ trait TestConfiguration {
       // login evicts the last.
       bind[AuthIdContainer].to[CookieIdContainer],
       bind[MailerClient].toInstance(mockMailer),
+      bind[MailerService].toInstance(MockMailerService(mailBuffer)),
       bind[OAuth2Service].to[MockOAuth2Service],
       bind[MovedPageLookup].toInstance(mockRelocator),
       bind[AccountManager].toInstance(mockAccounts),

@@ -45,6 +45,14 @@ class SignupSpec extends IntegrationTestRunner {
       }
     }
 
+    "sign up even if the validation email can't be sent" in new ITestApp {
+      val failEmail = "test@" + utils.MockBufferedMailer.failureDomain
+      val signup = FakeRequest(accountRoutes.signupPost()).withCsrf
+        .callWith(data.updated(SignupData.EMAIL, Seq(failEmail)))
+      status(signup) must_== SEE_OTHER
+      mockdata.accountFixtures.values.exists(_.email == failEmail) must beTrue
+    }
+
     "prevent signup with too short a password" in new ITestApp {
       val length = app.configuration.get[Int]("ehri.passwords.minLength")
       val badData = data
