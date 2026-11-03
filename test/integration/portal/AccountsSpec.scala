@@ -89,6 +89,20 @@ class AccountsSpec extends IntegrationTestRunner {
       redirectLocation(resetPost) must not(beSome(accountRoutes.login().url))
     }
 
+    "verify an account when resetting its password" in new ITestApp {
+      val uuid = UUID.randomUUID()
+      await(mockAccounts.createToken(unverifiedUser.id, uuid, isSignUp = false))
+      val rstData: Map[String, Seq[String]] = Map(
+        "password" -> Seq("hellokitty"),
+        "confirm" -> Seq("hellokitty"),
+        CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
+      )
+      val resetPost = FakeRequest(accountRoutes.resetPasswordPost(uuid.toString))
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString).callWith(rstData)
+      status(resetPost) must equalTo(SEE_OTHER)
+      await(mockAccounts.findById(unverifiedUser.id)) must beSome.which(_.verified must beTrue)
+    }
+
     "allow user to login with password" in new ITestApp(
       specificConfig = Map(
         "recaptcha.skip" -> true,
@@ -115,8 +129,10 @@ class AccountsSpec extends IntegrationTestRunner {
     "allow users to change their email address" in new ITestApp {
       await(mockAccounts.update(privilegedUser
         .copy(password = Some(HashedPassword.fromPlain("letmein")))))
+      val token = UUID.randomUUID()
+      await(mockAccounts.createToken(privilegedUser.id, token, isSignUp = false))
       val data: Map[String, Seq[String]] = Map(
-        SignupData.EMAIL -> Seq("new@example.com"),
+        SignupData.EMAIL -> Seq("New@Example.com"),
         SignupData.PASSWORD -> Seq("letmein"))
       val r = FakeRequest(accountRoutes.changeEmailPost())
         .withUser(privilegedUser)
@@ -127,6 +143,8 @@ class AccountsSpec extends IntegrationTestRunner {
         controllers.portal.users.routes.UserProfiles.updateProfile().url)
 
       await(mockAccounts.get(privilegedUser.id)).email must_== "new@example.com"
+      // Tokens sent to the old address are expired
+      await(mockAccounts.findByToken(token.toString)) must beNone
     }
 
     "disallow changing email address to one that already exists" in new ITestApp {

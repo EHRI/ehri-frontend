@@ -454,18 +454,9 @@ case class Accounts @Inject()(
           accounts.findByEmail(email).flatMap {
             case Some(account) =>
               val uuid = UUID.randomUUID()
-              (for {
-                p <- userDataApi.get[UserProfile](account.id)
-                _ <- accounts.createToken(account.id, uuid, isSignUp = false)
-                _ = sendResetEmail(p.data.name, account.email, uuid)
-              } yield resp).recover {
-                // If the account exists but the profile doesn't, we have to handle it
-                // relatively gracefully via an error message. This should only happen
-                // if something has gone wrong in the backend.
-                case e: ItemNotFound =>
-                  logger.error(s"Error sending password reset email for user ${account.id} [missing profile]: $e")
-                  Redirect(accountRoutes.forgotPassword())
-                  .flashing("danger" -> "login.error.passwordResetNoAccount")
+              accounts.createToken(account.id, uuid, isSignUp = false).map { _ =>
+                sendResetEmail(account.email, uuid)
+                resp
               }
             // Note: to avoid leaking email data we send the same response whether or not the email
             // exists on the system.
@@ -539,11 +530,15 @@ case class Accounts @Inject()(
                   accountRoutes.changeEmailPost())))
 
               case _ =>
-                accounts.update(acc.copy(email = newEmail)).map { _ =>
+                // Expire tokens sent to the old address
+                for {
+                  _ <- accounts.expireTokens(acc.id)
+                  _ <- accounts.update(acc.copy(email = newEmail.toLowerCase))
+                } yield {
                   logger.info(s"Email change: ${acc.id}")
                   Redirect(controllers.portal.users.routes.UserProfiles.updateProfile())
                     .flashing("success" -> "login.email.change.confirmation")
-            }
+                }
           }
           case None =>
             immediate(BadRequest(views.html.account.changeEmail(
@@ -587,11 +582,13 @@ case class Accounts @Inject()(
           case Some(account) =>
             for {
               _ <- accounts.expireTokens(account.id)
-              _ <- accounts.update(account.copy(
+              // Following the reset link proves they own the email
+              updated <- accounts.update(account.copy(
                 password = Some(HashedPassword.fromPlain(pw)),
-                isLegacy = false
+                isLegacy = false,
+                verified = true
               ))
-              request <- doLogin(account)
+              request <- doLogin(updated)
                 .map(_.flashing("success" -> "login.password.reset.confirmation"))
             } yield request
           case None => immediate(BadRequest(views.html.account.resetPassword(
@@ -700,7 +697,7 @@ case class Accounts @Inject()(
     }
   }
 
-  private def sendResetEmail(name: String, emailAddress: String, uuid: UUID)(implicit request: RequestHeader): String = {
+  private def sendResetEmail(emailAddress: String, uuid: UUID)(implicit request: RequestHeader): String = {
     val email = Email(
       subject = Messages("mail.forgotPasswordMailHeading"),
       to = Seq(emailAddress),
