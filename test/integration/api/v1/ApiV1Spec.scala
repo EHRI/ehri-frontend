@@ -118,7 +118,7 @@ class ApiV1Spec extends IntegrationTestRunner {
       val api = FakeRequest(apiRoutes.search())
         .withHeaders(HeaderNames.HOST -> testHost, HeaderNames.ORIGIN -> testOrigin)
         .call()
-      header(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN, api) must beSome(testOrigin)
+      header(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN, api) must beSome("*")
 
       val nonApi = FakeRequest(GET, "/")
         .withHeaders(HeaderNames.HOST -> testHost, HeaderNames.ORIGIN -> testOrigin)
