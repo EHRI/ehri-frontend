@@ -9,5 +9,6 @@ trait UserFixtures extends BeforeEach {
    */
   def before: Unit = {
     mockdata.accountFixtures = mockdata.users
+    mockdata.oauth2AssociationFixtures.clear()
   }
 }

@@ -26,7 +26,9 @@ case class FacebookOAuth2Provider (config: play.api.Configuration) extends OAuth
         providerId = guid,
         email = email,
         name = name,
-        imageUrl = imageUrl
+        imageUrl = imageUrl,
+        // Facebook only returns an email once the user has confirmed it
+        emailVerified = true
       )
     } catch {
       case e: JsonParseException => None

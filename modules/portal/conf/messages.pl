@@ -186,6 +186,8 @@ login.error.badResetToken=Adres URL podany do resetowania hasła jest nieprawid�
     Uwaga: linki do resetowania hasła mogą zostać użyte tylko jeden raz.
 login.error.oauth2.info=Przepraszamy, ale wystąpił problem podczas tworzenia konta za pośrednictwem {0}. Spróbuj innej \
     metody rejestracji.
+login.error.oauth2.unverifiedEmail=Konto z tym adresem e-mail już istnieje, ale nie mogliśmy potwierdzić za pomocą tej metody logowania, że należy ono do Ciebie. \
+    Zaloguj się, używając adresu e-mail i hasła, lub zresetuj hasło, jeśli go nie masz.
 login.password.current=Aktualne hasło
 login.password.new=Nowe hasło
 login.password.new.confirm=Potwierdź nowe hasło
@@ -205,10 +207,15 @@ signup.validation.confirmation=Twoje konto zostało zatwierdzone.
 mail.forgotPasswordMailHeading=Resetowanie hasła do portalu EHRI
 mail.forgotPasswordMessage=Aby zresetować hasło, skorzystaj z poniższego linku. Uwaga: z tego linku można skorzystać \
     w tym celu tylko jeden raz.
+mail.forgotPasswordIgnore=Jeśli nie prosiłeś o zresetowanie hasła, możesz zignorować tę wiadomość.
+mail.forgotPasswordFooter=Pozdrawiamy - zespół EHRI
 mail.confirmEmailHeading=Potwierdź swój adres e-mail
-mail.confirmEmailMessage=Potwierdź swój adres e-mail, przechodząc na następujący adres:
-mail.confirmEmailFooter=Ten link będzie ważny przez 1 tydzień, po upływie którego Twoje konto zostanie \
-    zdezaktywowane.
+mail.confirmEmailMessage=Z tym adresem e-mail utworzono konto EHRI. Aby potwierdzić adres i aktywować konto, przejdź pod adres:
+mail.confirmEmailIgnore=Jeśli nie utworzyłeś tego konta, zignoruj tę wiadomość: konto nie zostanie zweryfikowane \
+    i nikt nie będzie mógł go użyć, aby podszywać się pod Ciebie.
+mail.confirmEmailAddressMessage=Potwierdź ten adres e-mail dla swojego konta EHRI, przechodząc pod adres:
+mail.confirmEmailAddressIgnore=Jeśli nie prosiłeś o użycie tego adresu e-mail z kontem EHRI, zignoruj tę wiadomość.
+mail.confirmEmailFooter=Ten link jest ważny przez 1 tydzień. – zespół EHRI
 mail.unverifiedEmailWarning=Niezweryfikowane konto
 mail.unverifiedEmailWarningMessage=Adres e-mail powiązany z Twoim kontem nie został jeszcze zweryfikowany.
 mail.unverifiedEmailResend=Aby ponownie wysłać e-mail weryfikacyjny,

@@ -35,11 +35,15 @@ object OAuth2Constants {
 
 class OAuth2Error(msg: String) extends AuthenticationError(msg)
 
+/**
+  * @param emailVerified whether the provider asserts the user owns the email
+  */
 case class UserData(
   providerId: String,
   email: String,
   name: String,
-  imageUrl: Option[String]
+  imageUrl: Option[String],
+  emailVerified: Boolean
 )
 
 case class ProviderSettings(

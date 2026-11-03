@@ -29,7 +29,9 @@ case class MicrosoftOAuth2Provider(config: play.api.Configuration) extends OAuth
         providerId = guid,
         email = email,
         name = name,
-        imageUrl = None
+        imageUrl = None,
+        // Work/school account emails are set by the organisation, so unverified
+        emailVerified = false
       )
     } catch {
       case e: JsonParseException =>

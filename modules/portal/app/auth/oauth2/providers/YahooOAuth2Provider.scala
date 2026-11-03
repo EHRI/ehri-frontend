@@ -44,7 +44,8 @@ case class YahooOAuth2Provider (config: play.api.Configuration) extends OAuth2Pr
         providerId = guid,
         email = email,
         name = name,
-        imageUrl = imageUrl
+        imageUrl = imageUrl,
+        emailVerified = (json \ "email_verified").asOpt[Boolean].contains(true)
       )
     } catch {
       case e: JsonParseException =>

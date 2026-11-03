@@ -27,6 +27,7 @@ class FacebookOAuth2ProviderSpec extends PlaySpecification with ResourceUtils {
          d.name must equalTo("Any Name")
          d.email must equalTo("example1@example.com")
          d.providerId must equalTo("123456789")
+         d.emailVerified must beTrue
        }
      }
 

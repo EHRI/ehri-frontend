@@ -1,6 +1,8 @@
-@(token: java.util.UUID)(implicit req: RequestHeader, conf: AppConfig, messages: Messages)
-@Messages("mail.confirmEmailMessage")
+@(token: java.util.UUID, newAccount: Boolean)(implicit req: RequestHeader, conf: AppConfig, messages: Messages)
+@Messages(if (newAccount) "mail.confirmEmailMessage" else "mail.confirmEmailAddressMessage")
 
 @controllers.portal.account.routes.Accounts.confirmEmail(token.toString).absoluteURL(conf.https)
+
+@Messages(if (newAccount) "mail.confirmEmailIgnore" else "mail.confirmEmailAddressIgnore")
 
 @Messages("mail.confirmEmailFooter")

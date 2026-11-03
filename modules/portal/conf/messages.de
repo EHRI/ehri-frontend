@@ -307,6 +307,7 @@ login.error.badResetToken=Die URL zur Passwortwiederherstellung war ungültig od
 login.error.oauth2.info=Leider ist ein Problem beim Erstellen Ihres Kontos über {0} aufgetreten. Bitte versuchen Sie, sich auf andere Weise zu registrieren.
 login.error.oauth2.orcid.missingEmail=Wir konnten Ihre E-Mail-Adresse nicht von ORCID abrufen. Bitte stellen Sie sicher, dass Ihre E-Mail-Adresse in Ihrem ORCID-Profil auf öffentlich oder eingeschränkt eingestellt ist.
 login.error.oauth2.orcid.missingGuid=Wir konnten Ihre ORCID-ID nicht von ORCID abrufen. Bitte stellen Sie sicher, dass Ihr ORCID-Profil auf öffentlich oder eingeschränkt eingestellt ist.
+login.error.oauth2.unverifiedEmail=Es existiert bereits ein Konto mit dieser E-Mail-Adresse, aber wir konnten über diese Anmeldemethode nicht bestätigen, dass es Ihnen gehört. Bitte melden Sie sich stattdessen mit Ihrer E-Mail-Adresse und Ihrem Passwort an oder setzen Sie Ihr Passwort zurück, falls Sie keines haben.
 login.error.oauth2.badSessionId=Wir konnten Sie dieses Mal nicht über {0} einloggen. Bitte versuchen Sie es erneut. Wenn der Fehler weiterhin besteht, versuchen Sie, ein anderes Browserfenster zu verwenden.
 login.error.badEmail=Die E-Mail Adresse konnte nicht geändert werden, da sie ungültig ist oder bereits verwendet wird.
 
@@ -338,10 +339,14 @@ signup.validation.alreadyValidated=Die E-Mail Adresse wurde bereits verifiziert
 #
 mail.forgotPasswordMailHeading=Wiederherstellung Ihres EHRI-Passworts
 mail.forgotPasswordMessage=Um Ihr Passwort wiederherzustellen, folgen Sie bitte dem nachfolgenden Link. Hinweis: Dieser Link kann nur einmal verwendet werden, um Ihr Passwort wiederherzustellen.
+mail.forgotPasswordIgnore=Wenn Sie nicht darum gebeten haben, Ihr Passwort zurückzusetzen, können Sie diese E-Mail ignorieren.
 mail.forgotPasswordFooter=Mit freundlichen Grüßen – Das EHRI Team
-mail.confirmEmailHeading=Bitte bestätigen Sie Ihre E-Mail-Adresse.
-mail.confirmEmailMessage=Bitte bestätigen Sie Ihre E-Mail-Adresse, indem Sie die folgende Adresse aufrufen:
-mail.confirmEmailFooter=Dieser Link ist für 1 Woche gültig, danach wird Ihr Kontodeaktiviert.
+mail.confirmEmailHeading=Bitte bestätigen Sie Ihre E-Mail-Adresse
+mail.confirmEmailMessage=Mit dieser E-Mail-Adresse wurde ein EHRI-Konto erstellt. Um die Adresse zu bestätigen und das Konto zu aktivieren, rufen Sie Folgendes auf:
+mail.confirmEmailIgnore=Wenn Sie dieses Konto nicht erstellt haben, ignorieren Sie bitte diese E-Mail: Das Konto wird nicht bestätigt, und niemand kann es verwenden, um in Ihrem Namen aufzutreten.
+mail.confirmEmailAddressMessage=Bitte bestätigen Sie diese E-Mail-Adresse für Ihr EHRI-Konto, indem Sie Folgendes aufrufen:
+mail.confirmEmailAddressIgnore=Wenn Sie nicht darum gebeten haben, diese E-Mail-Adresse für ein EHRI-Konto zu verwenden, ignorieren Sie bitte diese E-Mail.
+mail.confirmEmailFooter=Dieser Link ist 1 Woche lang gültig. – das EHRI-Team
 mail.unverifiedEmailWarning=Nicht bestätigtes Konto
 mail.unverifiedEmailWarningMessage=Die mit Ihrem Konto verknüpfte E-Mail-Adresse wurde noch nicht bestätigt.
 mail.unverifiedEmailResend=Um eine Bestätigungs-E-Mail zu versenden,
