@@ -13,7 +13,8 @@ case class Account(
   created: Option[ZonedDateTime] = None,
   lastLogin: Option[ZonedDateTime] = None,
   password: Option[HashedPassword] = None,
-  isLegacy: Boolean = false
+  isLegacy: Boolean = false,
+  sessionVersion: Int = 0
 ) {
   def hasPassword: Boolean = password.isDefined
 }

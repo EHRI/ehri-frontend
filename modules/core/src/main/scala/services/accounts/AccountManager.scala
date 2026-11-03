@@ -141,6 +141,14 @@ trait AccountManager {
   def createToken(id: String, uuid: UUID, isSignUp: Boolean): Future[Unit]
 
   /**
+    * End all of an account's login sessions.
+    *
+    * @param id an account id
+    * @return the updated account
+    */
+  def endSessions(id: String): Future[Account]
+
+  /**
     * Expire all tokens for the given account id.
     *
     * @param id an account id

@@ -145,6 +145,15 @@ case class SqlAccountManager @Inject()(db: Database, actorSystem: ActorSystem) e
     }
   }
 
+  override def endSessions(id: String): Future[Account] = Future {
+    db.withConnection { implicit conn =>
+      SQL"""UPDATE users
+            SET session_version = session_version + 1
+            WHERE id = $id
+            RETURNING *""".as(userParser.single)
+    }
+  }
+
   override def expireTokens(id: String): Future[Unit] = Future {
     db.withConnection { implicit conn =>
       SQL"""DELETE FROM token WHERE id = $id""".executeUpdate()
@@ -228,9 +237,10 @@ object SqlAccountManager {
       get[Option[ZonedDateTime]]("users.created") ~
       get[Option[ZonedDateTime]]("users.last_login") ~
       get[Option[HashedPassword]]("users.password") ~
-      get[Boolean]("users.is_legacy") map {
-      case id ~ email ~ verified ~ staff ~ active ~ allowMessaging ~ created ~ login ~ pw ~ legacy =>
-        Account(id, email, verified, staff, active, allowMessaging, created, login, pw, legacy)
+      get[Boolean]("users.is_legacy") ~
+      get[Int]("users.session_version") map {
+      case id ~ email ~ verified ~ staff ~ active ~ allowMessaging ~ created ~ login ~ pw ~ legacy ~ sessionVersion =>
+        Account(id, email, verified, staff, active, allowMessaging, created, login, pw, legacy, sessionVersion)
     }
   }
 }

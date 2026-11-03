@@ -6,7 +6,6 @@ import models.Account
 import play.api.mvc.{RequestHeader, Result}
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.concurrent.duration.Duration
 
 
 /**
@@ -23,23 +22,15 @@ trait AuthHandler {
 
   protected def tokenAccessor: TokenAccessor
 
-  protected def idContainer: AuthIdContainer
-
-  def sessionTimeout: Duration
-
   type ResultUpdater = Result => Result
 
   def restoreAccount(implicit request: RequestHeader): Future[(Option[Account], ResultUpdater)]
 
-  def newSession(userId: String): Future[String] = idContainer.startNewSession(userId, sessionTimeout)
+  def newSession(account: Account): String
 
-  def login(userId: String, result: => Future[Result])(implicit request: RequestHeader, executionContext: ExecutionContext): Future[Result] = for {
-    token <- idContainer.startNewSession(userId, sessionTimeout)
-    r <- result
-  } yield tokenAccessor.put(token)(r)
+  def login(account: Account, result: => Future[Result])(implicit request: RequestHeader, executionContext: ExecutionContext): Future[Result] =
+    result.map(tokenAccessor.put(newSession(account)))
 
-  def logout(result: => Future[Result])(implicit request: RequestHeader, executionContext: ExecutionContext): Future[Result] = {
-    tokenAccessor.extract(request).foreach(s => idContainer.remove(s))
+  def logout(result: => Future[Result])(implicit request: RequestHeader, executionContext: ExecutionContext): Future[Result] =
     result.map(tokenAccessor.delete)
-  }
 }
