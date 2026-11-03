@@ -10,10 +10,12 @@ import models.view.MessagingInfo
 import models.{Model, SystemEvent, UserProfile}
 import play.api.i18n.Messages
 import play.api.libs.json.Json
-import play.api.libs.mailer.{Email, MailerClient}
+import jakarta.mail.internet.InternetAddress
+import play.api.libs.mailer.Email
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import services.cypher.CypherService
+import services.mail.MailerService
 import services.search._
 import utils._
 
@@ -24,7 +26,7 @@ import scala.concurrent.Future.{successful => immediate}
 case class Social @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
-  mailer: MailerClient,
+  mailerService: MailerService,
   ws: WSClient,
   cypher: CypherService
 ) extends PortalController
@@ -206,38 +208,40 @@ case class Social @Inject()(
   }
 
 
+  // Quotes the name if needed, e.g. if it contains a comma
+  private def address(name: String, email: String): String =
+    new InternetAddress(email, name, "UTF-8").toString
+
   private def sendMessageEmail(from: UserProfile, to: UserProfile, subject: String, message: String, copy: Boolean)(implicit request: RequestHeader): Future[Unit] = {
     for {
       accFromOpt <- accounts.findById(from.id)
       accToOpt <- accounts.findById(to.id)
-    } yield {
-      for {
+      _ <- (for {
         accFrom <- accFromOpt
         accTo <- accToOpt
       } yield {
         val heading = Messages("mail.message.heading", from.toStringLang)
         val emailMessage = Email(
           subject = Messages("mail.message.heading", from.toStringLang),
-          to = Seq(s"${to.data.name}} <${accTo.email}>"),
+          to = Seq(address(to.data.name, accTo.email)),
           from = s"EHRI User <${config.get[String]("ehri.portal.emails.messages")}>",
-          replyTo = Seq(s"${from.data.name}} <${accFrom.email}>"),
+          replyTo = Seq(address(from.data.name, accFrom.email)),
           bodyText = Some(views.txt.social.mail.messageEmail(heading, subject, message).body),
           bodyHtml = Some(views.html.social.mail.messageEmail(heading, subject, message).body)
         )
-        mailer.send(emailMessage)
-
-        if (copy) {
-          val copyHeading = Messages("mail.message.copy.heading", to.toStringLang)
-          val copyEmailMessage = emailMessage.copy(
-            subject = Messages("mail.message.copy.heading", to.toStringLang),
-            to = Seq(s"${from.data.name} <${accFrom.email}>"),
-            bodyText = Some(views.txt.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body),
-            bodyHtml = Some(views.html.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body)
-          )
-          mailer.send(copyEmailMessage)
-        }
-      }
-    }
+        lazy val copyHeading = Messages("mail.message.copy.heading", to.toStringLang)
+        lazy val copyEmailMessage = emailMessage.copy(
+          subject = Messages("mail.message.copy.heading", to.toStringLang),
+          to = Seq(address(from.data.name, accFrom.email)),
+          bodyText = Some(views.txt.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body),
+          bodyHtml = Some(views.html.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body)
+        )
+        for {
+          _ <- mailerService.send(emailMessage)
+          _ <- if (copy) mailerService.send(copyEmailMessage) else immediate(false)
+        } yield ()
+      }).getOrElse(immediate(()))
+    } yield ()
   }
 
   def sendMessage(userId: String): Action[AnyContent] = WithUserAction.async { implicit request =>

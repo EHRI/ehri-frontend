@@ -59,6 +59,20 @@ class AccountsSpec extends IntegrationTestRunner {
       redirectLocation(login) must beSome(controllers.portal.users.routes.UserProfiles.profile().url)
     }
 
+    "give the same response to forgot password if the email can't be sent" in new ITestApp(
+        specificConfig = Map("recaptcha.skip" -> true)) {
+      val failEmail = "test@" + utils.MockBufferedMailer.failureDomain
+      await(mockAccounts.update(privilegedUser.copy(email = failEmail)))
+      def forgot(email: String) = FakeRequest(accountRoutes.forgotPasswordPost())
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
+        .callWith(Map("email" -> Seq(email), CSRF_TOKEN_NAME -> Seq(fakeCsrfString)))
+      val known = forgot(failEmail)
+      val unknown = forgot("nobody@example.com")
+      status(known) must equalTo(SEE_OTHER)
+      redirectLocation(known) must equalTo(redirectLocation(unknown))
+      flash(known) must equalTo(flash(unknown))
+    }
+
     "ensure user can reset password when public view is disabled" in new ITestApp(
         specificConfig = Map("ehri.portal.secured" -> true, "recaptcha.skip" -> true)) {
       val forgotForm = FakeRequest(accountRoutes.forgotPassword()).call()

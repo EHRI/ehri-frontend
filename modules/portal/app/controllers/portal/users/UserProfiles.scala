@@ -11,7 +11,6 @@ import play.api.http.{HeaderNames, MimeTypes}
 import play.api.i18n.Messages
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.{JsValue, Json, OWrites}
-import play.api.libs.mailer.MailerClient
 import play.api.mvc._
 import services.search._
 import services.storage.FileStorage
@@ -26,7 +25,6 @@ import scala.concurrent.Future.{successful => immediate}
 case class UserProfiles @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
-  mailer: MailerClient,
   fileStorage: FileStorage
 ) extends PortalController
   with Search
