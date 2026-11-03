@@ -13,4 +13,6 @@ trait OAuth2AssociationManager {
   def findAll: Future[Seq[OAuth2Association]]
 
   def addAssociation(id: String, providerId: String, provider: String): Future[Option[OAuth2Association]]
+
+  def removeAssociations(id: String): Future[Unit]
 }

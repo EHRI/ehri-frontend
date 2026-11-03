@@ -164,5 +164,11 @@ class SqlAccountManagerSpec extends IntegrationTestRunner {
     "find all associations" in new DBTestApp("user-fixtures.sql") {
       await(accounts.oAuth2.findAll).size must equalTo(2)
     }
+
+    "remove an account's associations" in new DBTestApp("user-fixtures.sql") {
+      await(accounts.oAuth2.removeAssociations(mockdata.privilegedUser.id))
+      await(accounts.oAuth2.findForAccount(mockdata.privilegedUser.id)) must beEmpty
+      await(accounts.oAuth2.findAll).size must equalTo(1)
+    }
   }
 }

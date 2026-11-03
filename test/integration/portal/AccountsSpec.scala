@@ -246,6 +246,10 @@ class AccountsSpec extends IntegrationTestRunner {
       .withSession("sid" -> singleUseKey).call()
   }
 
+  private val verifiedGoogleLogin = Map(
+    "test.oauth2.google.userData" -> Json.stringify(Json.obj("id" -> "987654321",
+      "email" -> privilegedUser.email, "verified_email" -> true, "name" -> "Any Name")))
+
   "OAuth2" should {
     "allow user to log in" in new ITestApp {
       // Using the existing Google OAuth2 association
@@ -277,14 +281,35 @@ class AccountsSpec extends IntegrationTestRunner {
       session(login).get("sid") must beNone
     }
 
-    "link a verified email to an existing account" in new ITestApp(Map(
-        "test.oauth2.google.userData" -> Json.stringify(Json.obj("id" -> "987654321",
-          "email" -> privilegedUser.email, "verified_email" -> true, "name" -> "Any Name")))) {
+    "link a verified email to an existing account" in new ITestApp(verifiedGoogleLogin) {
+      await(mockAccounts.update(privilegedUser.copy(password = Some(HashedPassword.fromPlain("letmein")))))
       val login = oauth2Login("google")
       status(login) must equalTo(SEE_OTHER)
       flash(login).get("danger") must beNone
       mockdata.oauth2AssociationFixtures.exists(a =>
         a.id == privilegedUser.id && a.provider == "google" && a.providerId == "987654321") must beTrue
+      // A verified account keeps its password and sessions
+      await(mockAccounts.findById(privilegedUser.id)) must beSome.which { account =>
+        account.password must beSome
+        account.sessionVersion must equalTo(0)
+      }
+    }
+
+    "claim an unverified account when linking a verified email" in new ITestApp(verifiedGoogleLogin) {
+      await(mockAccounts.update(privilegedUser.copy(verified = false,
+        password = Some(HashedPassword.fromPlain("other-persons-password")))))
+      val token = UUID.randomUUID()
+      await(mockAccounts.createToken(privilegedUser.id, token, isSignUp = true))
+      val login = oauth2Login("google")
+      status(login) must equalTo(SEE_OTHER)
+      flash(login).get("warning") must beSome(message("login.oauth2.passwordRemoved", "Google"))
+      await(mockAccounts.findById(privilegedUser.id)) must beSome.which { account =>
+        account.verified must beTrue
+        account.password must beNone
+        account.sessionVersion must equalTo(1)
+      }
+      await(mockAccounts.findByToken(token.toString, isSignUp = true)) must beNone
+      mockdata.oauth2AssociationFixtures.filter(_.id == privilegedUser.id).map(_.providerId) must equalTo(Seq("987654321"))
     }
 
     "not link an unverified email to an existing account" in new ITestApp {

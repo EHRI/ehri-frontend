@@ -188,6 +188,8 @@ login.error.oauth2.info=Przepraszamy, ale wystąpił problem podczas tworzenia k
     metody rejestracji.
 login.error.oauth2.unverifiedEmail=Konto z tym adresem e-mail już istnieje, ale nie mogliśmy potwierdzić za pomocą tej metody logowania, że należy ono do Ciebie. \
     Zaloguj się, używając adresu e-mail i hasła, lub zresetuj hasło, jeśli go nie masz.
+login.oauth2.passwordRemoved=Twoje konto jest teraz połączone z {0}. Ponieważ adres e-mail konta nie został potwierdzony, ze względów bezpieczeństwa usunięto jego hasło. \
+    Użyj opcji „Nie pamiętam hasła”, jeśli chcesz logować się za pomocą hasła.
 login.password.current=Aktualne hasło
 login.password.new=Nowe hasło
 login.password.new.confirm=Potwierdź nowe hasło

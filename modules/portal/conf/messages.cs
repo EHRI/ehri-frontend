@@ -284,6 +284,7 @@ login.error.passwordsDoNotMatch=Heslo a potvrzující heslo se neshodují
 login.error.badResetToken=Adresa pro obnovu hesla je nesprávná, nebo vypršela její platnost. Poznámka: adresa pro obnovu hesla může být použita pouze jednou.
 login.error.oauth2.info=Omlouváme se, vyskytl se problém s vytvořením vašeho účtu prostřednictvím {0}. Prosím, zkuste jinou metodu registrace. 
 login.error.oauth2.unverifiedEmail=Účet s touto e-mailovou adresou již existuje, ale prostřednictvím této metody přihlášení jsme nemohli ověřit, že patří vám. Přihlaste se prosím svým e-mailem a heslem, nebo si heslo obnovte, pokud žádné nemáte.
+login.oauth2.passwordRemoved=Váš účet je nyní propojen s {0}. Protože e-mailová adresa účtu nebyla potvrzena, bylo z bezpečnostních důvodů odstraněno jeho heslo. Pokud se chcete přihlašovat heslem, použijte "Zapomenuté heslo".
 login.error.oauth2.badSessionId=Vyskytl se problém s přihlášením prostřednictvím {0}. Prosím, zkuste to znovu. Pokud problém přetrvá, zkuste se přihlásit v novém okně prohlížeče.
 login.error.badEmail=Email nemůže být změněn, protože je zadaný nesprávně, nebo je již používán.
 

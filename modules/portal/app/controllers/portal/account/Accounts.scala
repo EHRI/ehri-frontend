@@ -354,9 +354,13 @@ case class Accounts @Inject()(
             (for {
               info <- oAuth2Flow.getAccessToken(provider, handlerUrl, c)
               userData <- oAuth2Flow.getUserData(provider, info)
-              (account, isNew) <- getOrCreateAccount(provider, userData)
+              (account, outcome) <- getOrCreateAccount(provider, userData)
               result <- doLogin(account).map(_.removingFromSession(sessionKey))
-            } yield if (isNew && !account.verified) result.flashing("success" -> "signup.confirmation") else result) recover {
+            } yield outcome match {
+              case NewAccount if !account.verified => result.flashing("success" -> "signup.confirmation")
+              case Claimed(true) => result.flashing("warning" -> Messages("login.oauth2.passwordRemoved", provider.name.capitalize))
+              case _ => result
+            }) recover {
               case AuthenticationError(msg, detailKey) =>
                 logger.error(msg)
                 val url = if (isLogin) accountRoutes.login() else accountRoutes.signup()
@@ -645,9 +649,14 @@ case class Accounts @Inject()(
     } yield account
   }
 
-  // Returns the account and whether it is new. Existing accounts are only
+  private sealed trait OAuth2Outcome
+  private case object Existing extends OAuth2Outcome
+  private case object NewAccount extends OAuth2Outcome
+  private case class Claimed(passwordRemoved: Boolean) extends OAuth2Outcome
+
+  // Returns the account and how it was found. Existing accounts are only
   // matched by email if the provider has verified it.
-  private def getOrCreateAccount(provider: OAuth2Provider, userData: UserData)(implicit request: RequestHeader): Future[(Account, Boolean)] = {
+  private def getOrCreateAccount(provider: OAuth2Provider, userData: UserData)(implicit request: RequestHeader): Future[(Account, OAuth2Outcome)] = {
     accounts.oAuth2.findByProviderInfo(userData.providerId, provider.name).flatMap { assocOpt =>
       assocOpt.flatMap(_.user).map { account =>
         logger.info(s"Found existing association for ${userData.name} -> ${provider.name}")
@@ -655,16 +664,26 @@ case class Accounts @Inject()(
         for {
           updated <- if (verify) accounts.update(account.copy(verified = true)) else immediate(account)
           _ <- updateUserInfo(updated, userData)
-        } yield updated -> false
+        } yield updated -> Existing
       } getOrElse {
         accounts.findByEmail(userData.email).flatMap {
-          case Some(account) if userData.emailVerified =>
+          case Some(account) if userData.emailVerified && account.verified =>
             logger.info(s"Creating new association for ${userData.name} -> ${provider.name}")
             for {
-              updated <- accounts.update(account.copy(verified = true))
-              _ <- accounts.oAuth2.addAssociation(updated.id, userData.providerId, provider.name)
-              _ <- updateUserInfo(updated, userData)
-            } yield updated -> false
+              _ <- accounts.oAuth2.addAssociation(account.id, userData.providerId, provider.name)
+              _ <- updateUserInfo(account, userData)
+            } yield account -> Existing
+          case Some(account) if userData.emailVerified =>
+            // Unverified, so remove credentials set up by whoever created it
+            logger.warn(s"Claiming unverified account via ${provider.name}: ${account.id}")
+            for {
+              _ <- accounts.expireTokens(account.id)
+              _ <- accounts.oAuth2.removeAssociations(account.id)
+              _ <- accounts.update(account.copy(verified = true, password = None, isLegacy = false))
+              claimed <- accounts.endSessions(account.id)
+              _ <- accounts.oAuth2.addAssociation(claimed.id, userData.providerId, provider.name)
+              _ <- updateUserInfo(claimed, userData)
+            } yield claimed -> Claimed(account.hasPassword)
           case Some(account) =>
             Future.failed(AuthenticationError(
               s"Not associating ${provider.name} login with unverified email to existing account: ${account.id}",
@@ -682,7 +701,7 @@ case class Accounts @Inject()(
                 accounts.createToken(newAccount.id, uuid, isSignUp = true)
                   .flatMap(_ => sendValidationEmail(userData.name, newAccount.email, uuid, newAccount = true))
               }
-            } yield newAccount -> true
+            } yield newAccount -> NewAccount
         }
       }
     }
