@@ -307,6 +307,7 @@ login.error.badResetToken=El enlace usado para el restablecimiento de la contras
 login.error.oauth2.info=Le pedimos disculpas pero ha habido un error al intentar crear su cuenta usando {0}. Por favor, intente otro método de registro.
 login.error.oauth2.orcid.missingEmail=No hemos sido capaces de obtener su dirección de correo electrónico desde ORCID. Por favor, asegúrese que su dirección de correo electrónico está establecida como pública o limitada en su perfi ORCID.
 login.error.oauth2.orcid.missingGuid=No hemos sido capaces de obtener identificador ORCID. Por favor, asegúrese que su perfil ORCID está establecido como público o limitado.
+login.error.oauth2.unverifiedEmail=Ya existe una cuenta con esta dirección de correo electrónico, pero no hemos podido confirmar que le pertenece mediante este método de inicio de sesión. Por favor, inicie sesión con su correo electrónico y contraseña, o restablezca su contraseña si no tiene una.
 login.error.oauth2.badSessionId=Esta vez no ha sido posible iniciar la sesión usando {0}. Por favor inténtelo de nuevo y si el error persiste, intente usar una ventana diferente en su navegador.
 login.error.badEmail=La dirección de correo electrónico no se puede cambiar porque es inválida o ya está en uso.
 
@@ -338,10 +339,14 @@ signup.validation.alreadyValidated=Su dirección de correo electrónico ha sido 
 #
 mail.forgotPasswordMailHeading=Restablecimiento de contraseña en EHRI
 mail.forgotPasswordMessage=Para restablecer su contraseña, por favor, siga en enlace de abajo. Nota: este enlace sólo puede ser usado para restablecer su contraseña una vez.
+mail.forgotPasswordIgnore=Si usted no ha solicitado restablecer su contraseña, puede ignorar este correo.
 mail.forgotPasswordFooter=Reciba un cordial saludo,\nel equipo del EHRI
 mail.confirmEmailHeading=Por favor, confirme su dirección de correo electrónico
-mail.confirmEmailMessage=Por favor, confirme su dirección de correo electrónico visitando la siguiente dirección:
-mail.confirmEmailFooter=Este enlace será válido por una semana, después de la cual su cuenta será desactivada.
+mail.confirmEmailMessage=Se ha creado una cuenta de EHRI con esta dirección de correo electrónico. Para confirmar la dirección y activar la cuenta, visite:
+mail.confirmEmailIgnore=Si usted no ha creado esta cuenta, por favor ignore este correo: la cuenta no será verificada y nadie podrá usarla para hacerse pasar por usted.
+mail.confirmEmailAddressMessage=Por favor, confirme esta dirección de correo electrónico para su cuenta de EHRI visitando:
+mail.confirmEmailAddressIgnore=Si usted no ha solicitado usar esta dirección de correo electrónico con una cuenta de EHRI, por favor ignore este correo.
+mail.confirmEmailFooter=Este enlace es válido durante 1 semana. – el equipo de EHRI
 mail.unverifiedEmailWarning=Cuenta sin verificar
 mail.unverifiedEmailWarningMessage=La dirección de correo electrónico asociada con su cuenta todavía no ha sido verificada.
 mail.unverifiedEmailResend=Para reenviar el correo electrónico de verificación

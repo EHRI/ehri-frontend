@@ -149,7 +149,7 @@ case class Accounts @Inject()(
                   result <- doLogin(account)
                     .map(_.flashing("success" -> "signup.confirmation"))
                 } yield {
-                  sendValidationEmail(profile.data.name, data.email, uuid)
+                  sendValidationEmail(profile.data.name, data.email, uuid, newAccount = true)
                   result
                 }).recoverWith {
                   case e: ItemNotFound =>
@@ -355,9 +355,9 @@ case class Accounts @Inject()(
             (for {
               info <- oAuth2Flow.getAccessToken(provider, handlerUrl, c)
               userData <- oAuth2Flow.getUserData(provider, info)
-              account <- getOrCreateAccount(provider, userData)
+              (account, isNew) <- getOrCreateAccount(provider, userData)
               result <- doLogin(account).map(_.removingFromSession(sessionKey))
-            } yield result) recover {
+            } yield if (isNew && !account.verified) result.flashing("success" -> "signup.confirmation") else result) recover {
               case AuthenticationError(msg, detailKey) =>
                 logger.error(msg)
                 val url = if (isLogin) accountRoutes.login() else accountRoutes.signup()
@@ -374,7 +374,7 @@ case class Accounts @Inject()(
             }
           case _ =>
             authenticationFailed(request).map { res =>
-              res.removingFromSession(sessionId)
+              res.removingFromSession(sessionKey)
                 .flashing("danger" -> Messages("login.error.oauth2.badSessionId", provider.name.capitalize))
             }
         }
@@ -568,7 +568,7 @@ case class Accounts @Inject()(
       case Some(account) =>
         val uuid = UUID.randomUUID()
         accounts.createToken(account.id, uuid, isSignUp = true).map { _ =>
-          sendValidationEmail(request.user.data.name, account.email, uuid)
+          sendValidationEmail(request.user.data.name, account.email, uuid, newAccount = false)
           val redirect = request.headers.get(HttpHeaders.REFERER)
             .getOrElse(portalRoutes.index().url)
           Redirect(redirect).flashing("success" -> "mail.emailConfirmationResent")
@@ -632,30 +632,37 @@ case class Accounts @Inject()(
       account <- accounts.create(Account(
         id = profile.id,
         email = userData.email.toLowerCase,
-        verified = true,
+        verified = userData.emailVerified,
         allowMessaging = conf.canMessage
       ))
     } yield account
   }
 
-  private def getOrCreateAccount(provider: OAuth2Provider, userData: UserData): Future[Account] = {
+  // Returns the account and whether it is new. Existing accounts are only
+  // matched by email if the provider has verified it.
+  private def getOrCreateAccount(provider: OAuth2Provider, userData: UserData)(implicit request: RequestHeader): Future[(Account, Boolean)] = {
     accounts.oAuth2.findByProviderInfo(userData.providerId, provider.name).flatMap { assocOpt =>
       assocOpt.flatMap(_.user).map { account =>
         logger.info(s"Found existing association for ${userData.name} -> ${provider.name}")
+        val verify = !account.verified && userData.emailVerified && account.email.equalsIgnoreCase(userData.email)
         for {
-          updated <- accounts.update(account.copy(verified = true))
+          updated <- if (verify) accounts.update(account.copy(verified = true)) else immediate(account)
           _ <- updateUserInfo(updated, userData)
-        } yield updated
+        } yield updated -> false
       } getOrElse {
-        accounts.findByEmail(userData.email).flatMap { accountOpt =>
-          accountOpt.map { account =>
+        accounts.findByEmail(userData.email).flatMap {
+          case Some(account) if userData.emailVerified =>
             logger.info(s"Creating new association for ${userData.name} -> ${provider.name}")
             for {
               updated <- accounts.update(account.copy(verified = true))
               _ <- accounts.oAuth2.addAssociation(updated.id, userData.providerId, provider.name)
               _ <- updateUserInfo(updated, userData)
-            } yield updated
-          } getOrElse {
+            } yield updated -> false
+          case Some(account) =>
+            Future.failed(AuthenticationError(
+              s"Not associating ${provider.name} login with unverified email to existing account: ${account.id}",
+              Some("login.error.oauth2.unverifiedEmail")))
+          case None =>
             if (config.get[Boolean]("ehri.signup.disabled")) {
               throw SignupDisabled();
             }
@@ -663,8 +670,12 @@ case class Accounts @Inject()(
             for {
               newAccount <- createNewProfile(userData)
               _ <- accounts.oAuth2.addAssociation(newAccount.id, userData.providerId, provider.name)
-            } yield newAccount
-          }
+              _ <- if (newAccount.verified) immediate(()) else {
+                val uuid = UUID.randomUUID()
+                accounts.createToken(newAccount.id, uuid, isSignUp = true)
+                  .map(_ => sendValidationEmail(userData.name, newAccount.email, uuid, newAccount = true))
+              }
+            } yield newAccount -> true
         }
       }
     }
@@ -691,7 +702,7 @@ case class Accounts @Inject()(
 
   private def sendResetEmail(name: String, emailAddress: String, uuid: UUID)(implicit request: RequestHeader): String = {
     val email = Email(
-      subject = "EHRI Password Reset",
+      subject = Messages("mail.forgotPasswordMailHeading"),
       to = Seq(emailAddress),
       from = s"EHRI Password Reset <${config.get[String]("ehri.portal.emails.help")}>",
       bodyText = Some(views.txt.account.mail.forgotPassword(uuid).body)
@@ -699,12 +710,12 @@ case class Accounts @Inject()(
     mailer.send(email)
   }
 
-  private def sendValidationEmail(name: String, emailAddress: String, uuid: UUID)(implicit request: RequestHeader): String = {
+  private def sendValidationEmail(name: String, emailAddress: String, uuid: UUID, newAccount: Boolean)(implicit request: RequestHeader): String = {
     val email = Email(
-      subject = "Please confirm your EHRI Account Email",
+      subject = Messages("mail.confirmEmailHeading"),
       from = s"EHRI Email Validation <${config.get[String]("ehri.portal.emails.help")}>",
       to = Seq(emailAddress),
-      bodyText = Some(views.txt.account.mail.confirmEmail(uuid).body)
+      bodyText = Some(views.txt.account.mail.confirmEmail(uuid, newAccount).body)
     )
     mailer.send(email)
   }

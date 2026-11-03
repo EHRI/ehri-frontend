@@ -27,6 +27,7 @@ class MicrosoftOAuth2ProviderSpec extends PlaySpecification with ResourceUtils {
         d.name must equalTo("Joe Blogs")
         d.email must equalTo("example2@example.com")
         d.providerId must equalTo("123456789")
+        d.emailVerified must beFalse
       }
     }
 

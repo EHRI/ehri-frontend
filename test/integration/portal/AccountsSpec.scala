@@ -1,7 +1,7 @@
 package integration.portal
 
 import auth.HashedPassword
-import auth.oauth2.providers.GoogleOAuth2Provider
+import auth.oauth2.providers.{GoogleOAuth2Provider, MicrosoftOAuth2Provider}
 import auth.sso.DiscourseSSO
 import forms.HoneyPotForm._
 import forms.TimeCheckForm._
@@ -11,6 +11,7 @@ import models.{Account, SignupData}
 import play.api.Application
 import play.api.cache.SyncCacheApi
 import play.api.i18n.MessagesApi
+import play.api.libs.json.Json
 import play.api.test.{FakeRequest, Injecting, WithApplication}
 
 import java.util.UUID
@@ -205,6 +206,14 @@ class AccountsSpec extends IntegrationTestRunner {
     }
   }
 
+  private def oauth2Login(provider: String)(implicit app: Application) = {
+    val singleUseKey = UUID.randomUUID().toString
+    val randomState = UUID.randomUUID().toString
+    cache.set(singleUseKey, randomState)
+    FakeRequest(accountRoutes.oauth2Login(provider, code = Some("blah"), state = Some(randomState)))
+      .withSession("sid" -> singleUseKey).call()
+  }
+
   "OAuth2" should {
     "allow user to log in" in new ITestApp {
       // Using the existing Google OAuth2 association
@@ -233,6 +242,41 @@ class AccountsSpec extends IntegrationTestRunner {
         .withSession("sid" -> singleUseKey).call()
       status(login) must equalTo(SEE_OTHER)
       flash(login).get("danger") must beSome(message("login.error.oauth2.badSessionId", "Google"))
+      session(login).get("sid") must beNone
+    }
+
+    "link a verified email to an existing account" in new ITestApp(Map(
+        "test.oauth2.google.userData" -> Json.stringify(Json.obj("id" -> "987654321",
+          "email" -> privilegedUser.email, "verified_email" -> true, "name" -> "Any Name")))) {
+      val login = oauth2Login("google")
+      status(login) must equalTo(SEE_OTHER)
+      flash(login).get("danger") must beNone
+      mockdata.oauth2AssociationFixtures.exists(a =>
+        a.id == privilegedUser.id && a.provider == "google" && a.providerId == "987654321") must beTrue
+    }
+
+    "not link an unverified email to an existing account" in new ITestApp {
+      // The Microsoft test data has the same email as an existing account
+      val login = oauth2Login(MicrosoftOAuth2Provider(app.configuration).name)
+      status(login) must equalTo(SEE_OTHER)
+      redirectLocation(login) must beSome(accountRoutes.login().url)
+      flash(login).get("danger") must beSome(message("login.error.oauth2.unverifiedEmail"))
+      mockdata.oauth2AssociationFixtures.exists(_.provider == "microsoft") must beFalse
+    }
+
+    "create an unverified account for an unverified new email" in new ITestApp(Map(
+        "test.oauth2.microsoft.userData" -> Json.stringify(Json.obj("sub" -> "55555",
+          "email" -> "new-microsoft-user@example.com", "name" -> "New User")))) {
+      val numSentMails = mailBuffer.size
+      val login = oauth2Login("microsoft")
+      status(login) must equalTo(SEE_OTHER)
+      flash(login).get("success") must beSome("signup.confirmation")
+      await(mockAccounts.findByEmail("new-microsoft-user@example.com")) must beSome.which { account =>
+        account.verified must beFalse
+      }
+      mailBuffer.size must equalTo(numSentMails + 1)
+      mailBuffer.last.to must contain("new-microsoft-user@example.com")
+      mailBuffer.last.bodyText must beSome(contain(message("mail.confirmEmailMessage")))
     }
 
     "error with bad provider" in new ITestApp {

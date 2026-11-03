@@ -49,7 +49,9 @@ case class ORCIDOAuth2Provider(config: play.api.Configuration) extends OAuth2Pro
         providerId = guid,
         email = email,
         name = name,
-        imageUrl = None
+        imageUrl = None,
+        // ORCID does not say whether the email has been verified
+        emailVerified = false
       )).orElse {
         // ORCID's OAuth2 userinfo endpoint does not return the user's email unless it
         // is set to public or limited. If the email is not found, we throw an error,

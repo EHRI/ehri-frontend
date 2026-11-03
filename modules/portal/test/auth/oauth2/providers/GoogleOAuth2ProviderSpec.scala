@@ -26,7 +26,13 @@ class GoogleOAuth2ProviderSpec extends PlaySpecification with ResourceUtils {
         d.name must equalTo("Any Name")
         d.email must equalTo("example1@example.com")
         d.providerId must equalTo("123456789")
+        d.emailVerified must beTrue
       }
+    }
+
+    "not treat emails as verified unless Google says so" in {
+      val data = testUserData.replace("\"verified_email\": true", "\"verified_email\": false")
+      GoogleOAuth2Provider(config).parseUserInfo(data) must beSome.which(_.emailVerified must beFalse)
     }
 
     "generate the right user access params" in {

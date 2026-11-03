@@ -77,7 +77,6 @@ trait TestConfiguration {
   // NB: The mutable state for the user DAO is still stored globally
   // in the mocks package.
   protected def mockAccounts: AccountManager = MockAccountManager(ExecutionContext.Implicits.global)
-  private def mockOAuth2Flow: OAuth2Service = MockOAuth2Service()
   private def mockRelocator: MovedPageLookup = MockMovedPageLookup(movedPages)
   private def mockHtmlPages: HtmlPages = MockHtmlPages()
 
@@ -110,7 +109,7 @@ trait TestConfiguration {
       // login evicts the last.
       bind[AuthIdContainer].to[CookieIdContainer],
       bind[MailerClient].toInstance(mockMailer),
-      bind[OAuth2Service].toInstance(mockOAuth2Flow),
+      bind[OAuth2Service].to[MockOAuth2Service],
       bind[MovedPageLookup].toInstance(mockRelocator),
       bind[AccountManager].toInstance(mockAccounts),
       bind[FeedbackService].toInstance(mockFeedback),
