@@ -132,14 +132,14 @@ trait CoreActionBuilders extends BaseController with controllers.base.Controller
   /**
     * Handle a successful login with a custom action
     */
-  protected def gotoLoginSucceeded(userId: String, result: => Future[Result])(implicit request: RequestHeader): Future[Result] =
-    authHandler.login(userId, result)
+  protected def gotoLoginSucceeded(account: Account, result: => Future[Result])(implicit request: RequestHeader): Future[Result] =
+    authHandler.login(account, result)
 
   /**
     * Handle a successful login
     */
-  protected def gotoLoginSucceeded(userId: String)(implicit request: RequestHeader): Future[Result] =
-    authHandler.login(userId, loginSucceeded(request))
+  protected def gotoLoginSucceeded(account: Account)(implicit request: RequestHeader): Future[Result] =
+    authHandler.login(account, loginSucceeded(request))
 
   /**
     * Handle a successful logout with a custom action

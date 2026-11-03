@@ -97,6 +97,11 @@ case class MockAccountManager @Inject()(executionContext: ExecutionContext) exte
     true
   }
 
+  override def endSessions(id: String): Future[Account] = immediate {
+    val account = mockdata.accountFixtures(id)
+    updateWith(account.copy(sessionVersion = account.sessionVersion + 1))
+  }
+
   override def expireTokens(id: String): Future[Unit] = immediate {
     val indicesToDelete = for {
       (t, i) <- mockdata.tokenFixtures.zipWithIndex if t._2 == id

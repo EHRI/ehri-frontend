@@ -4,8 +4,7 @@ import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.stream.Materializer
 import org.apache.pekko.testkit.{ImplicitSender, TestKitBase}
 import org.apache.pekko.util.Timeout
-import auth.handler.cookie.CookieIdContainer
-import auth.handler.{AuthHandler, AuthIdContainer}
+import auth.handler.AuthHandler
 import auth.oauth2.MockOAuth2Service
 import cookies.SessionPreferences
 import models.{Account, CypherQuery, EntityType, Feedback}
@@ -105,10 +104,6 @@ trait TestConfiguration {
 
   protected def appBuilder: GuiceApplicationBuilder = new play.api.inject.guice.GuiceApplicationBuilder()
     .overrides(
-      // since we run some concurrent requests as the same user its
-      // important not to use the CacheIdContainer, since each new
-      // login evicts the last.
-      bind[AuthIdContainer].to[CookieIdContainer],
       bind[MailerClient].toInstance(mockMailer),
       bind[MailerService].toInstance(MockMailerService(mailBuffer)),
       bind[OAuth2Service].to[MockOAuth2Service],
@@ -279,7 +274,8 @@ trait TestConfiguration {
   protected def testAuthToken(id: String)(implicit app: Application): String = {
     import scala.concurrent.duration._
     val handler: AuthHandler = app.injector.instanceOf[AuthHandler]
-    Await.result(handler.newSession(id), 10.seconds)
+    val account = Await.result(app.injector.instanceOf[AccountManager].findById(id), 10.seconds)
+    handler.newSession(account.getOrElse(Account(id, email = "")))
   }
 
   /**

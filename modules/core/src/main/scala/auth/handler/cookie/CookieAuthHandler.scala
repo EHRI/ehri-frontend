@@ -1,12 +1,13 @@
 package auth.handler.cookie
 
-import auth.handler.{AuthHandler, AuthIdContainer, TokenAccessor}
-import javax.inject.Inject
+import auth.handler.{AuthHandler, SessionToken, TokenAccessor}
 import models.Account
 import play.api.mvc.RequestHeader
 import play.api.{Configuration, Environment, Mode}
 import services.accounts.AccountManager
 
+import javax.inject.Inject
+import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
@@ -20,7 +21,6 @@ import scala.concurrent.{ExecutionContext, Future}
   */
 case class CookieAuthHandler @Inject()(
   env: Environment,
-  idContainer: AuthIdContainer,
   tokenAccessor: TokenAccessor,
   accountManager: AccountManager,
   config: Configuration,
@@ -29,22 +29,38 @@ case class CookieAuthHandler @Inject()(
 
   implicit val ec: ExecutionContext = executionContext
 
-  import scala.concurrent.duration._
+  private val sessionTimeout: FiniteDuration = config.get[FiniteDuration]("auth.session.timeout")
+  private val sessionMaxAge: FiniteDuration = config.get[FiniteDuration]("auth.session.maxAge")
 
-  override def sessionTimeout: FiniteDuration =
-    config.get[FiniteDuration]("auth.session.timeout")
+  private def now: Long = System.currentTimeMillis() / 1000
+
+  override def newSession(account: Account): String =
+    SessionToken(account.id, account.sessionVersion, now, now).encode
 
   override def restoreAccount(implicit request: RequestHeader): Future[(Option[Account], ResultUpdater)] = {
-    (for {
-      token <- extractToken(request)
-    } yield for {
-      Some(userId) <- idContainer.get(token)
-      userOpt <- accountManager.findById(userId)
-      _ <- idContainer.prolongTimeout(token, sessionTimeout)
-    } yield userOpt -> tokenAccessor.put(token) _
-      ) getOrElse {
-      Future.successful(Option.empty -> identity)
-    }
+    extractToken(request).map { value =>
+      SessionToken.parse(value).fold(immediateLogout) { token =>
+        accountManager.findById(token.userId).map {
+          case Some(account) if isValid(token, account) =>
+            Some(account) -> unlessSet(r => tokenAccessor.put(token.copy(lastSeen = now).encode)(r))
+          case _ => None -> unlessSet(r => tokenAccessor.delete(r))
+        }
+      }
+    }.getOrElse(Future.successful(Option.empty -> identity))
+  }
+
+  private def immediateLogout(implicit request: RequestHeader): Future[(Option[Account], ResultUpdater)] =
+    Future.successful(None -> unlessSet(r => tokenAccessor.delete(r)))
+
+  // Don't replace a token set by the action, e.g. on login
+  private def unlessSet(update: ResultUpdater): ResultUpdater =
+    result => if (tokenAccessor.setsToken(result)) result else update(result)
+
+  private def isValid(token: SessionToken, account: Account): Boolean = {
+    val time = now
+    token.version == account.sessionVersion &&
+      time - token.issuedAt < sessionMaxAge.toSeconds &&
+      time - token.lastSeen < sessionTimeout.toSeconds
   }
 
   private[auth] def extractToken(request: RequestHeader): Option[String] = {

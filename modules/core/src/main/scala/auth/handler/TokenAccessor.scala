@@ -24,6 +24,11 @@ trait TokenAccessor {
 
   def delete(result: Result)(implicit request: RequestHeader): Result
 
+  /**
+    * Whether the result already sets (or deletes) the token.
+    */
+  def setsToken(result: Result): Boolean
+
   protected def verifyHmac(token: String): Option[String] = {
     val (hmac, value) = token.splitAt(40)
     if (safeEquals(signer.sign(value), hmac)) Some(value) else None

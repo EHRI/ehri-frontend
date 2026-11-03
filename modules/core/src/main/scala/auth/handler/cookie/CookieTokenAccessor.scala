@@ -45,4 +45,7 @@ case class CookieTokenAccessor @Inject()()(val signer: CookieSigner,
   override def delete(result: Result)(implicit request: RequestHeader): Result = {
     result.discardingCookies(DiscardingCookie(cookieName))
   }
+
+  override def setsToken(result: Result): Boolean =
+    result.newCookies.exists(_.name == cookieName)
 }

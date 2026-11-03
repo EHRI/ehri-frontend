@@ -486,13 +486,18 @@ case class Accounts @Inject()(
       data => {
         val (current, newPw, _) = data
         accounts.authenticateById(request.user.id, current).flatMap {
-          case Some(acc) => accounts.update(acc.copy(
-            password = Some(HashedPassword.fromPlain(newPw)),
-            isLegacy = false
-          )).map { _ =>
+          case Some(acc) => for {
+            _ <- accounts.update(acc.copy(
+              password = Some(HashedPassword.fromPlain(newPw)),
+              isLegacy = false
+            ))
+            updated <- accounts.endSessions(acc.id)
+            result <- gotoLoginSucceeded(updated, immediate(
+              Redirect(controllers.portal.users.routes.UserProfiles.updateProfile())
+                .flashing("success" -> "login.password.change.confirmation")))
+          } yield {
             logger.info(s"Password change: ${acc.id}")
-            Redirect(controllers.portal.users.routes.UserProfiles.updateProfile())
-              .flashing("success" -> "login.password.change.confirmation")
+            result
           }
           case None =>
             immediate(BadRequest(views.html.account.changePassword(
@@ -533,10 +538,13 @@ case class Accounts @Inject()(
                 for {
                   _ <- accounts.expireTokens(acc.id)
                   _ <- accounts.update(acc.copy(email = newEmail.toLowerCase))
+                  updated <- accounts.endSessions(acc.id)
+                  result <- gotoLoginSucceeded(updated, immediate(
+                    Redirect(controllers.portal.users.routes.UserProfiles.updateProfile())
+                      .flashing("success" -> "login.email.change.confirmation")))
                 } yield {
                   logger.info(s"Email change: ${acc.id}")
-                  Redirect(controllers.portal.users.routes.UserProfiles.updateProfile())
-                    .flashing("success" -> "login.email.change.confirmation")
+                  result
                 }
           }
           case None =>
@@ -584,11 +592,12 @@ case class Accounts @Inject()(
             for {
               _ <- accounts.expireTokens(account.id)
               // Following the reset link proves they own the email
-              updated <- accounts.update(account.copy(
+              _ <- accounts.update(account.copy(
                 password = Some(HashedPassword.fromPlain(pw)),
                 isLegacy = false,
                 verified = true
               ))
+              updated <- accounts.endSessions(account.id)
               request <- doLogin(updated)
                 .map(_.flashing("success" -> "login.password.reset.confirmation"))
             } yield request
@@ -607,7 +616,7 @@ case class Accounts @Inject()(
   private case class SignupDisabled() extends Exception("Signup disabled")
 
   private def doLogin(account: Account)(implicit request: RequestHeader): Future[Result] =
-    accounts.setLoggedIn(account).flatMap(_ => gotoLoginSucceeded(account.id))
+    accounts.setLoggedIn(account).flatMap(gotoLoginSucceeded(_))
 
   private def updateUserInfo(account: Account, userData: UserData): Future[UserProfile] = {
     implicit val apiUser: AuthenticatedUser = AuthenticatedUser(account.id)

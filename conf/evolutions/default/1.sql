@@ -10,7 +10,8 @@ CREATE TABLE users (
     created         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_login      TIMESTAMP NULL,
     password        VARCHAR(255) NULL,
-    is_legacy       BOOLEAN NOT NULL DEFAULT FALSE
+    is_legacy       BOOLEAN NOT NULL DEFAULT FALSE,
+    session_version INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE UNIQUE INDEX users_email ON users (email);
