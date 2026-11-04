@@ -74,6 +74,8 @@ export default {
         hasParams: this.hasParams,
       },
       parameters: this.initParameters,
+      // Bodies of other types, kept while switching type
+      bodies: {},
       timestamp: (new Date()).toString(),
       inputValidationResults: {},
       outputValidationResults: {},
@@ -111,7 +113,15 @@ export default {
           })
           .finally(() => this.saving = false);
     },
+    // Each type's editor has a different column layout, so it
+    // can't edit another type's body
+    changeType: function (type: string) {
+      this.bodies[this.data.bodyType] = this.data.body;
+      this.data.body = this.bodies[type] ?? (type === this.bodyType ? this.body : "");
+      this.data.bodyType = type;
+    },
     revert: function () {
+      this.bodies = {};
       this.data = {
         name: this.name,
         generic: this.generic,
@@ -256,7 +266,8 @@ export default {
               <input v-model.trim="data.name" id="transformation-name" minlength="3" maxlength="255" required
                      placeholder="(required)"/>
               <label for="transformation-type">Type</label>
-              <select id="transformation-type" v-model="data.bodyType">
+              <select id="transformation-type" v-bind:value="data.bodyType"
+                      v-on:change="changeType($event.target.value)">
                 <option v-bind:value="'xquery'">XQuery</option>
                 <option v-bind:value="'json'">JSON</option>
                 <option v-bind:value="'tabular'">Tabular</option>
