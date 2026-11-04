@@ -103,9 +103,10 @@ class AccountsSpec extends IntegrationTestRunner {
       redirectLocation(resetPost) must not(beSome(accountRoutes.login().url))
     }
 
-    "verify an account when resetting its password" in new ITestApp {
+    "verify an account and remove its OAuth2 links when resetting its password" in new ITestApp {
       val uuid = UUID.randomUUID()
       await(mockAccounts.createToken(unverifiedUser.id, uuid, isSignUp = false))
+      await(mockAccounts.oAuth2.addAssociation(unverifiedUser.id, "55555", "microsoft"))
       val rstData: Map[String, Seq[String]] = Map(
         "password" -> Seq("hellokitty"),
         "confirm" -> Seq("hellokitty"),
@@ -115,6 +116,18 @@ class AccountsSpec extends IntegrationTestRunner {
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString).callWith(rstData)
       status(resetPost) must equalTo(SEE_OTHER)
       await(mockAccounts.findById(unverifiedUser.id)) must beSome.which(_.verified must beTrue)
+      await(mockAccounts.oAuth2.findForAccount(unverifiedUser.id)) must beEmpty
+    }
+
+    "keep a verified account's OAuth2 links when resetting its password" in new ITestApp {
+      val uuid = UUID.randomUUID()
+      await(mockAccounts.createToken(privilegedUser.id, uuid, isSignUp = false))
+      await(mockAccounts.oAuth2.addAssociation(privilegedUser.id, "987654321", "google"))
+      val resetPost = FakeRequest(accountRoutes.resetPasswordPost(uuid.toString))
+        .withCsrf
+        .callWith(Map("password" -> Seq("hellokitty"), "confirm" -> Seq("hellokitty")))
+      status(resetPost) must equalTo(SEE_OTHER)
+      await(mockAccounts.oAuth2.findForAccount(privilegedUser.id)) must not(beEmpty)
     }
 
     "allow user to login with password" in new ITestApp(

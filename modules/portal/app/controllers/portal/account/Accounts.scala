@@ -595,6 +595,8 @@ case class Accounts @Inject()(
           case Some(account) =>
             for {
               _ <- accounts.expireTokens(account.id)
+              // Links added before the email was verified may not be the owner's
+              _ <- if (account.verified) immediate(()) else accounts.oAuth2.removeAssociations(account.id)
               // Following the reset link proves they own the email
               _ <- accounts.update(account.copy(
                 password = Some(HashedPassword.fromPlain(pw)),
