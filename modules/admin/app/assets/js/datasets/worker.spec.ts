@@ -85,10 +85,10 @@ describe("dataset worker", () => {
   describe("task monitor", () => {
     class FakeWebSocket {
       static last: FakeWebSocket;
-      onopen: () => void;
-      onerror: (e: object) => void;
-      onmessage: (e: {data: string}) => void;
-      onclose: (e: {code: number}) => void;
+      onopen!: () => void;
+      onerror!: (e: object) => void;
+      onmessage!: (e: {data: string}) => void;
+      onclose!: (e: {code: number}) => void;
       close = jest.fn(() => this.onclose({code: 1000}));
       constructor(public url: string) {
         FakeWebSocket.last = this;
