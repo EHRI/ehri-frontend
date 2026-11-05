@@ -6,6 +6,7 @@ import models.ImportLog
 import play.api.libs.json.{Json, Writes}
 import services.ingest.IngestService.IngestData
 import utils.db.StorableEnum
+import utils.{Page, PageParams}
 
 import java.time.Instant
 import scala.concurrent.Future
@@ -192,4 +193,14 @@ trait ImportLogService {
     * @return a list of stat objects
     */
   def list(repoId: String, datasetId: Option[String]): Future[Seq[ImportLogSummary]]
+
+  /**
+    * List the created, updated, unchanged stats for imports in
+    * all repositories, most recent first.
+    *
+    * @param params paging parameters
+    * @param repoId an optional repository ID to restrict the list to
+    * @return a page of stat objects
+    */
+  def listAll(params: PageParams, repoId: Option[String] = None): Future[Page[ImportLogSummary]]
 }
