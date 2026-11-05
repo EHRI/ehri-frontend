@@ -47,6 +47,11 @@ export default {
       this.jobId = jobId;
       return await new Promise(((resolve) => {
         let worker = new Worker(this.config.websocketHandler);
+        let finish = () => {
+          worker.terminate();
+          this.jobId = null;
+          resolve();
+        };
         worker.onmessage = msg => {
           if (msg.data.error) {
             this.println(msg.data.error);
@@ -55,10 +60,12 @@ export default {
             onMsg(msg.data.msg);
           }
           if (msg.data.done || msg.data.error) {
-            worker.terminate();
-            this.jobId = null;
-            resolve();
+            finish();
           }
+        };
+        worker.onerror = e => {
+          this.println("Task monitor error: " + e.message);
+          finish();
         };
         worker.postMessage({
           type: 'websocket',

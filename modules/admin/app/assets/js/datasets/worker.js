@@ -107,22 +107,34 @@ addEventListener('message', ({data}) => {
   } else if (data.type === 'websocket') {
     let url = data.url;
     let websocket = new WebSocket(url);
+    let finished = false;
     websocket.onopen = function () {
       console.debug("Websocket open")
     };
+    // An error event can't be posted from a worker, and is always
+    // followed by a close event, so it is reported there instead
     websocket.onerror = function (e) {
-      postMessage({error: e});
+      console.error("Websocket error", e);
     };
     websocket.onmessage = function (e) {
       let msg = JSON.parse(e.data);
       let done = msg.indexOf(data.DONE) !== -1 || msg.indexOf(data.ERR) !== -1;
       postMessage({msg: msg, done: done});
       if (done) {
+        finished = true;
         websocket.close();
       }
     };
-    websocket.onclose = function () {
-      console.debug("Websocket close")
+    websocket.onclose = function (e) {
+      console.debug("Websocket close", e.code);
+      if (!finished) {
+        finished = true;
+        postMessage({
+          error: "Lost connection to the task monitor (code " + e.code + "). " +
+              "The task may still be running: reload the page to check its progress.",
+          done: true
+        });
+      }
     }
   }
 }, false);
