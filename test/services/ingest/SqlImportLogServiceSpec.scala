@@ -128,5 +128,28 @@ class SqlImportLogServiceSpec extends PlaySpecification with AfterAll {
       paged.total must_== 2
       paged.items.map(_.repoId) must_== Seq("r1")
     }
+
+    "total imports per repository and month, most recent first" in withDatabaseFixture("data-transformation-fixtures.sql") { implicit db =>
+      await(service.save("r1", "default", job, log))
+      await(service.save("r1", "default", job, log))
+      await(service.save("r2", "default", job, log))
+      db.withConnection { implicit conn =>
+        anorm.SQL("UPDATE import_log SET created = '2021-08-15 12:00:00' WHERE id = (SELECT min(id) FROM import_log)").executeUpdate()
+      }
+
+      val all = await(service.monthlyTotals(PageParams()))
+      all.total must_== 3
+      all.items.map(t => (t.repoId, t.imports, t.created, t.updated)) must_==
+        Seq(("r1", 1, 2, 1), ("r2", 1, 2, 1), ("r1", 1, 2, 1))
+      all.items.last.month must_== java.time.LocalDateTime.parse("2021-08-01T00:00:00")
+        .atZone(java.time.ZoneId.systemDefault()).toInstant
+
+      val r1 = await(service.monthlyTotals(PageParams(), Some("r1")))
+      r1.items.map(_.repoId) must_== Seq("r1", "r1")
+
+      val paged = await(service.monthlyTotals(PageParams(page = 2, limit = 2)))
+      paged.total must_== 3
+      paged.items.map(_.repoId) must_== Seq("r1")
+    }
   }
 }

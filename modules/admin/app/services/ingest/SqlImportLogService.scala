@@ -42,6 +42,9 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
   private val cleanupIdTimestampParser = (int("id") ~ get[Instant]("created"))
     .map { case id ~ created => id -> created }
 
+  private val monthlyParser =
+    Macro.parser[MonthlyImportSummary]("month", "repo_id", "imports", "created", "updated", "unchanged")
+
   private val statParser =
     Macro.parser[ImportLogSummary]("id", "repo_id", "import_dataset_id", "event_id", "timestamp", "created", "updated", "unchanged")
 
@@ -232,6 +235,42 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
             WHERE ($repoId IS NULL OR log.repo_id = $repoId)
               AND EXISTS (SELECT 1 FROM import_file_mapping map WHERE map.import_log_id = log.id)"""
         .as(SqlParser.scalar[Int].single)
+      Page(items = items, total = total, offset = params.offset, limit = params.limit)
+    }
+  }
+
+  override def monthlyTotals(params: PageParams, repoId: Option[String] = None): Future[Page[MonthlyImportSummary]] = Future {
+    db.withConnection { implicit conn =>
+      val items = SQL"""WITH page AS (
+              SELECT date_trunc('month', log.created) AS month, log.repo_id, count(*) AS imports
+              FROM import_log log
+              WHERE ($repoId IS NULL OR log.repo_id = $repoId)
+                AND EXISTS (SELECT 1 FROM import_file_mapping map WHERE map.import_log_id = log.id)
+              GROUP BY month, log.repo_id
+              ORDER BY month DESC, log.repo_id
+              LIMIT ${if (params.hasLimit) params.limit else Integer.MAX_VALUE}
+              OFFSET ${params.offset}
+            )
+            SELECT
+              page.month,
+              page.repo_id,
+              page.imports,
+              sum(case when map.type = 'created' then 1 else 0 end) AS created,
+              sum(case when map.type = 'updated' then 1 else 0 end) AS updated,
+              sum(case when map.type = 'unchanged' then 1 else 0 end) AS unchanged
+            FROM page, import_log log, import_file_mapping map
+            WHERE log.repo_id = page.repo_id
+              AND log.created >= page.month
+              AND log.created < page.month + INTERVAL '1 month'
+              AND log.id = map.import_log_id
+            GROUP BY page.month, page.repo_id, page.imports
+            ORDER BY page.month DESC, page.repo_id""".as(monthlyParser.*)
+      val total = SQL"""SELECT COUNT(*) FROM (
+              SELECT 1 FROM import_log log
+              WHERE ($repoId IS NULL OR log.repo_id = $repoId)
+                AND EXISTS (SELECT 1 FROM import_file_mapping map WHERE map.import_log_id = log.id)
+              GROUP BY date_trunc('month', log.created), log.repo_id
+            ) AS groups""".as(SqlParser.scalar[Int].single)
       Page(items = items, total = total, offset = params.offset, limit = params.limit)
     }
   }

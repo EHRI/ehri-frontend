@@ -1,7 +1,7 @@
 # Data management
 
 GET         /                                             @controllers.datasets.ImportDatasets.dashboard()
-GET         /imports                                      @controllers.datasets.ImportDatasets.imports(repoId: Option[String] ?= None, paging: utils.PageParams ?= utils.PageParams.empty)
+GET         /imports                                      @controllers.datasets.ImportDatasets.imports(repoId: Option[String] ?= None, monthly: Boolean ?= false, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /routes                                       @controllers.datasets.ImportDatasets.jsRoutes()
 GET         /:id                                          @controllers.datasets.ImportDatasets.manager(id: String, ds: Option[String] ?= None)
 
