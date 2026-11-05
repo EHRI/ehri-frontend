@@ -57,7 +57,7 @@ export default defineComponent({
         this.loading = false;
       }
     },
-    downloadConfig: async function (key) {
+    downloadConfig: async function (key: string) {
       this.loading = true;
       this.$emit("update");
       try {

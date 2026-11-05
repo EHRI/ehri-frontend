@@ -27,10 +27,10 @@ export default defineComponent({
       return !this.contentType || (this.contentType.includes('csv'));
     },
     // NB: expected columns is actually unused here, because we can't really know it for arbitrary data.
-    encode: function (data) {
+    encode: function (data: string[][]): string {
       return this.isCsv() ? encodeCsv(data, this.expectedColumns) : encodeTsv(data, this.expectedColumns, true);
     },
-    decode: function (data) {
+    decode: function (data: string): string[][] {
       return this.isCsv() ? decodeCsv(data, this.expectedColumns) : decodeTsv(data, this.expectedColumns, true);
     },
   },

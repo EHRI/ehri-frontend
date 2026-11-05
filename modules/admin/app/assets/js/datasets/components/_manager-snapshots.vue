@@ -48,7 +48,7 @@ export default defineComponent({
       this.current = snapshot;
       await this.loadCleanup(snapshot);
     },
-    takeSnapshot: async function (notes) {
+    takeSnapshot: async function (notes: string) {
       this.showCreateDialog = false;
       this.inProgress = true;
       try {
