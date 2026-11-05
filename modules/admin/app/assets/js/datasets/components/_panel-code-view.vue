@@ -1,4 +1,5 @@
 <script lang="ts">
+import {defineComponent, PropType} from 'vue';
 
 
 import {Compartment, EditorState} from "@codemirror/state";
@@ -8,7 +9,7 @@ import {json} from "@codemirror/lang-json";
 import {setValidationErrors, validationExtension} from "../codemirror-error-ext";
 import {XmlValidationError} from "../types";
 
-export default {
+export default defineComponent({
   props: {
     modelValue: {
       type: String,
@@ -24,7 +25,7 @@ export default {
       default: false,
     },
     errors: {
-      type: Array as XmlValidationError[] | null,
+      type: Array as PropType<XmlValidationError[] | null>,
       default: null
     }
   },
@@ -124,7 +125,7 @@ export default {
   beforeUnmount: function () {
     this.editor?.destroy();
   },
-}
+});
 </script>
 
 <template>

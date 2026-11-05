@@ -1,8 +1,9 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
 import _isObject from 'lodash/isObject';
 
-export default {
+export default defineComponent({
   props: {
     modelValue: Object,
   },
@@ -31,7 +32,7 @@ export default {
       this.update();
     }
   }
-}
+});
 </script>
 
 <template>

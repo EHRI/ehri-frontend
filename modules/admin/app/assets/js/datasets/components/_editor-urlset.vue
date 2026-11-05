@@ -1,22 +1,23 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
 import {nextTick} from "vue";
 
 import _padStart from 'lodash/padStart';
 import _clone from 'lodash/clone';
-import ModalAlert from './_modal-alert';
+import ModalAlert from './_modal-alert.vue';
 import {decodeTsv, encodeTsv} from "../common";
 
 /**
  * FIXME: massive duplication with the tabular XQuery editor here
  */
 
-export default {
+export default defineComponent({
   components: {ModalAlert},
   props: {
     modelValue: String,
   },
-  data: function (): Object {
+  data: function () {
     return {
       mappings: this.deserialize(this.modelValue),
       selected: -1,
@@ -113,7 +114,7 @@ export default {
       this.mappings = this.deserialize(newValue);
     }
   }
-};
+});
 </script>
 
 <template>
@@ -139,8 +140,8 @@ export default {
           <input
               v-for="col in [0, 1]"
               type="text"
-              v-bind:ref="_padStart(row, 4, 0) + '-' + col"
-              v-bind:key="_padStart(row, 4, 0) + '-' + col"
+              v-bind:ref="_padStart(String(row), 4, '0') + '-' + col"
+              v-bind:key="_padStart(String(row), 4, '0') + '-' + col"
               v-bind:class="{'selected': selected === row}"
               v-model="mappings[row][col]"
               v-on:change="update"

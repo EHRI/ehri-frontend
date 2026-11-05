@@ -1,7 +1,8 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
-export default {
-  data: function (): object {
+export default defineComponent({
+  data: function () {
     return {
       panelSize: null,
     }
@@ -11,5 +12,5 @@ export default {
       this.panelSize = arbitrarySize;
     }
   }
-}
+});
 </script>

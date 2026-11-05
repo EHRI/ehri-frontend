@@ -1,8 +1,9 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
-import ConceptDescriptionMultiItem from './_concept-description-multi-item';
+import ConceptDescriptionMultiItem from './_concept-description-multi-item.vue';
 
-export default {
+export default defineComponent({
   components: {ConceptDescriptionMultiItem},
   props: {
     data: Object,
@@ -19,7 +20,7 @@ export default {
       this.state = newData;
     },
   },
-}
+});
 </script>
 
 <template>

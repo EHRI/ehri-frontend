@@ -1,9 +1,10 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
-import ConceptDataEditor from './_concept-data-editor';
+import ConceptDataEditor from './_concept-data-editor.vue';
 import VocabEditorApi from "../api";
 
-export default {
+export default defineComponent({
   components: {ConceptDataEditor},
   props: {
     api: VocabEditorApi,
@@ -44,7 +45,7 @@ export default {
       });
     },
   },
-}
+});
 </script>
 
 <template>

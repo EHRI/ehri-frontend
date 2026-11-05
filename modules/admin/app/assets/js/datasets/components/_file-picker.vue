@@ -1,12 +1,12 @@
 <script lang="ts">
 
-import {nextTick} from 'vue';
-import FilePickerSuggestion from './_file-picker-suggestion';
+import {nextTick, defineComponent} from 'vue';
+import FilePickerSuggestion from './_file-picker-suggestion.vue';
 
 import _debounce from 'lodash/debounce';
 import {DatasetManagerApi} from '../api';
 
-export default {
+export default defineComponent({
   components: {FilePickerSuggestion},
   props: {
     datasetId: String,
@@ -20,7 +20,7 @@ export default {
       default: "Select file..."
     }
   },
-  data: function (): object {
+  data: function () {
     return {
       text: null,
       selectedIdx: -1,
@@ -70,7 +70,7 @@ export default {
       })
     }
   },
-};
+});
 </script>
 
 <template>
@@ -82,7 +82,7 @@ export default {
              v-bind:disabled="disabled"
              v-bind:value="text !== null ? text : (modelValue ? modelValue.key : '')"
              v-on:focus="search"
-             v-on:input="text = $event.target.value; search()"
+             v-on:input="text = ($event.target as HTMLInputElement).value; search()"
              v-on:keydown.up="selectPrev"
              v-on:keydown.down="selectNext"
              v-on:keydown.enter="setItemFromSelection"

@@ -1,19 +1,21 @@
 <script lang="ts">
+import {defineComponent, PropType} from 'vue';
 
-import ConceptRelEditor from './_concept-rel-editor';
-import ConceptDataEditor from './_concept-data-editor';
-import ConceptDeleter from './_concept-deleter';
+import ConceptRelEditor from './_concept-rel-editor.vue';
+import ConceptDataEditor from './_concept-data-editor.vue';
+import ConceptDeleter from './_concept-deleter.vue';
 
 import {conceptTitle, formatTimestamp} from "../common";
 import VocabEditorApi from "../api";
+import {Concept} from "../types";
 
-export default {
+export default defineComponent({
   components: {ConceptRelEditor, ConceptDataEditor, ConceptDeleter},
   props: {
     api: VocabEditorApi,
     lang: String,
     id: String,
-    data: Object,
+    data: Object as PropType<Concept>,
     dirtyData: Boolean,
     dirtyRels: Boolean,
     langData: Object,
@@ -84,7 +86,7 @@ export default {
       }
     }
   },
-}
+});
 </script>
 
 <template>

@@ -6,7 +6,7 @@ import EntityTypeMetadataApi from "./api";
 jest.mock('./api');
 
 config.global.mocks = {
-  '$t': (msg) => msg, // return i18n key
+  '$t': (msg: string) => msg, // return i18n key
 }
 
 const defaultInit = {

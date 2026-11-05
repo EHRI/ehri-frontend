@@ -1,4 +1,5 @@
 <script lang="ts">
+import {defineComponent, PropType} from 'vue';
 
 
 import _debounce from 'lodash/debounce';
@@ -9,33 +10,33 @@ import _isEmpty from 'lodash/isEmpty';
 import {FileMeta, ImportDataset} from '../types';
 import {DatasetManagerApi} from "../api";
 
-let initialStageState = function (): object {
+let initialStageState = function () {
   return {
     loaded: false,
     loadingMore: false,
     truncated: false,
     tab: 'preview',
-    previewing: null,
-    deleting: {},
-    downloading: {},
-    loadingInfo: {},
-    selected: {},
+    previewing: null as FileMeta | null,
+    deleting: {} as Record<string, boolean>,
+    downloading: {} as Record<string, boolean>,
+    loadingInfo: {} as Record<string, boolean>,
+    selected: {} as Record<string, FileMeta>,
     filter: {
       value: "",
       active: false
     },
-    files: [],
+    files: [] as FileMeta[],
     fileInfo: null,
   };
 };
 
-export default {
+export default defineComponent({
   props: {
-    dataset: Object as ImportDataset,
+    dataset: Object as PropType<ImportDataset>,
     active: Boolean,
     api: DatasetManagerApi,
   },
-  data: function (): object {
+  data: function () {
     return initialStageState();
   },
   computed: {
@@ -174,5 +175,5 @@ export default {
   created: function () {
     this.load();
   }
-}
+});
 </script>

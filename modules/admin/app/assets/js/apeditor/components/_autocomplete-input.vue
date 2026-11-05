@@ -1,8 +1,9 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
-import AutocompleteSuggestion from './_autocomplete-suggestion';
+import AutocompleteSuggestion from './_autocomplete-suggestion.vue';
 
-export default {
+export default defineComponent({
   components: {AutocompleteSuggestion},
   props: {
     type: String,
@@ -72,7 +73,7 @@ export default {
       this.item = null;
     }
   },
-}
+});
 </script>
 
 <template>

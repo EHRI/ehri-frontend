@@ -1,14 +1,15 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
 import {toRaw} from "vue";
-import ModalWindow from './_modal-window';
-import ModalAlert from './_modal-alert';
-import PanelCodeView from './_panel-code-view';
+import ModalWindow from './_modal-window.vue';
+import ModalAlert from './_modal-alert.vue';
+import PanelCodeView from './_panel-code-view.vue';
 
 import _isObject from 'lodash/isObject';
 import {XmlValidationError} from "../types";
 
-export default {
+export default defineComponent({
   components: {PanelCodeView, ModalWindow, ModalAlert},
   props: {
     jsonObject: Object,
@@ -36,7 +37,7 @@ export default {
       }
     }
   }
-};
+});
 </script>
 
 <template>

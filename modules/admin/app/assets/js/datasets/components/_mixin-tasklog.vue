@@ -1,4 +1,5 @@
 <script lang="ts">
+import {defineComponent, PropType} from 'vue';
 
 
 import {DatasetManagerApi} from "../api";
@@ -7,10 +8,10 @@ import {Terminal} from "xterm";
 import termopts from "../termopts";
 
 interface Api {
-  cancel: (jobId: string) => Promise<void>;
+  cancel: (jobId: string) => Promise<unknown>;
 }
 
-let initialLogState = function (): object {
+let initialLogState = function () {
   return {
     log: new Terminal(termopts),
     jobId: null,
@@ -20,12 +21,12 @@ let initialLogState = function (): object {
   };
 };
 
-export default {
+export default defineComponent({
   props: {
-    api: Object as Api,
+    api: Object as PropType<Api>,
     config: Object,
   },
-  data: function (): object {
+  data: function () {
     return initialLogState();
   },
   methods: {
@@ -45,7 +46,7 @@ export default {
 
     monitor: async function (url: string, jobId: string, onMsg: (s: string) => any = function () {}, clear: boolean = false) {
       this.jobId = jobId;
-      return await new Promise(((resolve) => {
+      return await new Promise<void>(((resolve) => {
         let worker = new Worker(this.config.websocketHandler);
         worker.onmessage = msg => {
           if (msg.data.error) {
@@ -83,5 +84,5 @@ export default {
       }
     }
   },
-}
+});
 </script>

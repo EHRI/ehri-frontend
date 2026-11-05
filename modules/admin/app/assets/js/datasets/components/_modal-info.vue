@@ -1,7 +1,7 @@
 <script type="ts">
 
 import {humanFileSize, timeToRelative} from "../common";
-import ModalWindow from './_modal-window';
+import ModalWindow from './_modal-window.vue';
 
 export default {
   components: {ModalWindow},

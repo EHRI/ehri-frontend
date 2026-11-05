@@ -1,10 +1,11 @@
 <script lang="ts">
-export default {
+import {defineComponent} from 'vue';
+export default defineComponent({
   props: {
     selected: Boolean,
     item: Object,
   },
-}
+});
 </script>
 
 <template>

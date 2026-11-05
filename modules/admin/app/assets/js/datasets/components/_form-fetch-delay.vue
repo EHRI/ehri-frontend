@@ -1,6 +1,7 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
-export default {
+export default defineComponent({
   props: {
     modelValue: Number,
   },
@@ -19,7 +20,7 @@ export default {
       this.update();
     }
   }
-}
+});
 </script>
 
 <template>

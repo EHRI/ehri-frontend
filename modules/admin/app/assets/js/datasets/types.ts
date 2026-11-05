@@ -96,7 +96,7 @@ export interface DataTransformation extends DataTransformationInfo {
 
 export type ImportDatasetSrc = 'oaipmh' | 'rs' | 'upload' | 'urlset';
 
-export type ImportDatasetStatus = 'active|onhold|inactive';
+export type ImportDatasetStatus = 'active' | 'onhold' | 'inactive';
 
 export interface ImportDatasetInfo {
   id: string,

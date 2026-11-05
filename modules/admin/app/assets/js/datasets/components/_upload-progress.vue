@@ -1,9 +1,10 @@
 <script lang="ts">
+import {defineComponent, PropType} from 'vue';
 import {FileUploadProgress} from "../types";
 
-export default {
+export default defineComponent({
   props: {
-    uploading: Array as FileUploadProgress[],
+    uploading: Array as PropType<FileUploadProgress[]>,
   },
   emits: ['cancel-upload', 'finish-item'],
   data: function () {
@@ -11,7 +12,7 @@ export default {
       showProgress: true,
     };
   },
-};
+});
 </script>
 
 <template>

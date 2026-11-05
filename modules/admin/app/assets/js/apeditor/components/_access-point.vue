@@ -1,5 +1,6 @@
 <script lang="ts">
-export default {
+import {defineComponent} from 'vue';
+export default defineComponent({
   props: {
     accessPoint: Object,
     link: Object,
@@ -41,7 +42,7 @@ export default {
       }
     }
   },
-}
+});
 </script>
 
 <template>

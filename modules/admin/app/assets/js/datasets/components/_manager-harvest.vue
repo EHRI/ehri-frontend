@@ -1,30 +1,31 @@
 <script lang="ts">
+import {defineComponent, PropType} from 'vue';
 
-import FilterControl from './_filter-control';
-import ButtonValidate from './_button-validate';
-import ButtonDelete from './_button-delete';
-import ModalOaipmhConfig from './_modal-oaipmh-config';
-import ModalRsConfig from './_modal-rs-config';
-import ModalUrlsetConfig from './_modal-urlset-config';
-import PanelFilePreview from './_panel-file-preview';
-import FilesTable from './_files-table';
-import DragHandle from './_drag-handle';
-import ModalInfo from './_modal-info';
-import PanelLogWindow from './_panel-log-window';
+import FilterControl from './_filter-control.vue';
+import ButtonValidate from './_button-validate.vue';
+import ButtonDelete from './_button-delete.vue';
+import ModalOaipmhConfig from './_modal-oaipmh-config.vue';
+import ModalRsConfig from './_modal-rs-config.vue';
+import ModalUrlsetConfig from './_modal-urlset-config.vue';
+import PanelFilePreview from './_panel-file-preview.vue';
+import FilesTable from './_files-table.vue';
+import DragHandle from './_drag-handle.vue';
+import ModalInfo from './_modal-info.vue';
+import PanelLogWindow from './_panel-log-window.vue';
 
-import MixinStage from './_mixin-stage';
-import MixinTwoPanel from './_mixin-two-panel';
-import MixinPreview from './_mixin-preview';
-import MixinValidator from './_mixin-validator';
-import MixinError from './_mixin-error';
-import MixinUtil from './_mixin-util';
-import MixinTasklog from './_mixin-tasklog';
+import MixinStage from './_mixin-stage.vue';
+import MixinTwoPanel from './_mixin-two-panel.vue';
+import MixinPreview from './_mixin-preview.vue';
+import MixinValidator from './_mixin-validator.vue';
+import MixinError from './_mixin-error.vue';
+import MixinUtil from './_mixin-util.vue';
+import MixinTasklog from './_mixin-tasklog.vue';
 
 import {DatasetManagerApi} from '../api';
 import {HarvestConfig, ImportDataset} from "../types";
 
 
-export default {
+export default defineComponent({
   components: {
     FilterControl,
     FilesTable,
@@ -40,7 +41,7 @@ export default {
   },
   mixins: [MixinStage, MixinTwoPanel, MixinValidator, MixinError, MixinPreview, MixinUtil, MixinTasklog],
   props: {
-    dataset: Object as ImportDataset,
+    dataset: Object as PropType<ImportDataset>,
     fileStage: String,
     urlKey: {
       type: String,
@@ -95,7 +96,7 @@ export default {
     this.loadConfig();
     this.resumeMonitor();
   },
-};
+});
 </script>
 
 <template>
@@ -115,7 +116,7 @@ export default {
       <button-delete
           v-bind:selected="selectedKeys.length"
           v-bind:disabled="files.length === 0 || jobId !== null"
-          v-bind:active="deleting.length > 0"
+          v-bind:active="Object.keys(deleting).length > 0"
           v-on:delete="deleteFiles(selectedKeys)"
       />
 

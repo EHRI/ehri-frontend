@@ -1,10 +1,11 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
-import ConceptDescriptionEditor from './_concept-description-editor';
+import ConceptDescriptionEditor from './_concept-description-editor.vue';
 
 import _findIndex from 'lodash/findIndex';
 
-export default {
+export default defineComponent({
   components: {ConceptDescriptionEditor},
   props: {
     lang: String,
@@ -110,7 +111,7 @@ export default {
       this.$emit("updated")
     }
   },
-}
+});
 </script>
 
 <template>

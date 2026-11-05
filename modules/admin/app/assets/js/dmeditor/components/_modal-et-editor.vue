@@ -1,16 +1,17 @@
 <script lang="ts">
 
+import {PropType, defineComponent} from 'vue';
 import EntityTypeMetadataApi from "../api";
 import {EntityTypeMetadata} from "../types";
-import ModalWindow from "../../datasets/components/_modal-window";
+import ModalWindow from "../../datasets/components/_modal-window.vue";
 import ModalAlert from "../../datasets/components/_modal-alert.vue";
 
-export default {
+export default defineComponent({
   components: {ModalAlert, ModalWindow},
   props: {
-    api: Object as EntityTypeMetadataApi,
-    item: Object as EntityTypeMetadata,
-    entityTypeMetadata: Object as Record<string, EntityTypeMetadata>
+    api: Object as PropType<EntityTypeMetadataApi>,
+    item: Object as PropType<EntityTypeMetadata>,
+    entityTypeMetadata: Object as PropType<Record<string, EntityTypeMetadata>>
   },
   data() {
     return {
@@ -49,9 +50,7 @@ export default {
       }
     }
   },
-}
-
-
+});
 </script>
 
 <template>

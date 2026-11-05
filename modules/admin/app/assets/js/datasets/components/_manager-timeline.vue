@@ -1,13 +1,14 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
-import MixinUtil from './_mixin-util';
-import MixinError from './_mixin-error';
+import MixinUtil from './_mixin-util.vue';
+import MixinError from './_mixin-error.vue';
 import {DatasetManagerApi} from "../api";
 import {timeToRelative} from "../common";
 import {ImportLogSummary} from "../types";
 import _includes from 'lodash/includes';
 
-export default {
+export default defineComponent({
   mixins: [MixinUtil, MixinError],
   props: {
     datasets: Array,
@@ -67,7 +68,7 @@ export default {
   created() {
     this.refresh().then(() => this.initialised = true);
   }
-}
+});
 </script>
 <template>
   <div id="timeline-manager">

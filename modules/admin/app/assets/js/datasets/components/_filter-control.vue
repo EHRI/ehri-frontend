@@ -1,10 +1,11 @@
 <script lang="ts">
-export default {
+import {defineComponent, PropType} from 'vue';
+export default defineComponent({
   props: {
-    filter: Object as { value: string, active: boolean }
+    filter: Object as PropType<{ value: string, active: boolean }>
   },
   emits: ['filter', 'clear'],
-};
+});
 </script>
 
 <template>

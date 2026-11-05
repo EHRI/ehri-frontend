@@ -1,9 +1,10 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
-import ModalWindow from './_modal-window';
-import ModalAlert from './_modal-alert';
+import ModalWindow from './_modal-window.vue';
+import ModalAlert from './_modal-alert.vue';
 
-export default {
+export default defineComponent({
   components: {ModalWindow, ModalAlert},
   props: {},
   data: function () {
@@ -16,7 +17,7 @@ export default {
       return this.data.trim() !== "";
     }
   }
-};
+});
 </script>
 
 <template>

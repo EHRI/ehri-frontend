@@ -1,9 +1,10 @@
 <script lang="ts">
+import {defineComponent, PropType} from 'vue';
 
-export default {
+export default defineComponent({
   props: {
     label: String,
-    modelValue: Array,
+    modelValue: Array as PropType<string[]>,
     text: Boolean,
     type: {
       type: String,
@@ -32,7 +33,7 @@ export default {
       this.state = newData;
     },
   },
-}
+});
 </script>
 
 <template>

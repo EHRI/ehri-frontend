@@ -10,8 +10,8 @@ import {
 export default class EntityTypeMetadataApi {
 
   service = {};
-  etData = {};
-  fData = {};
+  etData: Partial<Record<EntityType, EntityTypeMetadata>> = {};
+  fData: Partial<Record<EntityType, FieldMetadata[]>> = {};
 
   constructor(service: object) {
     this.service = service;
@@ -32,7 +32,7 @@ export default class EntityTypeMetadataApi {
           name: "History",
           description: "Test",
           usage: "mandatory",
-          defaultVal: null,
+          defaultVal: undefined,
           seeAlso: ["seeAlso"],
           created: "2021-06-01"
         }
@@ -42,7 +42,7 @@ export default class EntityTypeMetadataApi {
   }
 
   list(): Promise<Record<EntityType, EntityTypeMetadata>> {
-    return Promise.resolve(this.etData);
+    return Promise.resolve(this.etData as Record<EntityType, EntityTypeMetadata>);
   }
 
   get(entityType: EntityType): Promise<EntityTypeMetadata | null> {
@@ -61,11 +61,11 @@ export default class EntityTypeMetadataApi {
   }
 
   listFields(entityType?: EntityType): Promise<Record<EntityType, FieldMetadata[]>> {
-    return Promise.resolve(this.fData);
+    return Promise.resolve(this.fData as Record<EntityType, FieldMetadata[]>);
   }
 
   getField(entityType: EntityType, id: string): Promise<FieldMetadata | null> {
-    return Promise.resolve(this.fData[entityType].find(f => f.id === id) || null);
+    return Promise.resolve(this.fData[entityType]?.find(f => f.id === id) || null);
   }
 
   saveField(entityType: EntityType, id: string, data: FieldMetadataInfo): Promise<FieldMetadata> {
@@ -78,7 +78,7 @@ export default class EntityTypeMetadataApi {
 
   deleteField(entityType: EntityType, id: string): Promise<boolean> {
     // remove the item from fData:
-    this.fData[entityType] = this.fData[entityType].filter(f => f.id !== id);
+    this.fData[entityType] = this.fData[entityType]?.filter(f => f.id !== id);
     return Promise.resolve(true);
   }
 
@@ -87,6 +87,6 @@ export default class EntityTypeMetadataApi {
       Country: {
         "_" : ["history"]
       }
-    } as FieldMetadataTemplates);
+    } as unknown as FieldMetadataTemplates);
   }
 }

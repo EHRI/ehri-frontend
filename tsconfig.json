@@ -2,6 +2,7 @@
   "compilerOptions": {
     "diagnostics": false,
     "strict": true,
+    "skipLibCheck": true,
     "target": "es2015",
     "module": "esnext",
     "allowJs": true,
@@ -13,6 +14,7 @@
   "include": [
     "modules/admin/app/assets/js/datasets",
     "modules/admin/app/assets/js/vocabeditor",
-    "modules/admin/app/assets/js/apeditor"
+    "modules/admin/app/assets/js/apeditor",
+    "modules/admin/app/assets/js/dmeditor"
   ]
 }

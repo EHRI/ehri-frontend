@@ -1,12 +1,13 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
-export default {
+export default defineComponent({
   props: {
     ns: String,
     p2: Function,
     container: Function,
   },
-  data: function (): Object {
+  data: function () {
     return {
       offset: 0,
     }
@@ -54,7 +55,7 @@ export default {
       }, {once: true});
     },
   },
-};
+});
 </script>
 
 <template>

@@ -1,8 +1,9 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
-import AutocompleteInput from './_autocomplete-input';
+import AutocompleteInput from './_autocomplete-input.vue';
 
-export default {
+export default defineComponent({
   components: {AutocompleteInput},
   props: {
     type: String,
@@ -36,7 +37,7 @@ export default {
       this.adding[i].description = desc;
     }
   },
-}
+});
 </script>
 
 <template>

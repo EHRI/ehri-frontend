@@ -1,12 +1,14 @@
 <script lang="ts">
+import {defineComponent, PropType} from 'vue';
 
-import AccessPointType from "./components/_access-point-type";
+import AccessPointType from "./components/_access-point-type.vue";
 import AccessPointEditorApi from "./api";
+import {ConfigType} from "./types";
 
-export default {
+export default defineComponent({
   components: {AccessPointType},
   props: {
-    config: Object,
+    config: Object as PropType<ConfigType>,
     service: Object,
   },
   data() {
@@ -28,7 +30,7 @@ export default {
   created: function () {
     this.reload();
   },
-}
+});
 </script>
 
 <template>

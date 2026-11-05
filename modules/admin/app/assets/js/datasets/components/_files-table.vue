@@ -1,5 +1,7 @@
 <script lang="ts">
+import {defineComponent, PropType} from 'vue';
 import {humanFileSize, timeToRelative} from "../common";
+import {FileMeta} from "../types";
 
 function emptyObj() {
   return {};
@@ -9,9 +11,9 @@ function emptyObj() {
  * Files table: this can be a fairly heavy component if there are lots of files
  * so it's rendered as a functional component with no state of its own.
  */
-export default {
+export default defineComponent({
   props: {
-    files: Array,
+    files: Array as PropType<FileMeta[]>,
     fileStage: String,
     loadingMore: {
       type: Boolean,
@@ -26,7 +28,7 @@ export default {
       default: false
     },
     previewing: {
-      type: Object,
+      type: Object as PropType<FileMeta>,
       default: emptyObj,
     },
     validating: {
@@ -67,7 +69,7 @@ export default {
     humanFileSize,
     decodeURI,
   },
-};
+});
 </script>
 
 <template>
@@ -82,7 +84,7 @@ export default {
         <th><input type="checkbox"
                    v-bind:id="fileStage + '-checkall'"
                    v-bind:indeterminate.prop="Object.keys(selected).length > 0 && Object.keys(selected).length < files.length"
-                   v-on:change="e => $emit('toggle-all', e.target.checked)"/></th>
+                   v-on:change="e => $emit('toggle-all', (e.target as HTMLInputElement).checked)"/></th>
         <th>Name</th>
         <th>Last Modified</th>
         <th>Size</th>

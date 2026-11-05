@@ -1,4 +1,5 @@
 <script lang="ts">
+import {defineComponent, PropType} from 'vue';
 
 // NB: This mixin assumes MixinTasklog is also present.
 
@@ -10,9 +11,9 @@ import _find from 'lodash/find';
 import {ImportDataset, ValidationResult} from "../types";
 import {green, red} from "../termcolors";
 
-export default {
+export default defineComponent({
   props: {
-    dataset: Object as ImportDataset,
+    dataset: Object as PropType<ImportDataset>,
     fileStage: String,
     api: Object,
   },
@@ -38,7 +39,7 @@ export default {
             res.errors.forEach(err => {
               // XML errors are line/pos-located; tabular/JSON field errors
               // are located by field name instead.
-              let location = !_isUndefined(err.line) ? (err.line + "/" + err.pos) : err.field;
+              let location = "line" in err ? (err.line + "/" + err.pos) : err.field;
               this.println("    " + location + " - " + err.error);
             })
           }
@@ -61,6 +62,6 @@ export default {
           });
     },
   }
-}
+});
 </script>
 

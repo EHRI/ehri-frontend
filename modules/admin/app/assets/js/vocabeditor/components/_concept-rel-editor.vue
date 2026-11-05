@@ -1,19 +1,21 @@
 <script lang="ts">
+import {defineComponent, PropType} from 'vue';
 
-import AutocompleteInput from './_autocomplete-input';
-import ConceptHierarchy from './_concept-hierarchy';
+import AutocompleteInput from './_autocomplete-input.vue';
+import ConceptHierarchy from './_concept-hierarchy.vue';
 import VocabEditorApi from "../api";
 import {conceptTitle, sortByTitle} from "../common";
+import {Concept} from "../types";
 
 import _findIndex from 'lodash/findIndex';
 
-export default {
+export default defineComponent({
   components: {AutocompleteInput, ConceptHierarchy},
   props: {
     api: VocabEditorApi,
     lang: String,
     id: String,
-    data: Array,
+    data: Array as PropType<Concept[]>,
     dirty: Boolean,
   },
   data: function () {
@@ -45,7 +47,7 @@ export default {
           .then(() => this.loading = false);
     },
     removeBroader: function (item) {
-      this.state.splice(_findIndex(this.state, c => c.id === item.id), 1);
+      this.state.splice(_findIndex(this.state, (c: Concept) => c.id === item.id), 1);
     },
     conceptTitle,
   },
@@ -54,7 +56,7 @@ export default {
       this.state = newData;
     }
   },
-}
+});
 </script>
 
 <template>

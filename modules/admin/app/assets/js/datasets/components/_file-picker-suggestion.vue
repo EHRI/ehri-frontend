@@ -1,12 +1,13 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
-export default {
+export default defineComponent({
   props: {
     selected: Boolean,
     item: Object,
   },
   methods: {decodeURI}
-};
+});
 </script>
 
 <template>

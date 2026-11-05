@@ -1,8 +1,9 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
 import {FileMeta} from '../types';
 
-export default {
+export default defineComponent({
   data: function () {
     return {
       tab: 'preview'
@@ -14,5 +15,5 @@ export default {
       this.tab = 'preview';
     },
   }
-}
+});
 </script>

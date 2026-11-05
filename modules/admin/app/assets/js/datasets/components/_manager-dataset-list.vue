@@ -1,16 +1,17 @@
 <script lang="ts">
+import {defineComponent, PropType} from 'vue';
 
-import ModalDatasetConfig from './_modal-dataset-config';
-import ModalDatasetIo from './_modal-dataset-io'
-import ModalBatchOps from './_modal-batch-ops';
-import ManagerSnapshots from "./_manager-snapshots";
-import ManagerCoreference from "./_manager-coreference";
-import ManagerTimeline from "./_manager-timeline";
-import ManagerDataset from "./_manager-dataset";
+import ModalDatasetConfig from './_modal-dataset-config.vue';
+import ModalDatasetIo from './_modal-dataset-io.vue'
+import ModalBatchOps from './_modal-batch-ops.vue';
+import ManagerSnapshots from "./_manager-snapshots.vue";
+import ManagerCoreference from "./_manager-coreference.vue";
+import ManagerTimeline from "./_manager-timeline.vue";
+import ManagerDataset from "./_manager-dataset.vue";
 
-import MixinUtil from './_mixin-util';
-import MixinError from './_mixin-error';
-import {ImportDataset, ImportDatasetSrc, ImportDatasetStatus} from '../types';
+import MixinUtil from './_mixin-util.vue';
+import MixinError from './_mixin-error.vue';
+import {ConfigType, ImportDataset, ImportDatasetSrc, ImportDatasetStatus} from '../types';
 import {DatasetManagerApi} from "../api";
 
 import _find from 'lodash/find';
@@ -18,7 +19,7 @@ import _merge from 'lodash/merge';
 import _omit from 'lodash/omit';
 import _includes from 'lodash/includes';
 
-export default {
+export default defineComponent({
   components: {
     ManagerCoreference,
     ManagerDataset,
@@ -30,7 +31,7 @@ export default {
   },
   mixins: [MixinUtil, MixinError],
   props: {
-    config: Object,
+    config: Object as PropType<ConfigType>,
     api: DatasetManagerApi,
     initTab: String,
   },
@@ -83,7 +84,7 @@ export default {
       try {
         this.datasets = await this.api.listDatasets();
         this.loadStats();
-      } catch (e: Error) {
+      } catch (e) {
         this.showError("Error loading datasets", e);
       } finally {
         this.loaded = true;
@@ -163,7 +164,7 @@ export default {
       }
     });
   },
-};
+});
 </script>
 
 <template>

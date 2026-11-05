@@ -1,11 +1,12 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
-import ModalWindow from './_modal-window';
+import ModalWindow from './_modal-window.vue';
 import FormFetchDelay from "./_form-fetch-delay.vue";
-import FormHttpBasicAuth from './_form-http-basic-auth';
+import FormHttpBasicAuth from './_form-http-basic-auth.vue';
 import {DatasetManagerApi} from '../api';
 
-export default {
+export default defineComponent({
   components: {FormFetchDelay, FormHttpBasicAuth, ModalWindow},
   props: {
     waiting: Boolean,
@@ -86,7 +87,7 @@ export default {
       this.auth = newValue ? newValue.auth : null;
     },
   },
-};
+});
 </script>
 
 <template>

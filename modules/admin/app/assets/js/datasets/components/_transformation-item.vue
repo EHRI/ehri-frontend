@@ -1,10 +1,11 @@
 <script lang="ts">
+import {defineComponent, PropType} from 'vue';
 
-import {DataTransformationInfo} from "../types";
+import {DataTransformation} from "../types";
 
-export default {
+export default defineComponent({
   props: {
-    item: Object as DataTransformationInfo,
+    item: Object as PropType<DataTransformation>,
     parameters: {
       type: Object,
       default: null
@@ -16,7 +17,7 @@ export default {
     active: Boolean,
   },
   emits: ['edit', 'edit-params', 'disable', 'delete']
-}
+});
 </script>
 
 <template>
