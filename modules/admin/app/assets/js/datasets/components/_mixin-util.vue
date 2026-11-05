@@ -1,4 +1,5 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
 import _extend from 'lodash/extend';
 import _isEmpty from 'lodash/isEmpty';
@@ -10,7 +11,7 @@ import _set from 'lodash/set';
 
 import {humanFileSize, timeToRelative} from "../common";
 
-export default {
+export default defineComponent({
   methods: {
     decodeURI,
     prettyDate: timeToRelative,
@@ -54,5 +55,5 @@ export default {
       );
     }
   },
-}
+});
 </script>

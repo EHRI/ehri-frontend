@@ -1,20 +1,21 @@
 <script lang="ts">
+import {defineComponent, PropType} from 'vue';
 
 import Draggable from 'vuedraggable';
-import FilePicker from './_file-picker';
-import ModalConvertConfig from './_modal-convert-config';
+import FilePicker from './_file-picker.vue';
+import ModalConvertConfig from './_modal-convert-config.vue';
 import ModalParamEditor from "./_modal-param-editor.vue";
-import EditorTransformation from './_editor-transformation';
-import TransformationItem from './_transformation-item';
-import PanelLogWindow from './_panel-log-window';
-import DragHandle from './_drag-handle';
-import PanelConvertPreview from './_panel-convert-preview';
+import EditorTransformation from './_editor-transformation.vue';
+import TransformationItem from './_transformation-item.vue';
+import PanelLogWindow from './_panel-log-window.vue';
+import DragHandle from './_drag-handle.vue';
+import PanelConvertPreview from './_panel-convert-preview.vue';
 
-import MixinTwoPanel from './_mixin-two-panel';
-import MixinValidator from './_mixin-validator';
-import MixinError from './_mixin-error';
-import MixinUtil from './_mixin-util';
-import MixinTasklog from './_mixin-tasklog';
+import MixinTwoPanel from './_mixin-two-panel.vue';
+import MixinValidator from './_mixin-validator.vue';
+import MixinError from './_mixin-error.vue';
+import MixinUtil from './_mixin-util.vue';
+import MixinTasklog from './_mixin-tasklog.vue';
 import {DatasetManagerApi} from '../api';
 import _takeWhile from 'lodash/takeWhile';
 import _find from 'lodash/find';
@@ -29,7 +30,7 @@ let initialConvertState = function (config) {
     previewing: null,
     tab: 'preview',
     showOptions: false,
-    available: [],
+    available: [] as DataTransformation[],
     parametersForEditor: {},
     state: [], // List of [mapping-id, parameters, disabled] pairs
     editing: null,
@@ -39,7 +40,7 @@ let initialConvertState = function (config) {
   };
 };
 
-export default {
+export default defineComponent({
   components: {
     PanelFilePreview,
     Draggable,
@@ -55,7 +56,7 @@ export default {
   emits: ['refresh-stage'],
   mixins: [MixinTwoPanel, MixinValidator, MixinError, MixinUtil, MixinTasklog],
   props: {
-    dataset: Object as ImportDataset,
+    dataset: Object as PropType<ImportDataset>,
     fileStage: String,
     urlKey: {
       type: String,
@@ -165,8 +166,8 @@ export default {
         this.showError("Failed to save mapping list", e);
       }
     },
-    priorConversions: function (dt) {
-      return _takeWhile(this.enabled, s => s.id !== dt.id);
+    priorConversions: function (dt: DataTransformation) {
+      return _takeWhile(this.enabled, (s: DataTransformation) => s.id !== dt.id);
     },
     removeTransformation: function (data: {oldIndex: number}) {
       console.log("Remove: ", data)
@@ -261,7 +262,7 @@ export default {
     this.initialise();
     this.resumeMonitor();
   },
-};
+});
 </script>
 
 <template>

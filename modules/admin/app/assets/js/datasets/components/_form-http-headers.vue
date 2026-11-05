@@ -1,8 +1,9 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
 import _isArray from 'lodash/isArray';
 
-export default {
+export default defineComponent({
   props: {
     modelValue: Array,
   },
@@ -18,7 +19,7 @@ export default {
     },
     deserialize: function (s: string): [string, string][] {
       if (s && s.trim()) {
-        return s.split(/\s*\n\r?\s*/).map(s => s.split(/\s*:\s*/).slice(0, 2));
+        return s.split(/\s*\n\r?\s*/).map(s => s.split(/\s*:\s*/).slice(0, 2) as [string, string]);
       } else {
         return [];
       }
@@ -42,7 +43,7 @@ export default {
       this.update();
     }
   }
-}
+});
 </script>
 
 <template>

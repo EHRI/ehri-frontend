@@ -1,5 +1,6 @@
 import {mount} from '@vue/test-utils';
 import App from './app.vue';
+import {ConfigType} from './types';
 
 
 describe('App', () => {
@@ -14,7 +15,7 @@ describe('Mounted App', () => {
     props: {
       service: {}, config: {
         repoId: "foo"
-      }
+      } as ConfigType
     }
   });
 

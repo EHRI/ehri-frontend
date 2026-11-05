@@ -1,8 +1,9 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
-import ConceptListItem from './components/_concept-list-item';
-import ConceptEditor from './components/_concept-editor';
-import ConceptCreator from './components/_concept-creator';
+import ConceptListItem from './components/_concept-list-item.vue';
+import ConceptEditor from './components/_concept-editor.vue';
+import ConceptCreator from './components/_concept-creator.vue';
 
 import VocabEditorApi from "./api";
 
@@ -14,7 +15,7 @@ import _union from 'lodash/union';
 import {ConfigType} from "./types";
 import emitter from 'tiny-emitter/instance'
 
-export default {
+export default defineComponent({
   components: {ConceptListItem, ConceptEditor, ConceptCreator},
   props: {
     config: Object,
@@ -158,7 +159,7 @@ export default {
     this.api.getLangData().then(langs => this.langs = langs)
         .then(() => this.reload());
   },
-}
+});
 </script>
 
 <template>

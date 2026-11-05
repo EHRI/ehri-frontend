@@ -1,5 +1,6 @@
 <script lang="ts">
-export default {
+import {defineComponent, PropType} from 'vue';
+export default defineComponent({
   props: {
     title: String,
     cls: {
@@ -7,11 +8,11 @@ export default {
       default: 'danger'
     },
     accept: {
-      type: String as string,
+      type: String,
       default: "Okay"
     },
     cancel: {
-      type: String as string | null,
+      type: String as PropType<string | null>,
       default: "Cancel"
     },
     large: {
@@ -28,7 +29,7 @@ export default {
   mounted() {
     this.$el.querySelector("button.close").focus();
   }
-}
+});
 </script>
 
 <template>

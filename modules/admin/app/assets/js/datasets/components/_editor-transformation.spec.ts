@@ -1,5 +1,6 @@
 import {shallowMount} from '@vue/test-utils';
 import EditorTransformation from './_editor-transformation.vue';
+import {ImportDataset} from '../types';
 
 
 describe('EditorTransformation component', () => {
@@ -11,7 +12,7 @@ describe('EditorTransformation component', () => {
       body: 'target-path\ttarget-node\tsource-node\tvalue\n/\tead\t/\t',
       comments: 'test',
       hasParams: false,
-      dataset: {id: 'test'},
+      dataset: {id: 'test'} as ImportDataset,
       config: {input: 'input'},
       initPreviewing: null,
     }

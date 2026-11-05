@@ -1,15 +1,16 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
-import MixinUtil from './_mixin-util';
-import MixinError from './_mixin-error';
-import ModalAlert from './_modal-alert';
-import ModalSnapshotConfig from './_modal-snapshot-config';
+import MixinUtil from './_mixin-util.vue';
+import MixinError from './_mixin-error.vue';
+import ModalAlert from './_modal-alert.vue';
+import ModalSnapshotConfig from './_modal-snapshot-config.vue';
 import ModalCleanupConfig from './_modal-cleanup-config.vue';
 import {DatasetManagerApi} from "../api";
 import {Snapshot} from "../types";
 import {displayDate, timeToRelative} from "../common";
 
-export default {
+export default defineComponent({
   mixins: [MixinUtil, MixinError],
   components: {ModalAlert, ModalSnapshotConfig, ModalCleanupConfig},
   props: {
@@ -18,7 +19,7 @@ export default {
   },
   data: function () {
     return {
-      snapshots: [],
+      snapshots: [] as Snapshot[],
       current: null,
       cleanup: null,
       actions: [],
@@ -75,10 +76,17 @@ export default {
     timeToRelative,
     displayDate
   },
+  computed: {
+    filteredSnapshots: function (): Snapshot[] {
+      return this.isFiltered()
+          ? this.snapshots.filter(s => s.notes && s.notes.includes(this.filter))
+          : this.snapshots;
+    },
+  },
   created() {
     this.refresh();
   }
-}
+});
 </script>
 <template>
   <div id="snapshot-manager">
@@ -158,8 +166,7 @@ export default {
       </template>
     </div>
     <div v-else-if="snapshots" class="snapshot-manager-snapshot-list">
-      <div v-for="snapshot in snapshots"
-           v-if="!isFiltered() || (snapshot.notes && snapshot.notes.includes(this.filter) )"
+      <div v-for="snapshot in filteredSnapshots"
            v-on:click.stop.prevent="load(snapshot)" class="snapshot-manager-item">
         <div v-bind:title="snapshot.created" class="snapshot-timestamp item-icon">
           <i class="fa fa-clock-o"></i>

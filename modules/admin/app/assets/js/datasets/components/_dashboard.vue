@@ -1,15 +1,16 @@
 <script lang="ts">
+import {defineComponent, PropType} from 'vue';
 
-import MixinUtil from './_mixin-util';
-import MixinError from './_mixin-error';
+import MixinUtil from './_mixin-util.vue';
+import MixinError from './_mixin-error.vue';
 import {DashboardApi} from "../dashboard-api";
 import {DashboardConfigType} from "../types";
 
-export default {
+export default defineComponent({
   components: {},
   mixins: [MixinUtil, MixinError],
   props: {
-    config: Object as DashboardConfigType,
+    config: Object as PropType<DashboardConfigType>,
     api: DashboardApi,
   },
   data: function () {
@@ -62,7 +63,7 @@ export default {
   created() {
     this.loadDatasetInfo();
   },
-};
+});
 </script>
 
 <template>

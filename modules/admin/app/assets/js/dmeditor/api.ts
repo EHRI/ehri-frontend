@@ -66,6 +66,6 @@ export default class EntityTypeMetadataApi {
   }
 
   templates(): Promise<FieldMetadataTemplates> {
-    return EntityTypeMetadataApi.call<object>(this.service.templates());
+    return EntityTypeMetadataApi.call<FieldMetadataTemplates>(this.service.templates());
   }
 }

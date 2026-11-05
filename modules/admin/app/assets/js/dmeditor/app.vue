@@ -1,11 +1,12 @@
 <script lang="ts">
-import ListEt from "./components/_list-et";
+import {defineComponent} from 'vue';
+import ListEt from "./components/_list-et.vue";
 import EntityTypeMetadataApi from "./api";
 import {VueI18n} from "vue-i18n";
 import Vue from "vue";
 
 
-export default {
+export default defineComponent({
   components: {ListEt},
   props: {
     service: Object,
@@ -22,8 +23,7 @@ export default {
       this.error = err + (exc ? (": " + exc.message) : "");
     },
   },
-}
-
+});
 </script>
 
 <template>

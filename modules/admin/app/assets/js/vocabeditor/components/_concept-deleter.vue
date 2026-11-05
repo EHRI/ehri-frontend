@@ -1,7 +1,8 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 import VocabEditorApi from "../api";
 
-export default {
+export default defineComponent({
   props: {
     api: VocabEditorApi,
     lang: String,
@@ -30,7 +31,7 @@ export default {
       }
     }
   },
-}
+});
 </script>
 
 <template>

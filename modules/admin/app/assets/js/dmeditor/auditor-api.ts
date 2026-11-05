@@ -31,7 +31,7 @@ export class AuditorApi {
   async types(): Promise<string[]> {
     let list = await apiCall<Record<EntityType, EntityTypeMetadata>>(this.service.list());
     let templates = await apiCall<FieldMetadataTemplates>(this.service.templates());
-    return Object.keys(templates).filter(et => list[et] && Object.keys(list[et]).length > 0);
+    return (Object.keys(templates) as EntityType[]).filter(et => list[et] && Object.keys(list[et]).length > 0);
   }
 
   /**

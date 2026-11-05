@@ -1,10 +1,11 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
-import ModalWindow from './_modal-window';
-import FilePicker from './_file-picker';
+import ModalWindow from './_modal-window.vue';
+import FilePicker from './_file-picker.vue';
 import {DatasetManagerApi} from '../api';
 
-export default {
+export default defineComponent({
   components: {FilePicker, ModalWindow},
   props: {
     datasetId: String,
@@ -25,7 +26,7 @@ export default {
     },
   },
 
-}
+});
 </script>
 
 <template>

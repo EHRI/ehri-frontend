@@ -1,16 +1,17 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
-import ModalWindow from './_modal-window';
-import ModalAlert from './_modal-alert';
+import ModalWindow from './_modal-window.vue';
+import ModalAlert from './_modal-alert.vue';
 import {DatasetManagerApi} from '../api';
 import EditorUrlset from "./_editor-urlset.vue";
-import FormHttpBasicAuth from "./_form-http-basic-auth";
-import FormFetchDelay from "./_form-fetch-delay";
-import FormHttpMethod from "./_form-http-method";
-import FormHttpHeaders from "./_form-http-headers";
+import FormHttpBasicAuth from "./_form-http-basic-auth.vue";
+import FormFetchDelay from "./_form-fetch-delay.vue";
+import FormHttpMethod from "./_form-http-method.vue";
+import FormHttpHeaders from "./_form-http-headers.vue";
 import {decodeTsv, encodeTsv} from "../common";
 
-export default {
+export default defineComponent({
   components: {EditorUrlset, ModalAlert, ModalWindow, FormFetchDelay, FormHttpBasicAuth, FormHttpHeaders, FormHttpMethod},
   props: {
     waiting: Boolean,
@@ -165,7 +166,7 @@ export default {
       this.method = newValue ? newValue.method : null;
     },
   },
-}
+});
 </script>
 
 <template>

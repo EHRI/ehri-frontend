@@ -1,8 +1,9 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
-import PanelCodeView from './_panel-code-view';
+import PanelCodeView from './_panel-code-view.vue';
 
-export default {
+export default defineComponent({
   props: {
     modelValue: Object,
     errors: {
@@ -64,7 +65,7 @@ export default {
       }
     }
   },
-}
+});
 </script>
 
 <template>

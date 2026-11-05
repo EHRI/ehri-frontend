@@ -1,16 +1,17 @@
 <script lang="ts">
 
-import MixinTaskLog from "../datasets/components/_mixin-tasklog";
-import PanelLogWindow from "../datasets/components/_panel-log-window";
+import {PropType, defineComponent} from 'vue';
+import MixinTaskLog from "../datasets/components/_mixin-tasklog.vue";
+import PanelLogWindow from "../datasets/components/_panel-log-window.vue";
 import {EntityType} from "./types";
 import FilterControl from "../datasets/components/_filter-control.vue";
 import {AuditorApi, Service} from "./auditor-api";
 
 
-export default {
+export default defineComponent({
   components: {FilterControl},
   props: {
-    service: Object as Service,
+    service: Object as PropType<Service>,
     config: Object,
   },
   data: function () {
@@ -113,8 +114,7 @@ export default {
   async created () {
     this.types = await this.api.types();
   }
-}
-
+});
 </script>
 
 <template>

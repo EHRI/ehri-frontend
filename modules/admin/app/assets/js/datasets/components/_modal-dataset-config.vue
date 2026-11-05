@@ -1,18 +1,19 @@
 <script lang="ts">
+import {defineComponent, PropType} from 'vue';
 
-import ModalWindow from './_modal-window';
-import ModalAlert from './_modal-alert';
+import ModalWindow from './_modal-window.vue';
+import ModalAlert from './_modal-alert.vue';
 
 import {DatasetManagerApi} from '../api';
 import FormConfigFileManager from "./_form-config-file-manager.vue";
 import {ImportDataset} from "../types";
 
-export default {
+export default defineComponent({
   components: {FormConfigFileManager, ModalWindow, ModalAlert},
   props: {
     api: DatasetManagerApi,
     config: Object,
-    info: Object as ImportDataset,
+    info: Object as PropType<ImportDataset>,
   },
   data: function () {
     return {
@@ -116,7 +117,7 @@ export default {
     }
   },
 
-};
+});
 </script>
 
 <template>
@@ -153,7 +154,7 @@ export default {
                type="text"
                id="dataset-id"
                class="form-control"
-               autofocus="autofocus"
+               autofocus
                autocomplete="off"
                placeholder="(required)"/>
         <div class="small form-text">

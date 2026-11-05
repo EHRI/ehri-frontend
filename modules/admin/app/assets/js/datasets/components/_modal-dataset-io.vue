@@ -1,13 +1,14 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
-import ModalWindow from './_modal-window';
-import ModalAlert from './_modal-alert';
+import ModalWindow from './_modal-window.vue';
+import ModalAlert from './_modal-alert.vue';
 
 import {DatasetManagerApi} from '../api';
 import {ImportDataset, ImportDatasetInfo} from "../types";
 
 
-export default {
+export default defineComponent({
   components: {ModalWindow, ModalAlert},
   props: {
     api: DatasetManagerApi,
@@ -61,7 +62,7 @@ export default {
           : "";
     }
   }
-};
+});
 </script>
 
 <template>

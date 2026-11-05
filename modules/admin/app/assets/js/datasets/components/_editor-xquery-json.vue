@@ -1,6 +1,6 @@
 <script lang="ts">
 
-import {nextTick} from 'vue';
+import {nextTick, defineComponent} from 'vue';
 
 import _padStart from 'lodash/padStart';
 import _clone from 'lodash/clone';
@@ -9,11 +9,11 @@ import {decodeTsv, encodeTsv} from "../common";
 
 const COLS = 5;
 
-export default {
+export default defineComponent({
   props: {
     modelValue: String,
   },
-  data: function (): Object {
+  data: function () {
     return {
       mappings: this.deserialize(this.modelValue),
       selected: -1,
@@ -86,7 +86,7 @@ export default {
       this.mappings = this.deserialize(newValue);
     }
   }
-};
+});
 </script>
 
 <template>
@@ -104,8 +104,8 @@ export default {
           <input
               v-for="col in [0, 1, 2, 3, 4]"
               type="text"
-              v-bind:ref="_padStart(row, 4, 0) + '-' + col"
-              v-bind:key="_padStart(row, 4, 0) + '-' + col"
+              v-bind:ref="_padStart(String(row), 4, '0') + '-' + col"
+              v-bind:key="_padStart(String(row), 4, '0') + '-' + col"
               v-bind:class="{'selected': selected === row}"
               v-model="mappings[row][col]"
               v-on:change="update"

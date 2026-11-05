@@ -1,7 +1,8 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
 
-export default {
+export default defineComponent({
   props: {
     resizable: {
       type: Boolean,
@@ -50,7 +51,7 @@ export default {
     this.minWidth = parent.clientWidth;
     this.minHeight = content.clientHeight;
   }
-};
+});
 </script>
 
 <template>

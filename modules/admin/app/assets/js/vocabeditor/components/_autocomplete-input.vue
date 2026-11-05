@@ -1,9 +1,10 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
-import AutocompleteSuggestion from './_autocomplete-suggestion';
+import AutocompleteSuggestion from './_autocomplete-suggestion.vue';
 import VocabEditorApi from "../api";
 
-export default {
+export default defineComponent({
   components: {AutocompleteSuggestion},
   props: {
     api: VocabEditorApi,
@@ -73,7 +74,7 @@ export default {
       this.item = null;
     }
   }
-}
+});
 </script>
 
 <template>

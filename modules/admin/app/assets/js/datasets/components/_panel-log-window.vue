@@ -1,6 +1,6 @@
 <script lang="ts">
 
-import {nextTick} from 'vue';
+import {nextTick, defineComponent} from 'vue';
 import {ITerminalAddon, Terminal} from 'xterm';
 import {FitAddon} from 'xterm-addon-fit';
 import {WebLinksAddon} from 'xterm-addon-web-links';
@@ -8,7 +8,7 @@ import {WebLinksAddon} from 'xterm-addon-web-links';
 import 'xterm/css/xterm.css';
 
 
-export default {
+export default defineComponent({
   props: {
     log: Terminal,
     panelSize: Number,
@@ -52,7 +52,7 @@ export default {
     window.addEventListener("resize", this.fit);
     this.fit();
   },
-};
+});
 </script>
 
 <template>

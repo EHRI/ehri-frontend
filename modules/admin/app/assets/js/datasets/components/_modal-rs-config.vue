@@ -1,18 +1,19 @@
 <script lang="ts">
+import {defineComponent, PropType} from 'vue';
 
-import ModalWindow from './_modal-window';
-import ModalAlert from './_modal-alert';
+import ModalWindow from './_modal-window.vue';
+import ModalAlert from './_modal-alert.vue';
 import FormFetchDelay from "./_form-fetch-delay.vue";
-import FormHttpBasicAuth from './_form-http-basic-auth';
+import FormHttpBasicAuth from './_form-http-basic-auth.vue';
 import {DatasetManagerApi} from '../api';
 import {ResourceSyncConfig} from "../types";
 
-export default {
+export default defineComponent({
   components: {FormFetchDelay, FormHttpBasicAuth, ModalAlert, ModalWindow},
   props: {
     waiting: Boolean,
     datasetId: String,
-    opts: Object as ResourceSyncConfig,
+    opts: Object as PropType<ResourceSyncConfig>,
     api: DatasetManagerApi,
     config: Object,
   },
@@ -82,7 +83,7 @@ export default {
       this.delay = newValue ? newValue.delay : null;
     }
   },
-}
+});
 </script>
 
 <template>

@@ -1,28 +1,28 @@
 <script lang="ts">
 
-import {nextTick} from 'vue';
+import {nextTick, defineComponent, PropType} from 'vue';
 
-import ModalWindow from './_modal-window';
-import PanelCodeView from './_panel-code-view';
-import EditorXquery from './_editor-xquery';
-import EditorXqueryJson from './_editor-xquery-json';
-import EditorTabular from './_editor-tabular';
-import EditorJson from './_editor-json';
-import FilePicker from './_file-picker';
-import DragHandle from './_drag-handle';
-import PanelFilePreview from './_panel-file-preview';
-import PanelConvertPreview from './_panel-convert-preview';
-import ModalAlert from './_modal-alert';
+import ModalWindow from './_modal-window.vue';
+import PanelCodeView from './_panel-code-view.vue';
+import EditorXquery from './_editor-xquery.vue';
+import EditorXqueryJson from './_editor-xquery-json.vue';
+import EditorTabular from './_editor-tabular.vue';
+import EditorJson from './_editor-json.vue';
+import FilePicker from './_file-picker.vue';
+import DragHandle from './_drag-handle.vue';
+import PanelFilePreview from './_panel-file-preview.vue';
+import PanelConvertPreview from './_panel-convert-preview.vue';
+import ModalAlert from './_modal-alert.vue';
 
-import MixinTwoPanel from './_mixin-two-panel';
+import MixinTwoPanel from './_mixin-two-panel.vue';
 
 import _concat from 'lodash/concat';
 import _isEqual from 'lodash/isEqual';
-import {ImportDataset} from "../types";
+import {FileMeta, ImportDataset} from "../types";
 import {DatasetManagerApi} from "../api";
 
 
-export default {
+export default defineComponent({
   components: {
     ModalWindow,
     EditorXquery,
@@ -45,9 +45,9 @@ export default {
     body: String,
     comments: String,
     hasParams: Boolean,
-    dataset: Object as ImportDataset,
+    dataset: Object as PropType<ImportDataset>,
     fileStage: String,
-    initPreviewing: Object,
+    initPreviewing: Object as PropType<FileMeta | null>,
     config: Object,
     api: DatasetManagerApi,
     inputPipeline: Array,
@@ -221,7 +221,7 @@ export default {
   mounted() {
 
   }
-};
+});
 </script>
 
 <template>
@@ -267,7 +267,7 @@ export default {
                      placeholder="(required)"/>
               <label for="transformation-type">Type</label>
               <select id="transformation-type" v-bind:value="data.bodyType"
-                      v-on:change="changeType($event.target.value)">
+                      v-on:change="changeType(($event.target as HTMLSelectElement).value)">
                 <option v-bind:value="'xquery'">XQuery</option>
                 <option v-bind:value="'json'">JSON</option>
                 <option v-bind:value="'tabular'">Tabular</option>

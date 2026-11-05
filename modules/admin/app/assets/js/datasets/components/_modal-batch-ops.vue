@@ -1,4 +1,5 @@
 <script lang="ts">
+import {defineComponent, PropType} from 'vue';
 
 /**
  * The operations in this component are a bit dodgy since they
@@ -7,10 +8,10 @@
  * a few ways things can go wrong and it should be used with caution.
  */
 
-import ModalWindow from './_modal-window';
-import FilePicker from './_file-picker';
-import PanelLogWindow from './_panel-log-window';
-import MixinTasklog from './_mixin-tasklog';
+import ModalWindow from './_modal-window.vue';
+import FilePicker from './_file-picker.vue';
+import PanelLogWindow from './_panel-log-window.vue';
+import MixinTasklog from './_mixin-tasklog.vue';
 import {DatasetManagerApi} from '../api';
 import {HarvestConfig, ImportConfig, ImportDataset} from "../types";
 
@@ -21,11 +22,11 @@ class CancelledTask extends Error {
   }
 }
 
-export default {
+export default defineComponent({
   components: {FilePicker, ModalWindow, PanelLogWindow},
   mixins: [MixinTasklog],
   props: {
-    datasets: Array,
+    datasets: Array as PropType<ImportDataset[]>,
     api: DatasetManagerApi,
     config: Object,
   },
@@ -327,7 +328,7 @@ export default {
       this.timestamp = (new Date()).getTime();
     }
   },
-}
+});
 </script>
 
 <template>
@@ -428,12 +429,12 @@ export default {
         Copy Settings
       </button>
       <template v-if="tab === 'sync'">
-        <button v-bind:disabled="inProgress || datasets.find(d => d.src = 'rs') === undefined"
+        <button v-bind:disabled="inProgress || datasets.find(d => d.src === 'rs') === undefined"
                 v-on:click="checkForOrphans" type="button" class="btn btn-default">
           <i class="fa fa-fw fa-trash-o"></i>
           Check for Orphaned Files
         </button>
-        <button v-bind:disabled="inProgress || datasets.find(d => d.src = 'rs') === undefined"
+        <button v-bind:disabled="inProgress || datasets.find(d => d.src === 'rs') === undefined"
                 v-on:click="syncAllDatasets" type="button" class="btn btn-secondary">
           <i v-if="!inProgress" class="fa fa-fw fa-clone"></i>
           <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>

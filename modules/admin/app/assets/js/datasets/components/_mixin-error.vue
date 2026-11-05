@@ -1,6 +1,7 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
-export default {
+export default defineComponent({
   data: function () {
     return {
       errored: false,
@@ -15,5 +16,5 @@ export default {
       this.errored = false;
     }
   }
-}
+});
 </script>

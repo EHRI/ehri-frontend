@@ -4,6 +4,25 @@ on:
   push:
 
 jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.20.7'
+        cache: npm
+
+    - name: Install NPM deps
+      run: npm ci
+
+    - name: Type check TypeScript and Vue
+      run: npm run typecheck
+
   test:
     runs-on: ubuntu-latest
 

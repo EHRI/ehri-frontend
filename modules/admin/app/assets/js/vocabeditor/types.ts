@@ -28,6 +28,10 @@ export interface Concept {
   seeAlso?: string[],
   descriptions: ConceptDescription[],
   broaderTerms: Concept[],
+  event?: {
+    user?: {name: string},
+    timestamp: string,
+  },
 }
 
 export type ConceptRef = [string, string, number];

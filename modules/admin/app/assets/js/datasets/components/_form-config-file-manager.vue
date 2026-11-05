@@ -1,4 +1,5 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
 import _pick from "lodash/pick";
 import _forIn from "lodash/forIn";
@@ -7,7 +8,7 @@ import {timeToRelative} from "../common";
 import {DatasetManagerApi} from "../api";
 import _size from "lodash/size";
 
-export default {
+export default defineComponent({
   props: {
     modelValue: String,
     title: String,
@@ -28,11 +29,12 @@ export default {
   },
   methods: {
     uploadConfig: async function (event: InputEvent | DragEvent) {
-      let fileList = event.dataTransfer ? event.dataTransfer.files : event.target.files;
+      let input = event.target as HTMLInputElement;
+      let fileList = event.dataTransfer ? event.dataTransfer.files : input.files;
       if (fileList.length == 0) {
         return;
       }
-      let file: FileList = fileList[0];
+      let file: File = fileList[0];
 
       // NB: the fileStage arg here is 'config', since we are uploading a config file, rather then
       // the stage of the ingest manager ('output').
@@ -45,10 +47,10 @@ export default {
         this.configFile = file.name;
         await this.loadConfigOptions();
         this.update();
-        if (event.target.files) {
-          event.target.files = null;
+        if (input.files) {
+          input.files = null;
         }
-        event.target.value = '';
+        input.value = '';
       } catch (e) {
         this.error = "Error uploading config: " + e;
       } finally {
@@ -116,7 +118,7 @@ export default {
   async created() {
     await this.loadConfigOptions();
   }
-}
+});
 </script>
 
 <template>

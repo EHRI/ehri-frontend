@@ -1,23 +1,24 @@
 <script lang="ts">
+import {defineComponent, PropType} from 'vue';
 
-import ModalWindow from './_modal-window';
+import ModalWindow from './_modal-window.vue';
 import FormConfigFileManager from './_form-config-file-manager.vue';
 import {DatasetManagerApi} from "../api";
 import {timeToRelative} from "../common";
 import {ImportConfig, ImportDataset} from "../types";
 
 
-export default {
+export default defineComponent({
   components: {ModalWindow, FormConfigFileManager},
   props: {
-    dataset: Object as ImportDataset,
+    dataset: Object as PropType<ImportDataset>,
     setHierarchy: Boolean,
     api: DatasetManagerApi,
     config: Object,
-    opts: Object as ImportConfig,
+    opts: Object as PropType<ImportConfig>,
     waiting: Boolean,
   },
-  data: function (): object {
+  data: function () {
     return {
       allowUpdates: this.opts ? this.opts.allowUpdates : false,
       useSourceId: this.opts ? this.opts.useSourceId : false,
@@ -58,7 +59,7 @@ export default {
       return this.logMessage && this.logMessage.trim() !== "" && hasRequiredHierarchy;
     },
   },
-};
+});
 </script>
 
 <template>

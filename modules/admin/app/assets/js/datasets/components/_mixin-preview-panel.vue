@@ -1,6 +1,7 @@
 <script lang="ts">
+import {defineComponent, PropType} from 'vue';
 
-import MixinError from './_mixin-error';
+import MixinError from './_mixin-error.vue';
 
 import _find from 'lodash/find';
 import _isEqual from 'lodash/isEqual';
@@ -8,10 +9,10 @@ import _isArray from 'lodash/isArray';
 import _fromPairs from 'lodash/fromPairs';
 import {FileMeta} from "../types";
 import {DatasetManagerApi} from "../api";
-import PanelTabularView from "./_panel-tabular-view";
-import PanelCodeView from "./_panel-code-view";
+import PanelTabularView from "./_panel-tabular-view.vue";
+import PanelCodeView from "./_panel-code-view.vue";
 
-export default {
+export default defineComponent({
   components: {PanelTabularView, PanelCodeView},
   mixins: [MixinError],
   emits: ["loading", "loaded", "validation-results"],
@@ -21,7 +22,7 @@ export default {
     contentType: String,
     fileStage: String,
     panelSize: Number,
-    previewing: Object as FileMeta | null,
+    previewing: Object as PropType<FileMeta | null>,
     config: Object,
     maxSize: Number,
     validationResults: {
@@ -125,7 +126,7 @@ export default {
           .catch(error => this.showError('Unable to load preview URL', error))
           .finally(() => this.loading = false);
     },
-    receiveMessage: function (msg: object) {
+    receiveMessage: function (msg: MessageEvent) {
       if (msg.data.error) {
         let errObj = msg.data.error;
         this.previewData = errObj.line
@@ -169,7 +170,7 @@ export default {
   beforeUnmount: function () {
     this.worker?.terminate();
   },
-}
+});
 </script>
 
 <template>

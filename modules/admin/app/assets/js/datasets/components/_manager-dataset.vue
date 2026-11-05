@@ -1,28 +1,29 @@
 <script lang="ts">
+import {defineComponent, PropType} from 'vue';
 
-import ModalDatasetConfig from './_modal-dataset-config';
-import ManagerUpload from './_manager-upload';
-import ManagerIngest from './_manager-ingest';
-import ManagerHarvest from './_manager-harvest';
+import ModalDatasetConfig from './_modal-dataset-config.vue';
+import ManagerUpload from './_manager-upload.vue';
+import ManagerIngest from './_manager-ingest.vue';
+import ManagerHarvest from './_manager-harvest.vue';
 import ManagerConvert from './_manager-convert.vue';
 import ManagerSnapshots from "./_manager-snapshots.vue";
 
-import MixinUtil from './_mixin-util';
-import MixinError from './_mixin-error';
+import MixinUtil from './_mixin-util.vue';
+import MixinError from './_mixin-error.vue';
 import {ConfigType, ImportDataset, ImportDatasetSrc} from '../types';
 import {DatasetManagerApi} from "../api";
 
 import _merge from 'lodash/merge';
 
-export default {
+export default defineComponent({
   components: {ManagerSnapshots, ModalDatasetConfig, ManagerHarvest, ManagerUpload, ManagerIngest, ManagerConvert},
   mixins: [MixinUtil, MixinError],
   props: {
-    config: Object as ConfigType,
+    config: Object as PropType<ConfigType>,
     api: DatasetManagerApi,
     initTab: String,
-    dataset: Object as ImportDataset,
-    datasets: Array as string[],
+    dataset: Object as PropType<ImportDataset>,
+    datasets: Array as PropType<ImportDataset[]>,
     stats: Object,
   },
   data: function () {
@@ -70,7 +71,7 @@ export default {
     }
   },
 
-};
+});
 </script>
 
 <template>

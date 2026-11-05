@@ -1,8 +1,9 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
 import VocabEditorApi from "../api";
 
-export default {
+export default defineComponent({
   name: 'concept-list-item',
   props: {
     api: VocabEditorApi,
@@ -60,7 +61,7 @@ export default {
       }
     })
   },
-}
+});
 </script>
 
 <template>

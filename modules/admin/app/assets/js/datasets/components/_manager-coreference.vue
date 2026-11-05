@@ -1,14 +1,15 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
-import MixinUtil from './_mixin-util';
-import MixinError from './_mixin-error';
+import MixinUtil from './_mixin-util.vue';
+import MixinError from './_mixin-error.vue';
 import {DatasetManagerApi} from "../api";
 import {Coreference} from "../types";
 import _includes from 'lodash/includes';
 import {decodeTsv, encodeTsv} from "../common";
 import _fromPairs from "lodash/fromPairs";
 
-export default {
+export default defineComponent({
   mixins: [MixinUtil, MixinError],
   props: {
     config: Object,
@@ -195,7 +196,7 @@ export default {
     this.refresh()
         .then(() => this.initialised = true);
   }
-}
+});
 </script>
 <template>
   <div id="coreference-manager">
@@ -241,7 +242,7 @@ export default {
       <div class="coreferences-tsv" v-if="importFromTSV">
           <label for="opt-import-coreference-tsv" class="sr-only">Paste TSV here</label>
           <textarea v-on:value="pasteText"
-                    v-on:input="updateOnTsvImport($event.target.value)"
+                    v-on:input="updateOnTsvImport(($event.target as HTMLTextAreaElement).value)"
                     class="form-control" id="opt-import-coreference-tsv" placeholder="Paste TSV here..."></textarea>
           <div class="coreferences-tsv-action-buttons">
               <button v-on:click="importFromTSV = !importFromTSV; refresh()" class="btn btn-sm btn-default">
@@ -258,7 +259,7 @@ export default {
       <div class="coreferences-tsv" v-else-if="showTSV">
       <label for="opt-show-coreference-tsv" class="sr-only">TSV Data</label>
       <textarea v-bind:value="coreferencesAsTsv"
-                readonly="readonly"
+                readonly
                 class="form-control" id="opt-show-coreference-tsv"></textarea>
       <div class="coreferences-tsv-action-buttons">
         <button v-on:click="showTSV = !showTSV" class="btn btn-sm btn-default">

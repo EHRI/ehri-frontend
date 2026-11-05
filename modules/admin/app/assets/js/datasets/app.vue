@@ -1,19 +1,20 @@
 <script lang="ts">
+import {defineComponent, PropType} from 'vue';
 
-import ManagerDatasetList from './components/_manager-dataset-list';
-import ManagerDataset from './components/_manager-dataset';
-import ManagerSnapshots from './components/_manager-snapshots';
-import MixinUtil from './components/_mixin-util';
+import ManagerDatasetList from './components/_manager-dataset-list.vue';
+import ManagerDataset from './components/_manager-dataset.vue';
+import ManagerSnapshots from './components/_manager-snapshots.vue';
+import MixinUtil from './components/_mixin-util.vue';
 import {DatasetManagerApi} from "./api";
 
 import {ConfigType} from "./types";
 
-export default {
+export default defineComponent({
   components: {ManagerDatasetList},
   mixins: [MixinUtil],
   props: {
     service: Object,
-    config: Object,
+    config: Object as PropType<ConfigType>,
   },
   data: function() {
     return {
@@ -41,7 +42,7 @@ export default {
       window.addEventListener("drop", e => e.preventDefault(), false);
     }
   }
-}
+});
 </script>
 
 <template>

@@ -1,8 +1,9 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
 import markdownit from 'markdown-it';
 
-export default {
+export default defineComponent({
   props: {
     content: String,
     cls: {
@@ -22,7 +23,7 @@ export default {
       typographer: true,
     });
   }
-}
+});
 </script>
 
 <template>

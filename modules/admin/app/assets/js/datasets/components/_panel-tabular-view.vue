@@ -1,16 +1,17 @@
 <script lang="ts">
+import {defineComponent, PropType} from 'vue';
 
 import {decodeCsv, decodeTsv, encodeCsv, encodeTsv} from '../common';
 
-export default {
+export default defineComponent({
   props: {
     data: {
-      type: String as string | null,
+      type: String as PropType<string | null>,
       required: true,
       default: () => '',
     },
     contentType: {
-      type: String as string | null,
+      type: String as PropType<string | null>,
       required: true,
       default: 'text/csv',
     },
@@ -38,7 +39,7 @@ export default {
       return this.decode(this.data);
     },
   }
-}
+});
 </script>
 
 <template>

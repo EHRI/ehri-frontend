@@ -1,16 +1,17 @@
 <script lang="ts">
+import {defineComponent, PropType} from 'vue';
 
-import Dashboard from './components/_dashboard';
-import MixinUtil from './components/_mixin-util';
+import Dashboard from './components/_dashboard.vue';
+import MixinUtil from './components/_mixin-util.vue';
 
-import {ConfigType} from "./types";
+import {DashboardConfigType} from "./types";
 import {DashboardApi} from "./dashboard-api";
 
-export default {
+export default defineComponent({
   components: {Dashboard},
   mixins: [MixinUtil],
   props: {
-    config: Object,
+    config: Object as PropType<DashboardConfigType>,
     service: Object,
   },
   data: function() {
@@ -24,7 +25,7 @@ export default {
       this.error = err + (exc ? (": " + exc.message) : "");
     },
   },
-}
+});
 </script>
 
 <template>

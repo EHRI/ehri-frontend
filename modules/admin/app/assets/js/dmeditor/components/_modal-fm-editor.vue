@@ -1,18 +1,19 @@
 <script lang="ts">
 
+import {PropType, defineComponent} from 'vue';
 import EntityTypeMetadataApi from "../api";
 import {EntityType, FieldMetadata, FieldMetadataTemplates} from "../types";
-import ModalWindow from "../../datasets/components/_modal-window";
-import MultiItem from "./_multi-item";
+import ModalWindow from "../../datasets/components/_modal-window.vue";
+import MultiItem from "./_multi-item.vue";
 import ModalAlert from "../../datasets/components/_modal-alert.vue";
 
-export default {
+export default defineComponent({
   components: {ModalAlert, ModalWindow, MultiItem},
   props: {
-    api: Object as EntityTypeMetadataApi,
-    item: Object as FieldMetadata,
-    fieldMetadata: Object as Record<string, FieldMetadata[]>,
-    templates: Object as FieldMetadataTemplates,
+    api: Object as PropType<EntityTypeMetadataApi>,
+    item: Object as PropType<FieldMetadata>,
+    fieldMetadata: Object as PropType<Record<string, FieldMetadata[]>>,
+    templates: Object as PropType<FieldMetadataTemplates>,
     editing: Boolean
   },
   data() {
@@ -20,7 +21,7 @@ export default {
       saving: false,
       deleting: false,
       confirmDelete: false,
-      et: this.item.entityType ? this.item.entityType : "",
+      et: (this.item.entityType ? this.item.entityType : "") as EntityType | "",
       id: this.item.id ? this.item.id : "",
       name: this.item.name ? this.item.name : "",
       description: this.item.description ? this.item.description : null,
@@ -63,7 +64,7 @@ export default {
       this.$emit('delete-field-metadata', entityType, id);
     },
     categoryForId: function (entityType: EntityType, id: string): string | null {
-      for (let [category, fields] of Object.entries(this.templates[entityType])) {
+      for (let [category, fields] of Object.entries<string[]>(this.templates[entityType])) {
         if (fields.includes(id)) {
           return category === "_" ? null : category
         }
@@ -115,9 +116,7 @@ export default {
       this.category = this.categoryForId(this.et, value);
     }
   },
-}
-
-
+});
 </script>
 
 <template>
@@ -175,7 +174,7 @@ export default {
                          v-bind:cls="'danger confirm-delete-field-metadata'"
                          v-bind:accept="'Delete'"
                          v-bind:cancel="'Cancel'"
-                         v-on:accept="deleteField(et, id)"
+                         v-on:accept="deleteField(et as EntityType, id)"
                          v-on:close="confirmDelete = false">
                 <p>Are you sure you want to delete this field?</p>
             </modal-alert>

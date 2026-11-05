@@ -1,22 +1,23 @@
 <script lang="ts">
 
+import {PropType, defineComponent} from 'vue';
 import FileMetadataEditorApi from "../api";
 import ModalFmEditor from "./_modal-fm-editor.vue";
 import ModalEtEditor from "./_modal-et-editor.vue";
 import {EntityType, EntityTypeMetadata, FieldMetadata, FieldMetadataTemplates} from "../types";
-import ModalAlert from "../../datasets/components/_modal-alert";
+import ModalAlert from "../../datasets/components/_modal-alert.vue";
 import Markdown from './_markdown.vue';
 
-export default {
+export default defineComponent({
   components: {ModalFmEditor, ModalEtEditor, ModalAlert, Markdown},
   props: {
-    api: Object as FileMetadataEditorApi,
+    api: Object as PropType<FileMetadataEditorApi>,
   },
   data() {
     return {
       loading: true,
-      entityTypeMetadata: Object as Record<string, EntityTypeMetadata>,
-      fieldMetadata: Object as Record<string, FieldMetadata[]>,
+      entityTypeMetadata: {} as Record<string, EntityTypeMetadata>,
+      fieldMetadata: {} as Record<string, FieldMetadata[]>,
       templates: null as FieldMetadataTemplates | null,
       editET: null as EntityTypeMetadata | null,
       addFieldMeta: null as FieldMetadata | null,
@@ -80,17 +81,17 @@ export default {
     },
   },
   computed: {
-    missingEntityTypes: function () {
+    missingEntityTypes: function (): EntityType[] {
       if (this.templates === null || this.entityTypeMetadata === null) {
         return [];
       }
-      return Object.keys(this.templates).filter(et => !(et in this.entityTypeMetadata));
+      return (Object.keys(this.templates) as EntityType[]).filter(et => !(et in this.entityTypeMetadata));
     },
   },
   created: async function () {
     await this.reload();
   },
-}
+});
 </script>
 
 <template>
@@ -118,7 +119,7 @@ export default {
                     </tr>
                     </thead>
                     <tbody>
-                    <template v-for="(catFields, cat) in catFields">
+                    <template v-for="(fields, cat) in catFields">
 
                         <tr v-if="cat !== '_' && fieldMetadataFor(entityType, cat).length > 0"
                             v-bind:id="fieldRowId(entityType, cat)">

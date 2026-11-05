@@ -1,14 +1,16 @@
 
 <script lang="ts">
+import {defineComponent, PropType} from 'vue';
 
-import AccessPoint from './_access-point';
-import AddForm from './_add-form';
+import AccessPoint from './_access-point.vue';
+import AddForm from './_add-form.vue';
+import {LinkItem} from '../types';
 
-export default {
+export default defineComponent({
   components: {AccessPoint, AddForm},
   props: {
     type: String,
-    accessPoints: Array,
+    accessPoints: Array as PropType<LinkItem[]>,
     api: Object,
     config: Object,
   },
@@ -28,7 +30,7 @@ export default {
       this.$emit('added');
     }
   },
-}
+});
 </script>
 
 <template>

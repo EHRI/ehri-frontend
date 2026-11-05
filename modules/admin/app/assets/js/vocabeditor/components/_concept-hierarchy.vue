@@ -1,16 +1,18 @@
 <script lang="ts">
+import {defineComponent, PropType} from 'vue';
 
 import {conceptTitle} from '../common';
+import {Concept} from '../types';
 
-export default {
+export default defineComponent({
   name: 'concept-hierarchy',
   props: {
     id: String,
-    data: Array,
+    data: Array as PropType<Concept[]>,
     lang: String
   },
   methods: {conceptTitle},
-}
+});
 </script>
 
 <template>

@@ -1,14 +1,15 @@
 <script lang="ts">
+import {defineComponent} from 'vue';
 
-import ModalWindow from './_modal-window';
-import ModalAlert from './_modal-alert';
-import MixinError from './_mixin-error';
-import MixinUtil from './_mixin-util';
-import MixinTasklog from './_mixin-tasklog'
-import PanelLogWindow from './_panel-log-window';
+import ModalWindow from './_modal-window.vue';
+import ModalAlert from './_modal-alert.vue';
+import MixinError from './_mixin-error.vue';
+import MixinUtil from './_mixin-util.vue';
+import MixinTasklog from './_mixin-tasklog.vue'
+import PanelLogWindow from './_panel-log-window.vue';
 import {DatasetManagerApi} from "../api";
 
-export default {
+export default defineComponent({
   mixins: [MixinUtil, MixinError, MixinTasklog],
   components: {PanelLogWindow, ModalWindow, ModalAlert},
   props: {
@@ -50,7 +51,7 @@ export default {
       return this.data.trim() !== "";
     }
   },
-};
+});
 </script>
 
 <template>
