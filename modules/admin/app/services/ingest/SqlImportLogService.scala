@@ -9,6 +9,7 @@ import models.ImportLog
 import play.api.Logger
 import play.api.db.Database
 import services.ingest.IngestService.IngestData
+import utils.{Page, PageParams}
 
 import java.time.Instant
 import javax.inject.Inject
@@ -199,6 +200,39 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
               log.id, log.repo_id, log.import_dataset_id, timestamp
             ORDER BY
               timestamp DESC""".as(statParser.*)
+    }
+  }
+
+  override def listAll(params: PageParams, repoId: Option[String] = None): Future[Page[ImportLogSummary]] = Future {
+    db.withConnection { implicit conn =>
+      // Select the page of logs first, so only their mappings are counted
+      val items = SQL"""WITH page AS (
+              SELECT log.id, log.repo_id, log.import_dataset_id, log.event_id, log.created
+              FROM import_log log
+              WHERE ($repoId IS NULL OR log.repo_id = $repoId)
+                AND EXISTS (SELECT 1 FROM import_file_mapping map WHERE map.import_log_id = log.id)
+              ORDER BY log.created DESC, log.id DESC
+              LIMIT ${if (params.hasLimit) params.limit else Integer.MAX_VALUE}
+              OFFSET ${params.offset}
+            )
+            SELECT
+              page.id,
+              page.repo_id,
+              page.import_dataset_id,
+              page.event_id,
+              page.created AS timestamp,
+              sum(case when map.type = 'created' then 1 else 0 end) AS created,
+              sum(case when map.type = 'updated' then 1 else 0 end) AS updated,
+              sum(case when map.type = 'unchanged' then 1 else 0 end) AS unchanged
+            FROM page, import_file_mapping map
+            WHERE page.id = map.import_log_id
+            GROUP BY page.id, page.repo_id, page.import_dataset_id, page.event_id, page.created
+            ORDER BY timestamp DESC, page.id DESC""".as(statParser.*)
+      val total = SQL"""SELECT COUNT(*) FROM import_log log
+            WHERE ($repoId IS NULL OR log.repo_id = $repoId)
+              AND EXISTS (SELECT 1 FROM import_file_mapping map WHERE map.import_log_id = log.id)"""
+        .as(SqlParser.scalar[Int].single)
+      Page(items = items, total = total, offset = params.offset, limit = params.limit)
     }
   }
 

@@ -1569,6 +1569,15 @@ ingest.runIngest=Run Ingest
 
 ingest.sourceFiles=Ingest Sources
 ingest.datasets=Import Datasets
+ingest.imports=Import History
+ingest.imports.institution=Institution
+ingest.imports.allInstitutions=All institutions
+ingest.imports.dataset=Dataset
+ingest.imports.date=Date
+ingest.imports.created=Created
+ingest.imports.updated=Updated
+ingest.imports.unchanged=Unchanged
+ingest.imports.none=No imports found.
 
 #
 # Geocoding

@@ -272,6 +272,7 @@ CREATE TABLE import_log (
 
 CREATE INDEX import_log_repo_dataset ON import_log (repo_id, import_dataset_id);
 CREATE INDEX import_log_event_id ON import_log (event_id);
+CREATE INDEX import_log_created ON import_log (created DESC, id DESC);
 
 CREATE TABLE import_file_mapping (
     id            SERIAL PRIMARY KEY,

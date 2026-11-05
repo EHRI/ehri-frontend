@@ -9,6 +9,7 @@ import play.api.db.Database
 import play.api.test.PlaySpecification
 import services.data.AnonymousUser
 import services.ingest.IngestService.IngestData
+import utils.PageParams
 
 import java.util.UUID
 
@@ -105,6 +106,27 @@ class SqlImportLogServiceSpec extends PlaySpecification with AfterAll {
       stats.size must_== 1
       stats.head.created must_== 2
       stats.head.updated must_== 1
+    }
+
+    "list imports across repositories, most recent first" in withDatabaseFixture("data-transformation-fixtures.sql") { implicit db =>
+      await(service.save("r1", "default", job, log))
+      await(service.save("r2", "default", job, log))
+      await(service.save("r1", "default", job, log.copy(createdKeys = Map.empty, updatedKeys = Map.empty)))
+
+      // The log with no items is not listed
+      val all = await(service.listAll(PageParams()))
+      all.total must_== 2
+      all.items.map(_.repoId) must_== Seq("r2", "r1")
+      all.items.head.created must_== 2
+      all.items.head.updated must_== 1
+
+      val r1 = await(service.listAll(PageParams(), Some("r1")))
+      r1.total must_== 1
+      r1.items.map(_.repoId) must_== Seq("r1")
+
+      val paged = await(service.listAll(PageParams(page = 2, limit = 1)))
+      paged.total must_== 2
+      paged.items.map(_.repoId) must_== Seq("r1")
     }
   }
 }

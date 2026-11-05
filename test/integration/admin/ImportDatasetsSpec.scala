@@ -69,6 +69,27 @@ class ImportDatasetsSpec extends IntegrationTestRunner with ResourceUtils {
       status(r) must_== SEE_OTHER
     }
 
+    "list imports for all repositories to staff" in new DBTestApp("import-dataset-fixtures.sql") {
+      db.withConnection { implicit conn =>
+        anorm.SQL("""INSERT INTO import_log (id, repo_id, import_dataset_id, created)
+                     VALUES (1, 'r1', 'rs_test', '2021-09-01 11:00:00'), (2, 'r2', 'default', '2021-09-02 11:00:00');
+                     INSERT INTO import_file_mapping (import_log_id, key, item_id, type)
+                     VALUES (1, 'a.xml', 'c1', 'created'), (2, 'b.xml', 'c2', 'updated')""").execute()
+      }
+      // linda cannot update any repository, but can still see all imports
+      val r = FakeRequest(routes.imports()).withUser(moderator).call()
+      status(r) must_== OK
+      contentAsString(r) must contain("RS Test")
+      contentAsString(r) must contain(routes.manager("r2", Some("default")).url)
+
+      val r1 = FakeRequest(routes.imports(repoId = Some("r1"))).withUser(moderator).call()
+      contentAsString(r1) must contain("RS Test")
+      contentAsString(r1) must not(contain(routes.manager("r2", Some("default")).url))
+
+      val all = FakeRequest(GET, routes.imports().url + "?repoId=").withUser(moderator).call()
+      contentAsString(all) must contain(routes.manager("r2", Some("default")).url)
+    }
+
     "list items" in new DBTestApp("import-dataset-fixtures.sql") {
       val r = FakeRequest(routes.list("r1")).withUser(privilegedUser).call()
       status(r) must_== OK

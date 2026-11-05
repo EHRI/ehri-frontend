@@ -15,6 +15,7 @@ import services.data.ItemNotFound
 import services.datasets.{ImportDatasetExists, ImportDatasetService}
 import services.ingest.ImportLogService
 import services.storage.FileStorage
+import utils.PageParams
 
 import javax.inject._
 import scala.concurrent.Future
@@ -111,6 +112,19 @@ case class ImportDatasets @Inject()(
 
   def dashboard(): Action[AnyContent] = WithUserAction.apply { implicit request =>
     Ok(views.html.admin.datasets.dashboard())
+  }
+
+  def imports(repoIdParam: Option[String], paging: PageParams): Action[AnyContent] = WithUserAction.async { implicit request =>
+    // The "all institutions" option submits an empty value
+    val repoId = repoIdParam.filter(_.trim.nonEmpty)
+    for {
+      page <- importLogService.listAll(paging, repoId)
+      allSets <- datasets.listAll()
+      repos <- userDataApi.fetch[Repository](allSets.keys.toSeq).map(_.flatten)
+    } yield {
+      val datasetNames = allSets.values.flatten.map(ds => (ds.repoId, ds.id) -> ds.name).toMap
+      Ok(views.html.admin.datasets.imports(page, repos.sortBy(_.toStringLang), datasetNames, repoId))
+    }
   }
 
   def manager(id: String, ds: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>

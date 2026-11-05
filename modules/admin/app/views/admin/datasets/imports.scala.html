@@ -1,0 +1,57 @@
+@(page: utils.Page[services.ingest.ImportLogSummary], repos: Seq[Repository], datasetNames: Map[(String, String), String], repoId: Option[String])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+
+@repoNames = @{ repos.map(r => r.id -> r.toStringLang).toMap }
+
+@breadcrumbRoot = {
+    <a href="@controllers.datasets.routes.ImportDatasets.dashboard()">@Messages("ingest.datasets")</a>
+}
+
+@views.html.admin.layout.noSidebar(Messages("ingest.imports"), breadcrumbs = views.html.admin.common.breadcrumbs(root = breadcrumbRoot)) {
+    <form method="get" action="@controllers.datasets.routes.ImportDatasets.imports()" class="form-inline">
+        <label class="sr-only" for="import-history-repo">@Messages("ingest.imports.institution")</label>
+        <select id="import-history-repo" name="repoId" class="form-control form-control-sm mr-2">
+            <option value="">@Messages("ingest.imports.allInstitutions")</option>
+            @for(r <- repos) {
+                <option value="@r.id" @if(repoId.contains(r.id)) {selected}>@r.toStringLang</option>
+            }
+        </select>
+        <button type="submit" class="btn btn-sm btn-default">@Messages("search.submit")</button>
+    </form>
+
+    @if(page.isEmpty) {
+        <p>@Messages("ingest.imports.none")</p>
+    } else {
+        <p>@Messages("pagination.displayingItems", page.start, page.end, page.total)</p>
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    <th>@Messages("ingest.imports.date")</th>
+                    <th>@Messages("ingest.imports.institution")</th>
+                    <th>@Messages("ingest.imports.dataset")</th>
+                    <th class="text-right">@Messages("ingest.imports.created")</th>
+                    <th class="text-right">@Messages("ingest.imports.updated")</th>
+                    <th class="text-right">@Messages("ingest.imports.unchanged")</th>
+                </tr>
+            </thead>
+            <tbody>
+            @for(log <- page) {
+                <tr>
+                    <td title="@views.Helpers.localisedDateTime(log.timestamp.atZone(java.time.ZoneId.systemDefault()))">
+                        @views.Helpers.relativeDate(log.timestamp.atZone(java.time.ZoneId.systemDefault()))
+                    </td>
+                    <td>
+                        <a href="@controllers.datasets.routes.ImportDatasets.manager(log.repoId)">@repoNames.getOrElse(log.repoId, log.repoId)</a>
+                    </td>
+                    <td>
+                        <a href="@controllers.datasets.routes.ImportDatasets.manager(log.repoId, Some(log.datasetId))">@datasetNames.getOrElse((log.repoId, log.datasetId), log.datasetId)</a>
+                    </td>
+                    <td class="text-right">@log.created</td>
+                    <td class="text-right">@log.updated</td>
+                    <td class="text-right">@log.unchanged</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+        @views.html.common.pagination(page)
+    }
+}

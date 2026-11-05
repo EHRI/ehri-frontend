@@ -30,6 +30,7 @@ object Helpers {
     ("s3", "-"),
     // NB: lists only institutions the user can manage datasets for
     ("ingest.datasets",               controllers.datasets.routes.ImportDatasets.dashboard().url),
+    ("ingest.imports",                controllers.datasets.routes.ImportDatasets.imports().url),
   )
 
   val adminMenu = Seq(
