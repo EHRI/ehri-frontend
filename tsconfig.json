@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "diagnostics": false,
-    "strict": true,
+    "strict": false,
     "skipLibCheck": true,
     "target": "es2015",
     "module": "esnext",

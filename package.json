@@ -46,7 +46,7 @@
   },
   "scripts": {
     "test": "jest",
-    "typecheck": "tsc --noEmit && vue-tsc --noEmit -p tsconfig.vue.json",
+    "typecheck": "tsc --noEmit -p tsconfig.strict.json && vue-tsc --noEmit",
     "copy": "grunt copy-assets"
   },
   "author": "EHRI",

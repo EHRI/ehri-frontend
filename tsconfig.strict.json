@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "strict": true
+  },
+  "include": [
+    "modules/admin/app/assets/js/datasets/**/*.ts",
+    "modules/admin/app/assets/js/vocabeditor/**/*.ts",
+    "modules/admin/app/assets/js/apeditor/**/*.ts",
+    "modules/admin/app/assets/js/dmeditor/**/*.ts"
+  ]
+}

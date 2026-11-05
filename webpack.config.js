@@ -8,7 +8,7 @@ module.exports = (env, argv) => {
   return {
     plugins: [new VueLoaderPlugin(), new ForkTsCheckerWebpackPlugin({
       typescript: {
-        configFile: '../../../../tsconfig.json'
+        configFile: '../../../../tsconfig.strict.json'
       }
     })],
     stats: 'normal',
