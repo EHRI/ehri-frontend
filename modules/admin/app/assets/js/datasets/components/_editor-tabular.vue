@@ -141,39 +141,28 @@ export default {
     </div>
     <div class="tabular-editor-legend">
       <dl>
-        <dt>Ops</dt>
+        <dt>select</dt>
+        <dd>Copies one input column, renamed to <code>to</code> if given.</dd>
+        <dt>merge</dt>
+        <dd>Joins <code>columns</code> (comma-separated) into <code>to</code>, separated by <code>expr</code>, skipping blanks.</dd>
+        <dt>split</dt>
+        <dd>Splits one column on <code>expr</code> into <code>to</code> (comma-separated); extra values go in the last.</dd>
+        <dt>derive</dt>
+        <dd>Sets <code>to</code> to the result of the <code>expr</code> XQuery expression.</dd>
+        <dt>filter</dt>
+        <dd>Keeps only rows where every <code>filter</code> <code>expr</code> is true.</dd>
+        <dt>Notes</dt>
         <dd>
-          <code>select</code>, <code>merge</code>, <code>split</code>, <code>derive</code> each read
-          straight from the input row and contribute one or more named output columns, in row order
-          &mdash; a column appears in the output only if some row produces it (with no producing
-          rows at all, every input column passes through unchanged). <code>filter</code> rows decide
-          which input rows survive; several <code>filter</code> rows are ANDed together and can
-          appear anywhere. Row expressions use <code>?column</code> lookups against the input row.
-        </dd>
-        <dt>select / merge / split</dt>
-        <dd>
-          <code>select</code>: one input column, optionally renamed via <code>to</code>.
-          <code>merge</code>: <code>columns</code> is a comma-separated list of input columns,
-          joined (blank values skipped) into <code>to</code> with <code>expr</code> as the separator
-          (defaults to <code>array.separator</code>). <code>split</code>: <code>columns</code> is
-          the one source column, <code>to</code> a comma-separated list of new column names, and
-          <code>expr</code> the separator. With several target columns, any extra values are kept in the
-          last one, joined with the separator; a single target column takes the first value.
-          Each output column must come from a single row &mdash;
-          combining several source columns into one? List them all in that one <code>merge</code>
-          row's <code>columns</code> cell, not as separate rows; two rows targeting the same
-          <code>to</code> will fail with an error rather than silently combining.
+          Output has only the columns rows produce, in row order (all input columns if none do).
+          Each output column must come from one row: to combine columns, list them in one <code>merge</code>.
+          Expressions read input columns as <code>?name</code>, or <code>?1</code>, <code>?2</code>&hellip; without a header.
+          Separators in <code>expr</code> default to <code>array.separator</code>.
         </dd>
         <dt>Options</dt>
         <dd>
-          Set via the <strong>Parameters</strong> panel (with defaults):
-          <code>input.separator</code> (<code>comma</code>),
-          <code>output.separator</code> (= input),
-          <code>input.header</code> (<code>yes</code>; if <code>no</code>, columns are named by
-          position: <code>1</code>, <code>2</code>&hellip;, or <code>?1</code> in expressions),
-          <code>output.header</code> (= input),
-          <code>array.separator</code> (<code>||</code>).
-          Separators may be <code>comma</code>, <code>semicolon</code>, <code>tab</code>, or a single character.
+          In <strong>Parameters</strong>: <code>input.separator</code> (<code>comma</code>; or <code>semicolon</code>,
+          <code>tab</code> or one character), <code>input.header</code> (<code>yes</code>),
+          <code>array.separator</code> (<code>||</code>). Output is always comma-separated with a header.
         </dd>
       </dl>
     </div>

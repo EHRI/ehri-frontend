@@ -17,8 +17,8 @@ import java.net.URI
   * operations.
   *
   * The pipeline config is a TSV with columns: op, columns, to, expr.
-  * Parse/serialise options (input.separator, output.separator, array.separator,
-  * ...) are supplied as params.
+  * Output is always comma-separated with a header. Input options
+  * (input.separator, input.header, array.separator) are supplied as params.
   */
 case class BaseXTabularTransformer(scriptOpt: Option[String] = None, funcOpt: Option[URI] = None) extends XQueryTabularTransformer with Timer {
 

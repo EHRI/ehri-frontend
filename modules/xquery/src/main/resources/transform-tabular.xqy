@@ -187,8 +187,6 @@ declare variable $libURI as xs:anyURI external;
 
 let $in-sep := (map:get($options, "input.separator"), "comma")[1]
 let $in-header := if (map:get($options, "input.header") = ("no", "false")) then "no" else "yes"
-let $out-sep := (map:get($options, "output.separator"), $in-sep)[1]
-let $out-header := if ((map:get($options, "output.header"), $in-header)[1] = ("no", "false")) then "no" else "yes"
 let $arr-sep := (map:get($options, "array.separator"), "||")[1]
 
 let $parsed := csv:parse($input, map { "separator": $in-sep, "header": $in-header, "format": "attributes" })/csv
@@ -256,4 +254,4 @@ return
             where local:keeps($r, $filters, $libURI)
             return local:build-record($r, $producing, $arr-sep, $libURI)
           }</csv>
-        return csv:serialize($result, map { "separator": $out-sep, "header": $out-header, "format": "attributes" })
+        return csv:serialize($result, map { "separator": "comma", "header": "yes", "format": "attributes" })
