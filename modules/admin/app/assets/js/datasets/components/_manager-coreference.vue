@@ -94,7 +94,7 @@ export default defineComponent({
     },
     setCoreferencesFromTsv: function () {
       let parsedTsv = decodeTsv(this.pasteText, 3);
-      this.references = parsedTsv.map(function (value) {
+      this.references = parsedTsv.map(function (value: string[]) {
         let ref: Coreference = {
           text: value[0],
           targetId: value[1],
@@ -133,7 +133,7 @@ export default defineComponent({
     isFiltered: function () {
       return this.set !== null || this.filter.trim() !== "";
     },
-    updateOnTsvImport: function (value) {
+    updateOnTsvImport: function (value: string) {
       this.validationErrors = false;
       this.validationMessages = "";
       this.pasteText = value;

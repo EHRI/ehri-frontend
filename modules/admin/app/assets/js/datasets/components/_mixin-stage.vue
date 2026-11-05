@@ -97,7 +97,7 @@ export default defineComponent({
     loadConfig: function () {
       // Overridden
     },
-    downloadFiles: function (keys) {
+    downloadFiles: function (keys: string[]) {
       keys.forEach(key => this.downloading[key] = true);
       this.api.fileUrls(this.dataset.id, this.fileStage, keys)
           .then(urls => {
@@ -109,8 +109,8 @@ export default defineComponent({
           .catch(error => this.showError("Error fetching download URLs", error))
           .finally(() => this.downloading = {});
     },
-    deleteFiles: function (keys) {
-      if (_isEmpty(keys) || keys.includes(this.previewing)) {
+    deleteFiles: function (keys: string[]) {
+      if (_isEmpty(keys) || (this.previewing && keys.includes(this.previewing.key))) {
         this.previewing = null;
       }
       let dkeys = _isEmpty(keys) ? this.files.map(f => f.key) : keys;
@@ -127,23 +127,23 @@ export default defineComponent({
           .catch(error => this.showError("Error deleting files", error))
           .finally(() => this.deleting = {});
     },
-    info: function (key) {
+    info: function (key: string) {
       this.loadingInfo[key] = true;
       return this.api.info(this.dataset.id, this.fileStage, key)
           .then(r => this.fileInfo = r)
           .catch(error => this.showError("Error fetching file info", error))
           .finally(() => this.loadingInfo = {});
     },
-    selectItem: function (file) {
+    selectItem: function (file: FileMeta) {
       this.selected[file.key] = file;
     },
-    deselectItem: function (file) {
+    deselectItem: function (file: FileMeta) {
       delete this.selected[file.key];
     },
     deselect: function () {
       this.previewing = null;
     },
-    toggleFile: function (file) {
+    toggleFile: function (file: FileMeta) {
       if (this.selected[file.key]) {
         this.deselectItem(file);
       } else {

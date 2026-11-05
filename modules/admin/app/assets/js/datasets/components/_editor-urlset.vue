@@ -34,8 +34,8 @@ export default defineComponent({
       // Return a promise when the DOM is ready...
       return nextTick();
     },
-    focus: function (row, col): void {
-      let elem = this.$refs[_padStart(row, 4, '0') + '-' + col];
+    focus: function (row: number, col: number): void {
+      let elem = this.$refs[_padStart(String(row), 4, '0') + '-' + col];
       if (elem && elem[0]) {
         elem[0].focus();
       }
@@ -51,18 +51,18 @@ export default defineComponent({
       this.update()
           .then(() => this.focus(this.selected, 0));
     },
-    duplicate: function (i): void {
+    duplicate: function (i: number): void {
       let m = _clone(this.mappings[i]);
       this.selected = i + 1;
       this.mappings.splice(this.selected, 0, m);
       this.update();
     },
-    remove: function (i): void {
+    remove: function (i: number): void {
       this.mappings.splice(i, 1);
       this.selected = Math.min(i, this.mappings.length - 1);
       this.update();
     },
-    deserialize: function (str): string[][] {
+    deserialize: function (str: string): string[][] {
       return str ? decodeTsv(str, 2) : [];
     },
     serialize: function (mappings: string[][]): string {

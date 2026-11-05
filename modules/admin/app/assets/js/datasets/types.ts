@@ -151,7 +151,7 @@ export interface FileToUpload {
 
 export interface FileUploadProgress {
   progress: number
-  spec: FileToUpload
+  spec: File
 }
 
 export interface FileInfo {

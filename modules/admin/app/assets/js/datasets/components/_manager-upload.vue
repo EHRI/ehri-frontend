@@ -101,14 +101,14 @@ export default defineComponent({
     }
   },
   methods: {
-    finishUpload: function (fileSpec) {
+    finishUpload: function (fileSpec: File) {
       this.setUploadProgress(fileSpec, 100);
       setTimeout(() => {
         let i = _findIndex(this.uploading, (s: FileUploadProgress) => s.spec.name === fileSpec.name);
         this.uploading.splice(i, 1)
       }, 1000);
     },
-    setUploadProgress: function (fileSpec, percent) {
+    setUploadProgress: function (fileSpec: File, percent: number): boolean {
       let i = _findIndex(this.uploading, (s: FileUploadProgress) => s.spec.name === fileSpec.name);
       if (i > -1) {
         this.uploading[i].progress = Math.min(100, percent);
@@ -125,7 +125,7 @@ export default defineComponent({
     dragLeave: function () {
       this.dropping = false;
     },
-    uploadFile: function (file) {
+    uploadFile: function (file: File) {
       // Check we're still in the queue and have not been cancelled...
       if (_findIndex(this.uploading, (f: FileUploadProgress) => f.spec.name === file.name) === -1) {
         return Promise.reject(new UploadCancelled(file.name));

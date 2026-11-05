@@ -19,10 +19,10 @@ import MixinTasklog from './_mixin-tasklog.vue';
 import {DatasetManagerApi} from '../api';
 import _takeWhile from 'lodash/takeWhile';
 import _find from 'lodash/find';
-import {DataTransformation, ImportDataset} from "../types";
+import {ConfigType, DataTransformation, FileMeta, ImportDataset} from "../types";
 import PanelFilePreview from "./_panel-file-preview.vue";
 
-let initialConvertState = function (config) {
+let initialConvertState = function (config: ConfigType) {
   return {
     ingesting: {},
     previewStage: config.input,
@@ -62,7 +62,7 @@ export default defineComponent({
       type: String,
       default: 'convert-id',
     },
-    config: Object,
+    config: Object as PropType<ConfigType>,
     api: DatasetManagerApi,
     active: Boolean,
   },
@@ -110,13 +110,13 @@ export default defineComponent({
       this.parametersForEditor = {};
       this.loadTransformations();
     },
-    saved: function (item) {
+    saved: function (item: DataTransformation) {
       this.editing = item;
     },
     transformationAt: function (i: number): DataTransformation {
       return _find(this.available, dt => dt.id === this.mappings[i]);
     },
-    convert: async function (file, force) {
+    convert: async function (file: FileMeta | null, force: boolean) {
       console.debug("Converting:", file)
       this.tab = "info";
       try {

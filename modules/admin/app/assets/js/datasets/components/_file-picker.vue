@@ -5,6 +5,7 @@ import FilePickerSuggestion from './_file-picker-suggestion.vue';
 
 import _debounce from 'lodash/debounce';
 import {DatasetManagerApi} from '../api';
+import {FileMeta} from '../types';
 
 export default defineComponent({
   components: {FilePickerSuggestion},
@@ -48,7 +49,7 @@ export default defineComponent({
     selectNext: function () {
       this.selectedIdx = Math.min(this.suggestions.length, this.selectedIdx + 1);
     },
-    setAndChooseItem: function (item) {
+    setAndChooseItem: function (item: FileMeta) {
       this.$emit("update:modelValue", item);
       this.cancelComplete();
       this.text = null;
