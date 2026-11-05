@@ -81,4 +81,47 @@ describe("dataset worker", () => {
     await send("preview", abort);
     expect(postMessage).not.toHaveBeenCalled();
   });
+
+  describe("task monitor", () => {
+    class FakeWebSocket {
+      static last: FakeWebSocket;
+      onopen: () => void;
+      onerror: (e: object) => void;
+      onmessage: (e: {data: string}) => void;
+      onclose: (e: {code: number}) => void;
+      close = jest.fn(() => this.onclose({code: 1000}));
+      constructor(public url: string) {
+        FakeWebSocket.last = this;
+      }
+    }
+
+    function monitor(): FakeWebSocket {
+      (global as any).WebSocket = FakeWebSocket;
+      window.dispatchEvent(new MessageEvent("message", {data: {type: "websocket", url: "/ws", DONE: "Done", ERR: "Error"}}));
+      return FakeWebSocket.last;
+    }
+
+    test("finishes once the task is done", () => {
+      let ws = monitor();
+      ws.onmessage({data: JSON.stringify("Working...")});
+      ws.onmessage({data: JSON.stringify("Done")});
+      expect(postMessage.mock.calls).toEqual([[{msg: "Working...", done: false}], [{msg: "Done", done: true}]]);
+      expect(ws.close).toHaveBeenCalled();
+    });
+
+    test("reports a connection error once, as a plain message", () => {
+      let ws = monitor();
+      ws.onerror(new Event("error"));
+      ws.onclose({code: 1006});
+      expect(postMessage).toHaveBeenCalledTimes(1);
+      expect(postMessage.mock.calls[0][0]).toEqual({error: expect.stringContaining("code 1006"), done: true});
+    });
+
+    test("reports a connection closed before the task is done", () => {
+      let ws = monitor();
+      ws.onmessage({data: JSON.stringify("Working...")});
+      ws.onclose({code: 1001});
+      expect(postMessage).toHaveBeenLastCalledWith({error: expect.stringContaining("Lost connection"), done: true});
+    });
+  });
 });
