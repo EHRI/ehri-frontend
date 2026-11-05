@@ -396,7 +396,7 @@ export default {
                     v-bind:content-type="dataset.contentType"
                     v-bind:file-stage="fileStage"
                     v-bind:mappings="mappings"
-                    v-bind:trigger="JSON.stringify(data)"
+                    v-bind:trigger="JSON.stringify([data, parameters])"
                     v-bind:previewing="previewing"
                     v-bind:panel-size="panelSize"
                     v-bind:config="config"

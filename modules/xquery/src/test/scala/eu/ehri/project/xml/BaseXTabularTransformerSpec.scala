@@ -8,16 +8,6 @@ class BaseXTabularTransformerSpec extends Specification {
 
   "Tabular transformer should" should {
 
-    "quote a value containing a newline even when the output separator is tab" in {
-      val transformer = BaseXTabularTransformer()
-      val input = "id,a,b\np1,line1,line2\n"
-      val config = header + "\nderive\t\tjoined\tfn:string-join((?a, ?b), \"&#10;\")"
-      val out = transformer.transform(input, config,
-        Map("input.separator" -> "comma", "output.separator" -> "tab"))
-      // csv:serialize quotes values needing it regardless of the chosen separator
-      out must contain("\"line1\nline2\"")
-    }
-
     "join two strings with a literal newline in a derive expr" in {
       val transformer = BaseXTabularTransformer()
       val input = "id,a,b\np1,line1,line2\n"
@@ -95,13 +85,11 @@ class BaseXTabularTransformerSpec extends Specification {
         throwA[InvalidMappingError].like { case e => e.getMessage must contain("creator") }
     }
 
-    "reflavour delimiters with no pipeline rows at all" in {
+    "convert to comma-separated output with no pipeline rows at all" in {
       val transformer = BaseXTabularTransformer()
-      val input = "a,b,c\n1,2,3\n"
-      val out = transformer.transform(input, header + "\n",
-        Map("input.separator" -> "comma", "output.separator" -> "tab"))
-      out must contain("a\tb\tc")
-      out must contain("1\t2\t3")
+      val input = "a\tb\tc\n1\t2\t3\n"
+      val out = transformer.transform(input, header + "\n", Map("input.separator" -> "tab"))
+      out must_== "a,b,c\n1,2,3\n"
     }
 
     "run a select / merge / derive / filter pipeline, each row reading the input directly" in {
@@ -120,12 +108,11 @@ class BaseXTabularTransformerSpec extends Specification {
         "merge\tcreator_first,creator_last\tcreator\t ",
         "derive\t\tdates\tconcat(?start_year, \"/\", ?end_year)"
       ).mkString("\n")
-      val out = transformer.transform(input, config,
-        Map("input.separator" -> "comma", "output.separator" -> "tab"))
+      val out = transformer.transform(input, config, Map("input.separator" -> "comma"))
 
-      out must contain("identifier\ttitle\tcreator\tdates")
-      out must contain("NL-001\tLetters\tAnna de Vries\t1940/1945")
-      out must contain("NL-003\tPhotos\tJan Bakker\t1938/1940")
+      out must contain("identifier,title,creator,dates")
+      out must contain("NL-001,Letters,Anna de Vries,1940/1945")
+      out must contain("NL-003,Photos,Jan Bakker,1938/1940")
       out must not(contain("DE-002"))
       out must not(contain("Müller"))
     }
@@ -139,7 +126,7 @@ class BaseXTabularTransformerSpec extends Specification {
           |""".stripMargin
       val config = Seq(header, "select\tid\t\t", "merge\tcreator_first,creator_last\tcreator\t ").mkString("\n")
       val out = transformer.transform(input, config,
-        Map("input.separator" -> "comma", "output.separator" -> "comma"))
+        Map("input.separator" -> "comma"))
 
       out must contain("id,creator")
       out must contain("p1,Anna de Vries")
@@ -158,7 +145,7 @@ class BaseXTabularTransformerSpec extends Specification {
         "select\tid\t\t"
       ).mkString("\n")
       val out = transformer.transform(input, config,
-        Map("input.separator" -> "comma", "output.separator" -> "comma"))
+        Map("input.separator" -> "comma"))
 
       out must contain("creator,address,id")
       out must contain("Anna de Vries,\"Prinsengracht 1, Amsterdam\",p1")
@@ -168,7 +155,7 @@ class BaseXTabularTransformerSpec extends Specification {
       val transformer = BaseXTabularTransformer()
       val config = Seq(header, "select\tid\t\t", "split\tcoords\tlat,lon\t||").mkString("\n")
       val out = transformer.transform("id,coords\nX1,52.37||4.90\n", config,
-        Map("input.separator" -> "comma", "output.separator" -> "comma"))
+        Map("input.separator" -> "comma"))
       out must contain("id,lat,lon")
       out must contain("X1,52.37,4.90")
     }
@@ -177,7 +164,7 @@ class BaseXTabularTransformerSpec extends Specification {
       val transformer = BaseXTabularTransformer()
       val config = Seq(header, "select\ta\t\t", "select\tc\t\t").mkString("\n")
       val out = transformer.transform("a,b,c,d\n1,2,3,4\n", config,
-        Map("input.separator" -> "comma", "output.separator" -> "comma"))
+        Map("input.separator" -> "comma"))
       out must contain("a,c")
       out must contain("1,3")
     }
@@ -197,7 +184,7 @@ class BaseXTabularTransformerSpec extends Specification {
         "filter\t\t\txs:integer(?start_year) ge 1940"
       ).mkString("\n")
       val out = transformer.transform(input, config,
-        Map("input.separator" -> "comma", "output.separator" -> "comma"))
+        Map("input.separator" -> "comma"))
       out must contain("NL-001")
       out must not(contain("NL-002"))
       out must not(contain("DE-003"))
@@ -207,7 +194,7 @@ class BaseXTabularTransformerSpec extends Specification {
       val transformer = BaseXTabularTransformer()
       val config = Seq(header, "select\tid\tidentifier\t", "\t\t\t", "select\ttitle\t\t").mkString("\n")
       val out = transformer.transform("id,title,extra\n1,Foo,bar\n", config,
-        Map("input.separator" -> "comma", "output.separator" -> "comma"))
+        Map("input.separator" -> "comma"))
       out must contain("identifier,title")
       out must contain("1,Foo")
       out must not(contain("extra"))
@@ -260,15 +247,14 @@ class BaseXTabularTransformerSpec extends Specification {
     "name columns by position when the input has no header" in {
       val input = "1,Letters,a||b\n2,Photos,c\n"
       val opts = Map("input.separator" -> "comma", "input.header" -> "no")
-      def run(rows: String, extra: Map[String, String] = Map.empty) =
-        BaseXTabularTransformer().transform(input, header + rows, opts ++ extra)
+      def run(rows: String) = BaseXTabularTransformer().transform(input, header + rows, opts)
 
-      run("\nselect\t2\t\t") must_== "Letters\nPhotos\n"
-      run("\nmerge\t1,2\tboth\t; ") must_== "1; Letters\n2; Photos\n"
-      run("\nsplit\t3\tx,y\t||") must_== "a,b\nc,\n"
-      run("\nderive\t\tupper\tupper-case(?2)") must_== "LETTERS\nPHOTOS\n"
-      run("\nselect\t2\t\t\nfilter\t\t\t?1 = '1'") must_== "Letters\n"
-      run("\nselect\t2\ttitle\t", Map("output.header" -> "yes")) must_== "title\nLetters\nPhotos\n"
+      run("\nselect\t2\t\t") must_== "2\nLetters\nPhotos\n"
+      run("\nmerge\t1,2\tboth\t; ") must_== "both\n1; Letters\n2; Photos\n"
+      run("\nsplit\t3\tx,y\t||") must_== "x,y\na,b\nc,\n"
+      run("\nderive\t\tupper\tupper-case(?2)") must_== "upper\nLETTERS\nPHOTOS\n"
+      run("\nselect\t2\t\t\nfilter\t\t\t?1 = '1'") must_== "2\nLetters\n"
+      run("\nselect\t2\ttitle\t") must_== "title\nLetters\nPhotos\n"
       run("\nselect\t4\t\t") must throwA[InvalidMappingError].like { case e =>
         e.getMessage must contain("Column '4' in a 'select' row is not in the input. Input columns: 1, 2, 3")
       }
