@@ -1578,6 +1578,9 @@ ingest.imports.created=Created
 ingest.imports.updated=Updated
 ingest.imports.unchanged=Unchanged
 ingest.imports.none=No imports found.
+ingest.imports.monthly=Monthly totals
+ingest.imports.month=Month
+ingest.imports.count=Imports
 
 #
 # Geocoding

@@ -53,6 +53,15 @@ object ImportLogSummary {
   implicit val _writes: Writes[ImportLogSummary] = Json.writes[ImportLogSummary]
 }
 
+case class MonthlyImportSummary(
+  month: Instant,
+  repoId: String,
+  imports: Int,
+  created: Int,
+  updated: Int,
+  unchanged: Int
+)
+
 @ImplementedBy(classOf[SqlImportLogService])
 trait ImportLogService {
   /**
@@ -203,4 +212,14 @@ trait ImportLogService {
     * @return a page of stat objects
     */
   def listAll(params: PageParams, repoId: Option[String] = None): Future[Page[ImportLogSummary]]
+
+  /**
+    * Total the created, updated, unchanged stats for imports in each
+    * repository per month, most recent month first.
+    *
+    * @param params paging parameters
+    * @param repoId an optional repository ID to restrict the list to
+    * @return a page of per-repository monthly totals
+    */
+  def monthlyTotals(params: PageParams, repoId: Option[String] = None): Future[Page[MonthlyImportSummary]]
 }

@@ -1,6 +1,7 @@
-@(page: utils.Page[services.ingest.ImportLogSummary], repos: Seq[Repository], datasetNames: Map[(String, String), String], repoId: Option[String])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(result: Either[utils.Page[services.ingest.MonthlyImportSummary], utils.Page[services.ingest.ImportLogSummary]], repos: Seq[Repository], datasetNames: Map[(String, String), String], repoId: Option[String], monthly: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @repoNames = @{ repos.map(r => r.id -> r.toStringLang).toMap }
+@page = @{ result.merge }
 
 @breadcrumbRoot = {
     <a href="@controllers.datasets.routes.ImportDatasets.dashboard()">@Messages("ingest.datasets")</a>
@@ -15,6 +16,10 @@
                 <option value="@r.id" @if(repoId.contains(r.id)) {selected}>@r.toStringLang</option>
             }
         </select>
+        <div class="form-check mr-2">
+            <input type="checkbox" class="form-check-input" id="import-history-monthly" name="monthly" value="true" @if(monthly) {checked}>
+            <label class="form-check-label" for="import-history-monthly">@Messages("ingest.imports.monthly")</label>
+        </div>
         <button type="submit" class="btn btn-sm btn-default">@Messages("search.submit")</button>
     </form>
 
@@ -23,34 +28,66 @@
     } else {
         <p>@Messages("pagination.displayingItems", page.start, page.end, page.total)</p>
         <table class="table table-sm table-striped">
-            <thead>
-                <tr>
-                    <th>@Messages("ingest.imports.date")</th>
-                    <th>@Messages("ingest.imports.institution")</th>
-                    <th>@Messages("ingest.imports.dataset")</th>
-                    <th class="text-right">@Messages("ingest.imports.created")</th>
-                    <th class="text-right">@Messages("ingest.imports.updated")</th>
-                    <th class="text-right">@Messages("ingest.imports.unchanged")</th>
-                </tr>
-            </thead>
-            <tbody>
-            @for(log <- page) {
-                <tr>
-                    <td title="@views.Helpers.localisedDateTime(log.timestamp.atZone(java.time.ZoneId.systemDefault()))">
-                        @views.Helpers.relativeDate(log.timestamp.atZone(java.time.ZoneId.systemDefault()))
-                    </td>
-                    <td>
-                        <a href="@controllers.datasets.routes.ImportDatasets.manager(log.repoId)">@repoNames.getOrElse(log.repoId, log.repoId)</a>
-                    </td>
-                    <td>
-                        <a href="@controllers.datasets.routes.ImportDatasets.manager(log.repoId, Some(log.datasetId))">@datasetNames.getOrElse((log.repoId, log.datasetId), log.datasetId)</a>
-                    </td>
-                    <td class="text-right">@log.created</td>
-                    <td class="text-right">@log.updated</td>
-                    <td class="text-right">@log.unchanged</td>
-                </tr>
+            @result match {
+                case Left(totals) => {
+                    <thead>
+                        <tr>
+                            <th>@Messages("ingest.imports.month")</th>
+                            <th>@Messages("ingest.imports.institution")</th>
+                            <th class="text-right">@Messages("ingest.imports.count")</th>
+                            <th class="text-right">@Messages("ingest.imports.created")</th>
+                            <th class="text-right">@Messages("ingest.imports.updated")</th>
+                            <th class="text-right">@Messages("ingest.imports.unchanged")</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @for(t <- totals) {
+                        <tr>
+                            <td>@java.time.format.DateTimeFormatter.ofPattern("MMMM yyyy", messages.lang.toLocale).format(t.month.atZone(java.time.ZoneId.systemDefault()))</td>
+                            <td>
+                                <a href="@controllers.datasets.routes.ImportDatasets.manager(t.repoId)">@repoNames.getOrElse(t.repoId, t.repoId)</a>
+                            </td>
+                            <td class="text-right">
+                                <a href="@controllers.datasets.routes.ImportDatasets.imports(repoId = Some(t.repoId))">@t.imports</a>
+                            </td>
+                            <td class="text-right">@t.created</td>
+                            <td class="text-right">@t.updated</td>
+                            <td class="text-right">@t.unchanged</td>
+                        </tr>
+                    }
+                    </tbody>
+                }
+                case Right(logs) => {
+                    <thead>
+                        <tr>
+                            <th>@Messages("ingest.imports.date")</th>
+                            <th>@Messages("ingest.imports.institution")</th>
+                            <th>@Messages("ingest.imports.dataset")</th>
+                            <th class="text-right">@Messages("ingest.imports.created")</th>
+                            <th class="text-right">@Messages("ingest.imports.updated")</th>
+                            <th class="text-right">@Messages("ingest.imports.unchanged")</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @for(log <- logs) {
+                        <tr>
+                            <td title="@views.Helpers.localisedDateTime(log.timestamp.atZone(java.time.ZoneId.systemDefault()))">
+                                @views.Helpers.relativeDate(log.timestamp.atZone(java.time.ZoneId.systemDefault()))
+                            </td>
+                            <td>
+                                <a href="@controllers.datasets.routes.ImportDatasets.manager(log.repoId)">@repoNames.getOrElse(log.repoId, log.repoId)</a>
+                            </td>
+                            <td>
+                                <a href="@controllers.datasets.routes.ImportDatasets.manager(log.repoId, Some(log.datasetId))">@datasetNames.getOrElse((log.repoId, log.datasetId), log.datasetId)</a>
+                            </td>
+                            <td class="text-right">@log.created</td>
+                            <td class="text-right">@log.updated</td>
+                            <td class="text-right">@log.unchanged</td>
+                        </tr>
+                    }
+                    </tbody>
+                }
             }
-            </tbody>
         </table>
         @views.html.common.pagination(page)
     }

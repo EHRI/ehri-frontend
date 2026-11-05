@@ -114,16 +114,18 @@ case class ImportDatasets @Inject()(
     Ok(views.html.admin.datasets.dashboard())
   }
 
-  def imports(repoIdParam: Option[String], paging: PageParams): Action[AnyContent] = WithUserAction.async { implicit request =>
+  def imports(repoIdParam: Option[String], monthly: Boolean, paging: PageParams): Action[AnyContent] = WithUserAction.async { implicit request =>
     // The "all institutions" option submits an empty value
     val repoId = repoIdParam.filter(_.trim.nonEmpty)
+    val pageF = if (monthly) importLogService.monthlyTotals(paging, repoId).map(Left(_))
+      else importLogService.listAll(paging, repoId).map(Right(_))
     for {
-      page <- importLogService.listAll(paging, repoId)
+      page <- pageF
       allSets <- datasets.listAll()
       repos <- userDataApi.fetch[Repository](allSets.keys.toSeq).map(_.flatten)
     } yield {
       val datasetNames = allSets.values.flatten.map(ds => (ds.repoId, ds.id) -> ds.name).toMap
-      Ok(views.html.admin.datasets.imports(page, repos.sortBy(_.toStringLang), datasetNames, repoId))
+      Ok(views.html.admin.datasets.imports(page, repos.sortBy(_.toStringLang), datasetNames, repoId, monthly))
     }
   }
 

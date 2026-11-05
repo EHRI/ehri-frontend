@@ -88,6 +88,13 @@ class ImportDatasetsSpec extends IntegrationTestRunner with ResourceUtils {
 
       val all = FakeRequest(GET, routes.imports().url + "?repoId=").withUser(moderator).call()
       contentAsString(all) must contain(routes.manager("r2", Some("default")).url)
+
+      // monthly totals link to each institution's imports, not datasets
+      val monthly = FakeRequest(routes.imports(monthly = true)).withUser(moderator).call()
+      status(monthly) must_== OK
+      contentAsString(monthly) must contain("September 2021")
+      contentAsString(monthly) must contain(routes.imports(repoId = Some("r2")).url)
+      contentAsString(monthly) must not(contain(routes.manager("r2", Some("default")).url))
     }
 
     "list items" in new DBTestApp("import-dataset-fixtures.sql") {
