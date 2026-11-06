@@ -100,7 +100,7 @@ case class OaiPmhHarvester (client: OaiPmhClient, storage: FileStorage)(
           "oaipmh-endpoint" -> job.data.config.url,
           "oaipmh-set" -> job.data.config.set.getOrElse(""),
           "oaipmh-from" -> job.data.config.from.map(_.toString).getOrElse(""),
-          "oaipmh-until" -> job.data.config.from.map(_.toString).getOrElse(""),
+          "oaipmh-until" -> job.data.config.until.map(_.toString).getOrElse(""),
           "oaipmh-job-id" -> job.jobId
         )
       )
