@@ -250,21 +250,34 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
               ORDER BY month DESC, log.repo_id
               LIMIT ${if (params.hasLimit) params.limit else Integer.MAX_VALUE}
               OFFSET ${params.offset}
+            ),
+            -- Items imported more than once in a month are counted once, as
+            -- created if they were created in any import, else as updated if
+            -- they were updated in any import
+            items AS (
+              SELECT
+                page.month,
+                page.repo_id,
+                page.imports,
+                bool_or(map.type = 'created') AS created,
+                bool_or(map.type = 'updated') AS updated
+              FROM page, import_log log, import_file_mapping map
+              WHERE log.repo_id = page.repo_id
+                AND log.created >= page.month
+                AND log.created < page.month + INTERVAL '1 month'
+                AND log.id = map.import_log_id
+              GROUP BY page.month, page.repo_id, page.imports, map.item_id
             )
             SELECT
-              page.month,
-              page.repo_id,
-              page.imports,
-              sum(case when map.type = 'created' then 1 else 0 end) AS created,
-              sum(case when map.type = 'updated' then 1 else 0 end) AS updated,
-              sum(case when map.type = 'unchanged' then 1 else 0 end) AS unchanged
-            FROM page, import_log log, import_file_mapping map
-            WHERE log.repo_id = page.repo_id
-              AND log.created >= page.month
-              AND log.created < page.month + INTERVAL '1 month'
-              AND log.id = map.import_log_id
-            GROUP BY page.month, page.repo_id, page.imports
-            ORDER BY page.month DESC, page.repo_id""".as(monthlyParser.*)
+              month,
+              repo_id,
+              imports,
+              count(*) FILTER (WHERE created) AS created,
+              count(*) FILTER (WHERE updated AND NOT created) AS updated,
+              count(*) FILTER (WHERE NOT created AND NOT updated) AS unchanged
+            FROM items
+            GROUP BY month, repo_id, imports
+            ORDER BY month DESC, repo_id""".as(monthlyParser.*)
       val total = SQL"""SELECT COUNT(*) FROM (
               SELECT 1 FROM import_log log
               WHERE ($repoId IS NULL OR log.repo_id = $repoId)

@@ -133,14 +133,17 @@ class SqlImportLogServiceSpec extends PlaySpecification with AfterAll {
       await(service.save("r1", "default", job, log))
       await(service.save("r1", "default", job, log))
       await(service.save("r2", "default", job, log))
+      // Reimporting the same items in a month does not count them again
+      await(service.save("r1", "default", job, log.copy(createdKeys = Map.empty,
+        updatedKeys = Map(keyVersion -> Seq("unit-1", "unit-2")), unchangedKeys = Map(keyVersion -> Seq("unit-3", "unit-4")))))
       db.withConnection { implicit conn =>
         anorm.SQL("UPDATE import_log SET created = '2021-08-15 12:00:00' WHERE id = (SELECT min(id) FROM import_log)").executeUpdate()
       }
 
       val all = await(service.monthlyTotals(PageParams()))
       all.total must_== 3
-      all.items.map(t => (t.repoId, t.imports, t.created, t.updated)) must_==
-        Seq(("r1", 1, 2, 1), ("r2", 1, 2, 1), ("r1", 1, 2, 1))
+      all.items.map(t => (t.repoId, t.imports, t.created, t.updated, t.unchanged)) must_==
+        Seq(("r1", 2, 2, 1, 1), ("r2", 1, 2, 1, 0), ("r1", 1, 2, 1, 0))
       all.items.last.month must_== java.time.LocalDateTime.parse("2021-08-01T00:00:00")
         .atZone(java.time.ZoneId.systemDefault()).toInstant
 
