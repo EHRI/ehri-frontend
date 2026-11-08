@@ -15,7 +15,6 @@ import services.ingest.IngestService
 import services.storage.FileStorage
 
 import java.io.File
-import scala.concurrent.duration._
 import scala.concurrent.{Future, Promise}
 
 
@@ -60,21 +59,21 @@ class IngestSpec extends IntegrationTestRunner with FakeMultipartUpload {
       val wsUrl = s"ws://127.0.0.1:${this.port}${controllers.admin.routes.Tasks.taskMonitorWS(jobId)}"
 
       val headers = collection.immutable.Seq(RawHeader(AUTH_TEST_HEADER_NAME, testAuthToken(privilegedUser.id)))
+      val done = TextMessage.Strict(JsString(utils.WebsocketConstants.DONE_MESSAGE).toString)
       val outFlow: Flow[Message, Message, (Future[Seq[Message]], Promise[Option[Message]])] =
-        Flow.fromSinkAndSourceMat(Sink.seq[Message], Source.maybe[Message])(Keep.both)
+        Flow.fromSinkAndSourceMat(
+          Flow[Message].takeWhile(_ != done, inclusive = true).toMat(Sink.seq)(Keep.right),
+          Source.maybe[Message])(Keep.both)
 
       val (_, (out, promise)) =
         Http().singleWebSocketRequest(WebSocketRequest(wsUrl, extraHeaders = headers), outFlow)
 
-      // Repeat this matcher until we have a suitable log, up to 10 seconds
-      await(damStorage.listFiles(Some(s"$hostInstance/ingest-logs/")))
-        .files.find(_.key.contains(jobId)) must beSome
-        .eventually(retries = 50, sleep = 200.millis)
-
-      // close the connection...
+      // Wait for the job to finish, then close the connection...
+      val messages = await(out)
       promise.success(None)
 
-      val messages = await(out)
+      await(damStorage.listFiles(Some(s"$hostInstance/ingest-logs/")))
+        .files.find(_.key.contains(jobId)) must beSome
       println(messages)
       messages.head.asTextMessage.getStrictText must contain(jobId)
       messages.collectFirst { case TextMessage.Strict(t) if t.startsWith("\"Event ID:") => t } must beSome
@@ -84,7 +83,7 @@ class IngestSpec extends IntegrationTestRunner with FakeMultipartUpload {
       messages must contain(TextMessage.Strict(JsString("Remapped 0 item(s)").toString))
       messages must contain(TextMessage.Strict(JsString("Reindexing...").toString))
       messages.collectFirst { case TextMessage.Strict(t) if t.startsWith("\"Log stored at http") => t } must beSome
-      messages.last must_== TextMessage.Strict(JsString(utils.WebsocketConstants.DONE_MESSAGE).toString)
+      messages.last must_== done
 
     }
   }

@@ -2,7 +2,7 @@ package actors.ingest
 
 import actors.Ticker
 import actors.ingest.DataImporter._
-import org.apache.pekko.actor.{Actor, ActorLogging, ActorRef, Props}
+import org.apache.pekko.actor.{Actor, ActorLogging, ActorRef, Props, Status}
 import org.apache.pekko.pattern._
 import models._
 import services.ingest.IngestService.{IngestData, IngestJob}
@@ -16,7 +16,7 @@ object DataImporter {
   sealed trait State
   case object Start extends State
   case object ImportBatch extends State
-  case class SaveLog(log: ImportLog) extends State
+  case object NextBatch extends State
   case class Done(start: Instant) extends State
   case class Message(msg: String) extends State
   case class UnexpectedError(throwable: Throwable) extends State
@@ -67,80 +67,89 @@ case class DataImporter(
       ingestApi
         .importData(data)
         .pipeTo(self)
-        .recover { case e =>
-          e.printStackTrace()
-          msgTo ! UnexpectedError(e)
-        }
         .onComplete { _ => ticker ! Ticker.Stop }
 
     case sync: SyncLog =>
       msgTo ! Message(s"Sync: moved: ${sync.moved.size}, " +
         s"new: ${sync.created.size}, " +
         s"deleted: ${sync.deleted.size}")
-
-      if (data.params.commit) {
-        msgTo ! Message("Creating redirects...")
-        ingestApi
-          // FIXME: derive entity type from data???
-          .remapMovedUnits(EntityType.DocumentaryUnit, sync.moved.toSeq)
-          .flatMap(done => {
-            ingestApi.clearIndex(sync.deleted ++ sync.moved.keys.toSeq, forwarder).map { _ =>
-              msgTo ! Message(s"Remapped $done item(s)")
-              ingestApi.emitEvents(data, sync)
-              sync.log
-            }
-          })
-          .pipeTo(self)
-      } else self ! sync.log
+      finish(msgTo, data, sync.log, forwarder, Some(sync))
 
     case log: ImportLog =>
-      msgTo ! log
-      msgTo ! Message(s"Data: created: ${log.created}, " +
-        s"updated: ${log.updated}, " +
-        s"unchanged: ${log.unchanged}, " +
-        s"errors: ${log.errors.size}")
-      log.event.foreach(e => msgTo ! Message(s"Event ID: $e"))
+      finish(msgTo, data, log, forwarder, None)
 
-      if (data.params.commit) {
-        if (log.hasDoneWork) {
-          val updated: Seq[String] = data.params.scope +: (
-            log.createdKeys.values.flatten.toSeq ++ log.updatedKeys.values.flatten.toSeq)
-          msgTo ! Message("Reindexing...")
-          ingestApi.emitEvents(data, log)
-          ingestApi.reindex(updated, forwarder).map(_ => self ! SaveLog(log))
-        } else {
-          msgTo ! Message("No reindexing necessary")
-          self ! SaveLog(log)
-        }
+    case NextBatch =>
+      if (todo.isEmpty) {
+        msgTo ! Done(start)
       } else {
-        msgTo ! Message("Task was a dry run so not proceeding to reindex")
-        self ! SaveLog(log)
-      }
-
-    case SaveLog(log) =>
-      msgTo ! Message("Uploading log...")
-
-      ingestApi.storeManifestAndLog(job.jobId, data, log).flatMap { url =>
-        val finish = onDone(data, log)
-        finish.map { _ =>
-          msgTo ! Message(s"Log stored at $url")
-
-          if (todo.isEmpty) {
-            msgTo ! Done(start)
-          } else {
-            context.become(running(msgTo, todo.head, todo.tail, forwarder, start))
-            self ! ImportBatch
-          }
-        }
-      }.recover { case e =>
-        e.printStackTrace()
-        msgTo ! UnexpectedError(e)
+        context.become(running(msgTo, todo.head, todo.tail, forwarder, start))
+        self ! ImportBatch
       }
 
     case e: ErrorLog =>
       msgTo ! e
 
+    // A failed import, log save, remapping or reindexing step
+    case Status.Failure(e) =>
+      log.error(e, "Ingest failed")
+      msgTo ! UnexpectedError(e)
+
     case m =>
       log.error(s"Unexpected message: $m: ${m.getClass}")
+  }
+
+  // The log and file mappings are saved before the post-commit steps, so a
+  // failure to remap or reindex does not lose them, but the post-commit steps
+  // still run if saving the log fails.
+  private def finish(msgTo: ActorRef, data: IngestData, importLog: ImportLog, forwarder: ActorRef, sync: Option[SyncLog]): Unit = {
+    msgTo ! importLog
+    msgTo ! Message(s"Data: created: ${importLog.created}, " +
+      s"updated: ${importLog.updated}, " +
+      s"unchanged: ${importLog.unchanged}, " +
+      s"errors: ${importLog.errors.size}")
+    importLog.event.foreach(e => msgTo ! Message(s"Event ID: $e"))
+    msgTo ! Message("Uploading log...")
+
+    val saved = for {
+      _ <- onDone(data, importLog)
+      url <- ingestApi.storeManifestAndLog(job.jobId, data, importLog)
+    } yield msgTo ! Message(s"Log stored at $url")
+
+    saved.transformWith { savedResult =>
+      val post = if (data.params.commit) postCommit(msgTo, data, importLog, forwarder, sync).recoverWith { case e =>
+        Future.failed(new Exception(s"Data was committed but post-import processing failed: ${e.getMessage}", e))
+      } else {
+        msgTo ! Message("Task was a dry run so not proceeding to reindex")
+        Future.successful(())
+      }
+      post.flatMap(_ => Future.fromTry(savedResult)).map(_ => NextBatch)
+    }.pipeTo(self)
+  }
+
+  private def postCommit(msgTo: ActorRef, data: IngestData, importLog: ImportLog, forwarder: ActorRef, sync: Option[SyncLog]): Future[Unit] = {
+    val remapped = sync.fold(Future.successful(())) { sync =>
+      msgTo ! Message("Creating redirects...")
+      ingestApi
+        // FIXME: derive entity type from data???
+        .remapMovedUnits(EntityType.DocumentaryUnit, sync.moved.toSeq)
+        .flatMap { done =>
+          ingestApi.clearIndex(sync.deleted ++ sync.moved.keys.toSeq, forwarder).map { _ =>
+            msgTo ! Message(s"Remapped $done item(s)")
+            ingestApi.emitEvents(data, sync)
+          }
+        }
+    }
+    remapped.flatMap { _ =>
+      if (importLog.hasDoneWork) {
+        val updated: Seq[String] = data.params.scope +: (
+          importLog.createdKeys.values.flatten.toSeq ++ importLog.updatedKeys.values.flatten.toSeq)
+        msgTo ! Message("Reindexing...")
+        ingestApi.emitEvents(data, importLog)
+        ingestApi.reindex(updated, forwarder)
+      } else {
+        msgTo ! Message("No reindexing necessary")
+        Future.successful(())
+      }
+    }
   }
 }

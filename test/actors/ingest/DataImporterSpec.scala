@@ -1,7 +1,7 @@
 package actors.ingest
 
-import actors.ingest.DataImporter.{Done, Start, Message}
-import org.apache.pekko.actor.Props
+import actors.ingest.DataImporter.{Done, Message, Start, UnexpectedError}
+import org.apache.pekko.actor.{ActorRef, Props}
 import helpers.IntegrationTestRunner
 import models._
 import services.data.DataUser
@@ -45,9 +45,9 @@ class DataImporterSpec extends IntegrationTestRunner {
       expectMsg(Message(s"Initialising ingest for job: $jobId..."))
       expectMsg(importLog)
       expectMsg(Message("Data: created: 0, updated: 0, unchanged: 0, errors: 0"))
-      expectMsg(Message("Task was a dry run so not proceeding to reindex"))
       expectMsg(Message("Uploading log..."))
       expectMsg(Message("Log stored at http://example.com/log"))
+      expectMsg(Message("Task was a dry run so not proceeding to reindex"))
       expectMsgType[Done]
     }
 
@@ -67,16 +67,37 @@ class DataImporterSpec extends IntegrationTestRunner {
       expectMsg(Message("Starting batch 1"))
       expectMsg(importLog)
       expectMsg(Message("Data: created: 0, updated: 0, unchanged: 0, errors: 0"))
-      expectMsg(Message("Task was a dry run so not proceeding to reindex"))
       expectMsg(Message("Uploading log..."))
       expectMsg(Message("Log stored at http://example.com/log"))
+      expectMsg(Message("Task was a dry run so not proceeding to reindex"))
       expectMsg(Message("Starting batch 2"))
       expectMsg(importLog)
       expectMsg(Message("Data: created: 0, updated: 0, unchanged: 0, errors: 0"))
-      expectMsg(Message("Task was a dry run so not proceeding to reindex"))
       expectMsg(Message("Uploading log..."))
       expectMsg(Message("Log stored at http://example.com/log"))
+      expectMsg(Message("Task was a dry run so not proceeding to reindex"))
       expectMsgType[Done]
+    }
+
+    "save the log when reindexing fails" in new ITestAppWithPekko {
+      val importLog = ImportLog(createdKeys = Map("foo.ead?version=1" -> Seq("c1")))
+      val importApi = new MockIngestService(importLog) {
+        override def reindex(ids: Seq[String], chan: ActorRef) = Future.failed(new Exception("Solr down"))
+      }
+      var saved = Option.empty[ImportLog]
+      val commitJob = job.copy(data = List(ingestData.copy(params = ingestData.params.copy(commit = true))))
+      val importer = system.actorOf(Props(DataImporter(commitJob, importApi, (_, log) => { saved = Some(log); Future.successful(()) })))
+
+      importer ! Start
+
+      expectMsg(Message(s"Initialising ingest for job: $jobId..."))
+      expectMsg(importLog)
+      expectMsg(Message("Data: created: 1, updated: 0, unchanged: 0, errors: 0"))
+      expectMsg(Message("Uploading log..."))
+      expectMsg(Message("Log stored at http://example.com/log"))
+      expectMsg(Message("Reindexing..."))
+      expectMsgType[UnexpectedError].throwable.getMessage must endWith("Solr down")
+      saved must beSome(importLog)
     }
 
     "send correct messages when imports throw an error" in new ITestAppWithPekko {

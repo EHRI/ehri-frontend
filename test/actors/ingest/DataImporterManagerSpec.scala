@@ -43,9 +43,9 @@ class DataImporterManagerSpec extends IntegrationTestRunner {
 
       expectMsg(s"Initialising ingest for job: $jobId...")
       expectMsg("Data: created: 0, updated: 0, unchanged: 0, errors: 0")
-      expectMsg("Task was a dry run so not proceeding to reindex")
       expectMsg("Uploading log...")
       expectMsg("Log stored at http://example.com/log")
+      expectMsg("Task was a dry run so not proceeding to reindex")
       expectMsg(WebsocketConstants.DONE_MESSAGE)
     }
 
