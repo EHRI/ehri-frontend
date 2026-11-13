@@ -204,7 +204,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
     val callF = userCall(enc(typeBaseUrl, entityType, id, "rename"))
       .withQueryString("check" -> check.toString)
       .post(local)
-    for {
+    if (check) callF.map(r => checkErrorAndParse[Seq[(String,String)]](r)) else for {
       response <- callF
       mappings = checkErrorAndParse[Seq[(String,String)]](response)
       // It's possible the ID won't have changed but the local identifier has (for ex:
@@ -863,11 +863,14 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
       .withQueryString(scope.toSeq.map(s => "scope" -> s): _*)
       .post(Json.toJson(ids.map(id => Seq(id))))
       .map(r => checkErrorAndParse[Int](r, Some(url)))
-    for {
-      count <- callF
-      _ <- invalidate(ids) if count > 0 && commit
-      _ = eventHandler.handleDelete(ids.map(et -> _): _*) if count > 0 && commit
-    } yield count
+    callF.flatMap { count =>
+      if (count > 0 && commit) {
+        invalidate(ids).map { _ =>
+          eventHandler.handleDelete(ids.map(et -> _): _*)
+          count
+        }
+      } else immediate(count)
+    }
   }
 
   // Helpers
@@ -914,8 +917,8 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
 
   private def handleBatchEvents(et: EntityType.Value, commit: Boolean, batchRes: BatchResult) = {
     if (batchRes.hasDoneWork && commit) {
-      val createdIds = batchRes.updatedKeys.values.toSeq.flatten
-      val updatedIds = batchRes.createdKeys.values.toSeq.flatten
+      val createdIds = batchRes.createdKeys.values.toSeq.flatten
+      val updatedIds = batchRes.updatedKeys.values.toSeq.flatten
       eventHandler.handleCreate(createdIds.map(et -> _): _*)
       eventHandler.handleUpdate(updatedIds.map(et -> _): _*)
       invalidate(createdIds ++ updatedIds).map(_ => batchRes)

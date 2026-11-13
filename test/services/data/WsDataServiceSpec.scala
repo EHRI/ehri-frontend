@@ -308,6 +308,20 @@ class WsDataServiceSpec extends IntegrationTestRunner {
       indexEventBuffer.size must_== before + 2
     }
 
+    "not emit events when deleting items as a dry run" in new ITestApp {
+      val before = indexEventBuffer.size
+      val count = await(testBackend.batchDelete(EntityType.DocumentaryUnit, Seq("c1", "c4"),
+        scope = Some("r1"), version = true, logMsg = "test"))
+      count must_== 2
+      indexEventBuffer.size must_== before
+    }
+
+    "not emit events when checking a rename" in new ITestApp {
+      val before = indexEventBuffer.size
+      await(testBackend.rename[DocumentaryUnit]("c4", "c4-renamed", logMsg = None, check = true)) must beEmpty
+      indexEventBuffer.size must_== before
+    }
+
     "update items via a JSON stream" in new ITestApp {
       val before = indexEventBuffer.size
       val src = Source(List(Json.obj(
