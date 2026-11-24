@@ -120,12 +120,12 @@ private[solr] object SolrQueryBuilder {
     } else Seq.empty
   }
 
-  def facetParams(facets: Seq[FacetClass[Facet]], asJson: Boolean): Seq[(String, String)] = {
+  def facetParams(facets: Seq[FacetClass[Facet]], asJson: Boolean, excludeTags: Seq[String] = Nil): Seq[(String, String)] = {
     if (asJson) {
       import play.api.libs.json.Json
       import play.api.libs.json.Json.JsValueWrapper
       val jsonFacets: Seq[(String, JsValueWrapper)] = facets
-        .flatMap(SolrFacetParser.facetAsJson)
+        .flatMap(fc => SolrFacetParser.facetAsJson(fc, excludeTags))
         .map(kv => kv._1 -> Json.toJsFieldJsValueWrapper(kv._2))
       Seq("json.facet" -> Json.stringify(Json.obj(jsonFacets: _*)))
     } else {
@@ -167,6 +167,18 @@ private[solr] object SolrQueryBuilder {
     )
   }
 
+  val COLLAPSE_TAG = "collapse"
+
+  /**
+    * An alternative to grouping that keeps one description per item, preferring
+    * the given language. Facets must exclude the tagged filter and count unique
+    * item IDs to give item-level counts.
+    */
+  def collapseParams(lang: Option[Lang]): Seq[(String, String)] = {
+    val langCode = lang.getOrElse(Lang.defaultLang).locale.getISO3Language
+    Seq("fq" -> s"{!collapse tag=$COLLAPSE_TAG field=$ITEM_ID max='query({!v=$LANGUAGE_CODE:$langCode},0.1)'}")
+  }
+
   def excludeFilterParams(ids: Seq[String]): Seq[(String, String)] = {
     if (ids.nonEmpty) {
       Seq("fq" -> s"$ITEM_ID:(${ids.map(id => s"-$id").mkString(" ")})")
@@ -193,8 +205,11 @@ private[solr] object SolrQueryBuilder {
 
   def highlightParams(hasQuery: Boolean): Seq[(String, String)] = {
     // Highlight, but only if we have a query...
+    // NB: the unified highlighter, the default since Solr 9, returns
+    // no highlights for our edismax queries
     if (hasQuery) Seq(
       "hl" -> true.toString,
+      "hl.method" -> "original",
       "hl.fl" -> "*",
       "hl.usePhraseHighlighter" -> true.toString,
       "hl.tag.pre" -> "<em class='highlight'>",
@@ -258,7 +273,8 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
   import SearchConstants._
   import SolrQueryBuilder._
 
-  private val jsonFacets = config.getOptional[Boolean]("search.jsonFacets").getOrElse(false)
+  private val collapse = config.getOptional[Boolean]("search.collapse").getOrElse(false)
+  private val jsonFacets = collapse || config.getOptional[Boolean]("search.jsonFacets").getOrElse(false)
   private val enableDebug = config.getOptional[Boolean]("search.debugTiming").getOrElse(false)
   private val defaultField = config.get[String]("search.defaultField")
   private lazy val queryFields: Seq[String] = config.get[Seq[String]]("search.fields")
@@ -274,6 +290,8 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
     "collate", "maxCollations", "maxCollationTries", "maxResultsForSuggest"
   ).map(f => f -> config.getOptional[String](s"search.spellcheck.$f"))
 
+  private def itemParams(lang: Option[Lang]): Seq[(String, String)] =
+    if (collapse) collapseParams(lang) else groupParams(lang)
 
   /**
     * Run a simple filter on the name_ngram field of all entities
@@ -294,7 +312,7 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
       idFilterParams(query.withinIds.toSeq.flatten),
       excludeFilterParams(query.params.excludes),
       filterParams(query.params.filters),
-      groupParams(query.lang),
+      itemParams(query.lang),
       extraFilterParams(query.filters.toSeq),
       Seq("qf" -> s"$ITEM_ID^0.5 $OTHER_IDENTIFIERS^0.3 $NAME_MATCH^2.0 $NAME_NGRAM"),
       Seq("fl" -> s"$ID $ITEM_ID $NAME_EXACT $TYPE $HOLDER_NAME $DB_ID"),
@@ -321,10 +339,10 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
 
     Seq(
       basicParams(queryString, query.paging, enableDebug, defaultField),
-      groupParams(query.lang),
+      itemParams(query.lang),
       fieldParams(query.params.fields, queryFieldsWithBoost, config),
       sortParams(query.params.sort),
-      facetParams(query.facetClasses, jsonFacets),
+      facetParams(query.facetClasses, jsonFacets, if (collapse) Seq(COLLAPSE_TAG) else Nil),
       facetFilterParams(query.facetClasses, query.appliedFacets),
       filterParams(query.params.filters),
       entityFilterParams(query.params.entities),

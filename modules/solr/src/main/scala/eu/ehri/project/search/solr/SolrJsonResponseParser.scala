@@ -18,7 +18,8 @@ case class SolrJsonResponseParser @Inject()(config: play.api.Configuration) exte
   import play.api.libs.json._
 
   private val logger = play.api.Logger(getClass)
-  private val jsonFacets = config.getOptional[Boolean]("search.jsonFacets").getOrElse(false)
+  private val jsonFacets = config.getOptional[Boolean]("search.collapse").getOrElse(false) ||
+    config.getOptional[Boolean]("search.jsonFacets").getOrElse(false)
 
   // Intermediate structures...
   private case class SolrData(
@@ -34,8 +35,9 @@ case class SolrJsonResponseParser @Inject()(config: play.api.Configuration) exte
 
   private implicit val solrDataReads: Reads[SolrData] = (
     (__ \ "responseHeader" \ "params" \ "q").readSeqOrSingle[String] and
-    (__ \ "grouped" \ "itemId" \ "ngroups").read[Int] and
-    (__ \ "grouped" \ "itemId" \ "doclist" \ "docs").read[Seq[JsObject]] and
+    // Grouped responses nest the items, whereas collapsed ones are plain
+    (__ \ "grouped" \ "itemId" \ "ngroups").read[Int].orElse((__ \ "response" \ "numFound").read[Int]) and
+    (__ \ "grouped" \ "itemId" \ "doclist" \ "docs").read[Seq[JsObject]].orElse((__ \ "response" \ "docs").read[Seq[JsObject]]) and
     (__ \ "highlighting").readNullable[Map[String, Map[String, Seq[String]]]] and
     (__ \ "spellcheck").readNullable[JsObject].map(_.getOrElse(Json.obj())) and
     (__ \ "facet_counts").readNullable[Map[String, Map[String, JsValue]]].map(_.getOrElse(Map.empty)) and
