@@ -48,24 +48,29 @@ private[solr] object SolrFacetParser {
     params ++ sortOpt ++ countOpt.toSeq ++ limitOpt.toSeq
   }
 
-  def facetAsJson(fc: FacetClass[_]): Seq[(String, JsObject)] = fc match {
-    case ffc: FieldFacetClass => Seq(ffc.param -> Json.obj(
-      "type" -> "terms",
-      "numBuckets" -> true,
-      "field" -> fc.key,
-      "offset" -> Json.toJson(fc.offset.getOrElse(0)),
-      "limit" -> Json.toJson(fc.limit.getOrElse(100)),
-      "domain" -> (if(fc.multiSelect) Json.obj("excludeTags" -> fc.key) else JsNull),
-      "facet" -> Json.obj("grouped_count" -> "unique(itemId)"),
-      "sort" -> (if (fc.sort == FacetSort.Name) "index" else "grouped_count")
-    ))
-    case fc: QueryFacetClass => fc.facets.map { fv =>
-      val nameValue = s"${SolrFacetParser.fullKey(fc)}:${SolrFacetParser.facetValue(fv)}"
-      nameValue -> Json.obj(
-        "type" -> "query",
+  def facetAsJson(fc: FacetClass[_], excludeTags: Seq[String] = Nil): Seq[(String, JsObject)] = {
+    val tags = (if (fc.multiSelect) Seq(fc.key) else Nil) ++ excludeTags
+    val domain = if (tags.nonEmpty) Json.obj("excludeTags" -> tags) else JsNull
+    fc match {
+      case ffc: FieldFacetClass => Seq(ffc.param -> Json.obj(
+        "type" -> "terms",
+        "numBuckets" -> true,
+        "field" -> fc.key,
+        "offset" -> Json.toJson(fc.offset.getOrElse(0)),
+        "limit" -> Json.toJson(fc.limit.getOrElse(100)),
+        "domain" -> domain,
         "facet" -> Json.obj("grouped_count" -> "unique(itemId)"),
-        "q" -> s"${fc.key}:${SolrFacetParser.facetValue(fv)}"
-      )
+        "sort" -> (if (fc.sort == FacetSort.Name) "index" else "grouped_count")
+      ))
+      case fc: QueryFacetClass => fc.facets.map { fv =>
+        val nameValue = s"${SolrFacetParser.fullKey(fc)}:${SolrFacetParser.facetValue(fv)}"
+        nameValue -> Json.obj(
+          "type" -> "query",
+          "domain" -> domain,
+          "facet" -> Json.obj("grouped_count" -> "unique(itemId)"),
+          "q" -> s"${fc.key}:${SolrFacetParser.facetValue(fv)}"
+        )
+      }
     }
   }
 }

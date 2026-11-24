@@ -68,6 +68,14 @@ class SolrQueryBuilderSpec extends PlaySpecification {
       facets must contain(fq5)
     }
 
+    "exclude extra tags from JSON facet domains" in {
+      val facets = List(testFieldFacetClass, testQueryFacetClass)
+        .flatMap(fc => SolrFacetParser.facetAsJson(fc, Seq("collapse")))
+      facets.size must equalTo(4)
+      (facets.head._2 \ "domain" \ "excludeTags").as[Seq[String]] must_== Seq("languageCode", "collapse")
+      (facets(1)._2 \ "domain" \ "excludeTags").as[Seq[String]] must_== Seq("collapse")
+    }
+
     "handle string escaping" in {
       SolrQueryBuilder.escape("\"[]\\") must equalTo("\\\"\\[\\]\\\\")
     }
