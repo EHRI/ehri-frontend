@@ -27,7 +27,7 @@ services:
       EHRI_INIT: "true"
 
   solr:
-    image: ehri/ehri-search-tools:2.0.0
+    image: ehri/ehri-search-tools:2.0.2
     ports:
       - ${SOLR_TEST_PORT:-8982}:8983
 

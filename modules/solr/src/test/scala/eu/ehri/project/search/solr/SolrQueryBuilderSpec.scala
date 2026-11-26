@@ -1,7 +1,9 @@
 package eu.ehri.project.search.solr
 
+import play.api.Configuration
 import play.api.test.PlaySpecification
 import services.search._
+import utils.PageParams
 
 class SolrQueryBuilderSpec extends PlaySpecification {
   val testFieldFacetClass = FieldFacetClass(
@@ -74,6 +76,14 @@ class SolrQueryBuilderSpec extends PlaySpecification {
       facets.size must equalTo(4)
       (facets.head._2 \ "domain" \ "excludeTags").as[Seq[String]] must_== Seq("languageCode", "collapse")
       (facets(1)._2 \ "domain" \ "excludeTags").as[Seq[String]] must_== Seq("collapse")
+    }
+
+    "only send negative rows for unlimited grouped queries" in {
+      def rows(collapse: Boolean): Option[String] = SolrQueryBuilder(Configuration.from(Map(
+        "search.collapse" -> collapse, "search.defaultField" -> "text", "search.fields" -> Seq("name")
+      ))).searchQuery(SearchQuery(paging = PageParams.empty.withoutLimit)).toMap.get("rows")
+      rows(collapse = false) must beSome("-1")
+      rows(collapse = true) must beSome(SolrQueryBuilder.MaxCollapsedRows.toString)
     }
 
     "handle string escaping" in {
