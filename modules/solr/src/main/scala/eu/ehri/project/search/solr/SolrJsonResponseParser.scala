@@ -142,11 +142,14 @@ case class SolrJsonResponseParser @Inject()(config: play.api.Configuration) exte
 
     // If collation is enabled, fetch that because it gives us a new
     // search query with the misspelled terms replaced. Otherwise,
-    // fetch the first misspelled term suggestion.
-    def parseSpellcheckSuggestion: Option[(String, String)] = collatedSpellcheckSuggestions.orElse(for {
-      (word, suggests) <- rawSpellcheckSuggestions
-      best <- suggests.sortBy(_.freq).reverse.headOption
-    } yield (word, best.word))
+    // fetch the first misspelled term's best suggestion, as ranked by Solr.
+    // Nothing is suggested if Solr considers the query correctly spelled.
+    def parseSpellcheckSuggestion: Option[(String, String)] =
+      if ((raw.spellcheck \ "correctlySpelled").asOpt[Boolean].contains(true)) None
+      else collatedSpellcheckSuggestions.orElse(for {
+        (word, suggests) <- rawSpellcheckSuggestions
+        best <- suggests.headOption
+      } yield (word, best.word))
 
     // NB: For some reason the collated spellcheck suggestion is the 2nd
     // element of the "collations" array (with the first being the
@@ -161,7 +164,7 @@ case class SolrJsonResponseParser @Inject()(config: play.api.Configuration) exte
     )
 
     def rawSpellcheckSuggestions: Option[(String, Seq[Suggestion])] = for {
-      suggest <- (raw.spellcheck \ "suggestions").asOpt[Seq[JsValue]] if suggest.size > 2
+      suggest <- (raw.spellcheck \ "suggestions").asOpt[Seq[JsValue]] if suggest.size >= 2
       word <- suggest.headOption.flatMap(_.asOpt[String])
       correct <- (suggest(1) \ "suggestion").asOpt[Seq[Suggestion]]
     } yield (word, correct)

@@ -90,6 +90,29 @@ class SolrQueryParserSpec extends PlaySpecification with ResourceUtils {
       }
     }
 
+    def spellcheckResponse(correctlySpelled: Boolean, collations: Seq[String] = Nil): String = Json.stringify(Json.obj(
+      "responseHeader" -> Json.obj("params" -> Json.obj("q" -> "amsterdan")),
+      "response" -> Json.obj("numFound" -> 0, "docs" -> Json.arr()),
+      "spellcheck" -> Json.obj(
+        "suggestions" -> Json.arr("amsterdan", Json.obj("numFound" -> 2, "suggestion" -> Json.arr(
+          Json.obj("word" -> "amsterdam", "freq" -> 5),
+          Json.obj("word" -> "amstelveen", "freq" -> 500)
+        ))),
+        "correctlySpelled" -> correctlySpelled,
+        "collations" -> collations
+      )
+    ))
+
+    "use Solr's top suggestion for a single misspelled word" in {
+      val qp = jsonHandler.parse(spellcheckResponse(correctlySpelled = false))
+      qp.spellcheckSuggestion must beSome(("amsterdan", "amsterdam"))
+    }
+
+    "not suggest anything if the query is correctly spelled" in {
+      val qp = jsonHandler.parse(spellcheckResponse(correctlySpelled = true, Seq("collation", "amstelveen")))
+      qp.spellcheckSuggestion must beNone
+    }
+
     "parse non-collated spellcheck data correctly" in {
       val qp = jsonHandler.parse(resourceAsString("solrQueryResponse2.json"))
       qp.spellcheckSuggestion must beSome.which { case (_, corrected) =>
