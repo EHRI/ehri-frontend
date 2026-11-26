@@ -168,6 +168,7 @@ private[solr] object SolrQueryBuilder {
   }
 
   val COLLAPSE_TAG = "collapse"
+  val MaxCollapsedRows = 10000
 
   /**
     * An alternative to grouping that keeps one description per item, preferring
@@ -293,6 +294,11 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
   private def itemParams(lang: Option[Lang]): Seq[(String, String)] =
     if (collapse) collapseParams(lang) else groupParams(lang)
 
+  // Grouped queries treat negative rows as "all", but other queries reject
+  // them, so give collapsed queries without a limit a large one instead.
+  private def pagingParams(paging: PageParams): PageParams =
+    if (collapse && paging.limit < 0) paging.copy(page = 1, limit = MaxCollapsedRows) else paging
+
   /**
     * Run a simple filter on the name_ngram field of all entities
     * of a given type.
@@ -304,7 +310,7 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
     val queryString = localParam + query.params.query.getOrElse("*").trim
 
     Seq(
-      basicParams(queryString, query.paging, enableDebug, defaultField),
+      basicParams(queryString, pagingParams(query.paging), enableDebug, defaultField),
       entityFilterParams(query.params.entities),
       bboxParams(query.params.bbox),
       latLngParams(query.params.latLng),
@@ -338,7 +344,7 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
     val queryString = localParam + query.params.query.getOrElse(defaultQuery).trim
 
     Seq(
-      basicParams(queryString, query.paging, enableDebug, defaultField),
+      basicParams(queryString, pagingParams(query.paging), enableDebug, defaultField),
       itemParams(query.lang),
       fieldParams(query.params.fields, queryFieldsWithBoost, config),
       sortParams(query.params.sort),
