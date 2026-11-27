@@ -186,9 +186,10 @@ private[solr] object SolrQueryBuilder {
     } else Seq.empty
   }
 
+  // NB: a terms query is faster than a boolean one for many IDs and has no clause limit
   def idFilterParams(ids: Seq[String]): Seq[(String, String)] = {
     if (ids.nonEmpty) {
-      Seq("fq" -> s"$ITEM_ID:(${ids.mkString(" ")})")
+      Seq("fq" -> s"{!terms f=$ITEM_ID}${ids.mkString(",")}")
     } else Seq.empty
   }
 

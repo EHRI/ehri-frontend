@@ -326,7 +326,7 @@ case class Guides @Inject()(
     import SearchConstants._
     vcDescendantIds(item).map { seq =>
       if (seq.isEmpty) Map(ITEM_ID -> "__NO_VALID_ID__")
-      else Map((s"$ITEM_ID:(${seq.mkString(" ")}) OR $ANCESTOR_IDS:(${seq.mkString(" ")})", ()))
+      else Map((s"${SearchVC.termsFilter(ITEM_ID, seq)} OR ${SearchVC.termsFilter(ANCESTOR_IDS, seq)}", ()))
     }
   }
 

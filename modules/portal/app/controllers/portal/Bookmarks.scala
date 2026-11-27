@@ -3,6 +3,7 @@ package controllers.portal
 import javax.inject._
 import services.cypher.CypherService
 import controllers.AppComponents
+import controllers.base.SearchVC
 import controllers.generic.Search
 import controllers.portal.base.PortalController
 import models.{EntityType, Model, _}
@@ -149,7 +150,7 @@ case class Bookmarks @Inject()(
     val pq = v.includedUnits.map(_.id)
     if (pq.isEmpty) Map((s"${SearchConstants.PARENT_ID}:${v.id}", ()))
     else {
-      val q = s"${SearchConstants.PARENT_ID}:${v.id} OR ${SearchConstants.ITEM_ID}:(${pq.mkString(" ")})"
+      val q = s"${SearchConstants.PARENT_ID}:${v.id} OR ${SearchVC.termsFilter(SearchConstants.ITEM_ID, pq)}"
       Map((q, ()))
     }
   }
