@@ -1,5 +1,6 @@
 package controllers.base
 
+import controllers.base.SearchVC.termsFilter
 import controllers.generic.Search
 import models.{Model, VirtualUnit}
 import play.api.mvc.RequestHeader
@@ -49,18 +50,7 @@ trait SearchVC {
         |OPTIONAL MATCH (ddoc)<-[:includesUnit]-(vc)
         |OPTIONAL MATCH (doc)<-[:includesUnit]-(child)
         |RETURN DISTINCT collect(DISTINCT child.__id) + collect(DISTINCT doc.__id) + collect(DISTINCT ddoc.__id)
-      """.stripMargin, Map("vcid" -> play.api.libs.json.JsString(id))).map(parseRows).map { seq =>
-
-
-      logger.debug(s"Elements: ${seq.length}, distinct: ${seq.distinct.length}")
-
-      conf.configuration.getOptional[Int]("search.vc.maxDescendants").map { vcLimit =>
-        if (seq.length > vcLimit) {
-          logger.error(s"Truncating clauses on child item search for $id: items ${seq.length}")
-          seq.distinct.take(vcLimit)
-        } else seq
-      }.getOrElse(seq)
-    }
+      """.stripMargin, Map("vcid" -> play.api.libs.json.JsString(id))).map(parseRows).map(_.distinct)
   }
 
   /**
@@ -83,7 +73,7 @@ trait SearchVC {
     item match {
       case v: VirtualUnit => vcDescendantIds(item.id).map { seq =>
         if (seq.isEmpty) Map(ITEM_ID -> "__NO_VALID_ID__")
-        else Map((s"$ITEM_ID:(${seq.mkString(" ")}) OR $ANCESTOR_IDS:(${seq.mkString(" ")})", ()))
+        else Map((s"${termsFilter(ITEM_ID, seq)} OR ${termsFilter(ANCESTOR_IDS, seq)}", ()))
       }
       // otherwise, for documentary units, we can just query
       // all ancestors
@@ -106,8 +96,20 @@ trait SearchVC {
         case v: VirtualUnit =>
           val pq = v.includedUnits.map(_.id)
           if (pq.isEmpty) Map((s"$PARENT_ID:${v.id}", ()))
-          else Map((s"$PARENT_ID:${v.id} OR $ITEM_ID:(${pq.mkString(" ")})", ()))
+          else Map((s"$PARENT_ID:${v.id} OR ${termsFilter(ITEM_ID, pq)}", ()))
         case d => Map((s"$PARENT_ID:${d.id}", ()))
       }
     }
+}
+
+object SearchVC {
+  /**
+    * A Solr filter matching any of the given values in a field. Unlike
+    * `field:(a b c)` a terms query has no clause limit and is faster for
+    * large sets. It is parenthesised so it can be combined with other clauses.
+    */
+  def termsFilter(field: String, values: Seq[String]): String = {
+    val escaped = values.mkString(",").replace("\\", "\\\\").replace("'", "\\'")
+    s"({!terms f=$field v='$escaped'})"
+  }
 }

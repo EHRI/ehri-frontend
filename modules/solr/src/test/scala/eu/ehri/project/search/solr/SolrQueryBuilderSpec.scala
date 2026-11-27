@@ -86,6 +86,11 @@ class SolrQueryBuilderSpec extends PlaySpecification {
       rows(collapse = true) must beSome(SolrQueryBuilder.MaxCollapsedRows.toString)
     }
 
+    "generate ID filters as a terms query" in {
+      SolrQueryBuilder.idFilterParams(Seq("a", "b")) must_== Seq("fq" -> "{!terms f=itemId}a,b")
+      SolrQueryBuilder.idFilterParams(Seq.empty) must beEmpty
+    }
+
     "handle string escaping" in {
       SolrQueryBuilder.escape("\"[]\\") must equalTo("\\\"\\[\\]\\\\")
     }
